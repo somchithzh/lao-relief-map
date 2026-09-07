@@ -27,9 +27,9 @@ const createCustomIcon = (report, isUrgent) => {
   return L.divIcon({
     className: 'custom-leaflet-marker',
     html: `<div class="custom-pin ${colorClass}">${iconSymbol}</div>`,
-    iconSize: [34, 34],
+    iconSize: L.point(34, 34),
     iconAnchor: L.point(17, 17),
-    popupAnchor: [0, -17],
+    popupAnchor: L.point(0, -17),
   });
 };
 
@@ -44,12 +44,23 @@ function LocationPicker({ isPicking, onLocationSelect }) {
   return null;
 }
 
+// ຟັງຊັນຄຳນວນເວລາຖອຍຫຼັງ Real-time (1 ຊົ່ວໂມງ = 3,600 ວິນາທີ)
+function formatCountdown(resolvedAt, currentTime) {
+  if (!resolvedAt) return 'ກຳລັງປະມວນຜົນ...';
+  const resolvedTime = new Date(resolvedAt).getTime();
+  const diffSeconds = Math.max(0, 3600 - Math.floor((currentTime - resolvedTime) / 1000));
+  const mins = Math.floor(diffSeconds / 60);
+  const secs = diffSeconds % 60;
+  return `${mins}:${secs < 10 ? '0' : ''}${secs} ນາທີ`;
+}
+
 export default function App() {
   const [reports, setReports] = useState([]);
   const [filter, setFilter] = useState('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPickingLocation, setIsPickingLocation] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentTime, setCurrentTime] = useState(Date.now());
 
   const [formData, setFormData] = useState({
     title: '',
@@ -60,6 +71,14 @@ export default function App() {
     lat: 17.9757,
     lng: 102.6331
   });
+
+  // ຈັບເວລາ Real-time ທຸກໆ 1 ວິນາທີ ເພື່ອໃຫ້ໂມງນັບຖອຍຫຼັງຍ່າງ
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(Date.now());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const fetchReports = async () => {
     try {
@@ -141,11 +160,16 @@ export default function App() {
 
   const handleMarkResolved = async (id) => {
     if (!confirm('ທ່ານແນ່ໃຈບໍ່ວ່າຈຸດນີ້ໄດ້ຮັບການຊ່ວຍເຫຼືອ ຫຼື ແກ້ໄຂແລ້ວ?')) return;
-    await supabase
+    const { error } = await supabase
       .from('reports')
       .update({ status: 'resolved', resolved_at: new Date().toISOString() })
       .eq('id', id);
-    fetchReports();
+
+    if (error) {
+      alert('Error: ' + error.message);
+    } else {
+      fetchReports();
+    }
   };
 
   const handleRenewReport = async (id) => {
@@ -157,17 +181,19 @@ export default function App() {
     alert('ຕໍ່ອາຍຸການແຈ້ງເຕືອນສຳເລັດແລ້ວ!');
   };
 
+  // ຄັດກອງ:
+  // 1. ຖ້າ "ຊ່ວຍເຫຼືອແລ້ວ" ໃຫ້ນັບຖອຍຫຼັງ 1 ຊົ່ວໂມງ (3600 ວິນາທີ) -> ເມື່ອຄົບ 1 ຊົ່ວໂມງ ໝຸດຈະຫາຍໄປເອງ
+  // 2. ຖ້າ "ລໍຖ້າການຊ່ວຍເຫຼືອ" ໃຫ້ຢູ່ 3 ມື້ (72 ຊົ່ວໂມງ)
   const activeReports = reports.filter((r) => {
-    const now = new Date();
-    const createdAt = new Date(r.created_at);
-    const hoursSinceCreated = (now - createdAt) / (1000 * 60 * 60);
+    const createdAt = new Date(r.created_at).getTime();
+    const hoursSinceCreated = (currentTime - createdAt) / (1000 * 60 * 60);
 
     if (r.status === 'resolved') {
       if (!r.resolved_at) return true;
-      const hoursSinceResolved = (now - new Date(r.resolved_at)) / (1000 * 60 * 60);
-      return hoursSinceResolved <= 24;
+      const secondsSinceResolved = (currentTime - new Date(r.resolved_at).getTime()) / 1000;
+      return secondsSinceResolved < 3600; // ຢູ່ພຽງ 1 ຊົ່ວໂມງ
     } else {
-      return hoursSinceCreated <= 72;
+      return hoursSinceCreated <= 72; // ຢູ່ 3 ມື້
     }
   });
 
@@ -263,9 +289,8 @@ export default function App() {
           />
 
           {filteredReports.map((report) => {
-            const now = new Date();
-            const createdAt = new Date(report.created_at);
-            const hoursPassed = (now - createdAt) / (1000 * 60 * 60);
+            const createdAt = new Date(report.created_at).getTime();
+            const hoursPassed = (currentTime - createdAt) / (1000 * 60 * 60);
             const isUrgent = report.status !== 'resolved' && report.type === 'sos' && hoursPassed >= 24;
 
             return (
@@ -276,9 +301,10 @@ export default function App() {
               >
                 <Popup>
                   <div className="popup-content">
+                    {/* ປ້າຍນັບຖອຍຫຼັງ Real-time 1 ຊົ່ວໂມງ */}
                     {report.status === 'resolved' ? (
-                      <div className="resolved-banner">
-                        ✅ ໄດ້ຮັບການຊ່ວຍເຫຼືອ/ແກ້ໄຂແລ້ວ (ຈະເຊື່ອງໃນ 24 ຊົ່ວໂມງ)
+                      <div className="resolved-countdown-banner">
+                        ⏱️ ✅ ຊ່ວຍເຫຼືອແລ້ວ • ໝຸດຈະຫາຍໄປໃນ: {formatCountdown(report.resolved_at, currentTime)}
                       </div>
                     ) : isUrgent ? (
                       <div className="urgent-banner">
