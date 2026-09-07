@@ -157,9 +157,6 @@ export default function App() {
     alert('ຕໍ່ອາຍຸການແຈ້ງເຕືອນສຳເລັດແລ້ວ!');
   };
 
-  // ຄັດກອງຕາມເວລາ:
-  // 1. ຖ້າ "ຊ່ວຍເຫຼືອແລ້ວ" ກາຍ 24 ຊົ່ວໂມງ -> ເຊື່ອງ
-  // 2. ຖ້າ "ລໍຖ້າການຊ່ວຍເຫຼືອ" ກາຍ 3 ມື້ (72 ຊົ່ວໂມງ) -> ເຊື່ອງ
   const activeReports = reports.filter((r) => {
     const now = new Date();
     const createdAt = new Date(r.created_at);
@@ -180,7 +177,6 @@ export default function App() {
 
   return (
     <div className="app-container">
-      {/* Header */}
       <header className="header">
         <div className="header-title">
           <ShieldAlert color="#dc2626" size={26} />
@@ -195,7 +191,6 @@ export default function App() {
         </button>
       </header>
 
-      {/* Filter Bar */}
       <div className="filter-bar">
         <button 
           className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
@@ -229,7 +224,6 @@ export default function App() {
         </button>
       </div>
 
-      {/* Map Area */}
       <div className="map-wrapper">
         {isPickingLocation && (
           <div style={{
@@ -282,7 +276,6 @@ export default function App() {
               >
                 <Popup>
                   <div className="popup-content">
-                    {/* ປ້າຍສະຖານະ */}
                     {report.status === 'resolved' ? (
                       <div className="resolved-banner">
                         ✅ ໄດ້ຮັບການຊ່ວຍເຫຼືອ/ແກ້ໄຂແລ້ວ (ຈະເຊື່ອງໃນ 24 ຊົ່ວໂມງ)
@@ -343,7 +336,6 @@ export default function App() {
         </MapContainer>
       </div>
 
-      {/* Modal Report Form */}
       {isModalOpen && (
         <div className="modal-overlay">
           <div className="modal-box">
