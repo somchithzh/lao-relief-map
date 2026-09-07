@@ -28,7 +28,7 @@ const createCustomIcon = (report, isUrgent) => {
     className: 'custom-leaflet-marker',
     html: `<div class="custom-pin ${colorClass}">${iconSymbol}</div>`,
     iconSize: [34, 34],
-    iconAnchor:,
+    iconAnchor: L.point(17, 17),
     popupAnchor: [0, -17],
   });
 };
