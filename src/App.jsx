@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
-import { ShieldAlert, Plus, Phone, X, MapPin, CheckCircle, RefreshCw, Crosshair, Loader2, Share2, MessageCircle, Copy, Send, Camera, Image } from 'lucide-react';
+import { ShieldAlert, Plus, Phone, X, MapPin, CheckCircle, RefreshCw, Crosshair, Loader2, Share2, MessageCircle, Copy, Send, Camera } from 'lucide-react';
 import { supabase } from './supabase';
 import './App.css';
 
@@ -66,7 +66,6 @@ export default function App() {
   const [isLocating, setIsLocating] = useState(false);
   const [gpsMessage, setGpsMessage] = useState('');
 
-  // ຈັດການຮູບພາບ
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
 
@@ -179,7 +178,6 @@ export default function App() {
     try {
       let uploadedImageUrl = null;
 
-      // ອັບໂຫຼດຮູບຂຶ້ນ Supabase Storage (ຖ້າມີການເລືອກຮູບ)
       if (selectedImage) {
         const fileExt = selectedImage.name.split('.').pop() || 'jpg';
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
@@ -194,7 +192,7 @@ export default function App() {
             .getPublicUrl(fileName);
           uploadedImageUrl = publicUrlData.publicUrl;
         } else {
-          console.error('Upload image error:', uploadErr);
+          console.error('Upload error:', uploadErr);
         }
       }
 
@@ -417,7 +415,6 @@ https://somchithzh.github.io/lao-relief-map/`;
               >
                 <Popup>
                   <div className="popup-content">
-                    {/* ຮູບພາບ (ຖ້າມີ) */}
                     {report.image_url && (
                       <img 
                         src={report.image_url} 
@@ -480,13 +477,13 @@ https://somchithzh.github.io/lao-relief-map/`;
                     )}
 
                     {report.status !== 'resolved' && hoursPassed >= 48 && (
-                      <button 
-                        className="btn-action-renew"
-                        onClick={() => handleRenewReport(report.id)}
-                      >
-                        <RefreshCw size={14} /> ຍັງຕ້ອງການຊ່ວຍ
-                      </button>
-                    )}
+                        <button 
+                          className="btn-action-renew"
+                          onClick={() => handleRenewReport(report.id)}
+                        >
+                          <RefreshCw size={14} /> ຍັງຕ້ອງການຊ່ວຍ
+                        </button>
+                      )}
                   </div>
                 </Popup>
               </Marker>
@@ -584,7 +581,7 @@ https://somchithzh.github.io/lao-relief-map/`;
                 />
               </div>
 
-              {/* ພາກສ່ວນແນບຮູບພາບ */}
+              {/* ພາກສ່ວນແນບຮູບພາບ (ຈັດເຄິ່ງກາງ ຊື່ກົງ ແລະ ເປັນລະບຽບ) */}
               <div className="form-group">
                 <label>ຮູບພາບສະພາບຕົວຈິງ (ຖ້າມີ)</label>
                 {imagePreview ? (
@@ -596,12 +593,14 @@ https://somchithzh.github.io/lao-relief-map/`;
                   </div>
                 ) : (
                   <label className="upload-box">
-                    <Camera size={24} color="#64748b" />
-                    <span style={{ fontSize: '13px', color: '#475569', fontWeight: '600' }}>
+                    <div className="upload-icon-circle">
+                      <Camera size={22} color="#334155" />
+                    </div>
+                    <span style={{ fontSize: '13.5px', color: '#1e293b', fontWeight: '700' }}>
                       ກົດຖ່າຍຮູບ ຫຼື ເລືອກຮູບຈາກມືຖື
                     </span>
-                    <span style={{ fontSize: '11px', color: '#94a3b8' }}>
-                      (ຮອງຮັບ JPG, PNG)
+                    <span style={{ fontSize: '11.5px', color: '#64748b' }}>
+                      ຮອງຮັບໄຟລ໌ຮູບພາບ JPG, PNG
                     </span>
                     <input 
                       type="file" 

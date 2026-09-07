@@ -145,14 +145,13 @@ body {
   100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
 }
 
-/* Popup Content */
+/* Popup */
 .popup-content {
   padding: 4px;
   min-width: 240px;
   max-width: 280px;
 }
 
-/* ຮູບພາບໃນ Popup */
 .popup-image {
   width: 100%;
   max-height: 140px;
@@ -340,29 +339,42 @@ body {
   gap: 5px;
 }
 
-/* ພາກສ່ວນເລືອກ ແລະ ສະແດງຮູບຕົວຢ່າງ */
+/* ກ່ອງອັບໂຫຼດຮູບ: ຈັດເຄິ່ງກາງ ແລະ ເປັນລະບຽບ */
 .upload-box {
-  border: 1.5px dashed #cbd5e1;
+  border: 1.5px dashed #94a3b8;
   background: #f8fafc;
-  border-radius: 8px;
-  padding: 12px;
+  border-radius: 10px;
+  padding: 16px 12px;
   text-align: center;
   cursor: pointer;
-  transition: border-color 0.2s;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
+  transition: all 0.2s ease;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px;
 }
 
 .upload-box:hover {
-  border-color: #3b82f6;
+  background: #f1f5f9;
+  border-color: #2563eb;
+}
+
+.upload-icon-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
 }
 
 .image-preview-container {
   position: relative;
   width: 100%;
-  height: 120px;
+  height: 140px;
   border-radius: 8px;
   overflow: hidden;
   margin-bottom: 6px;
