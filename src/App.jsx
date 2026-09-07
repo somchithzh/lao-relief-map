@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
-import { ShieldAlert, Plus, Phone, X, MapPin, CheckCircle, RefreshCw } from 'lucide-react';
+import { ShieldAlert, Plus, Phone, X, MapPin, CheckCircle, RefreshCw, Crosshair, Loader2 } from 'lucide-react';
 import { supabase } from './supabase';
 import './App.css';
 
@@ -44,7 +44,6 @@ function LocationPicker({ isPicking, onLocationSelect }) {
   return null;
 }
 
-// ຟັງຊັນຄຳນວນເວລາຖອຍຫຼັງ Real-time (1 ຊົ່ວໂມງ = 3,600 ວິນາທີ)
 function formatCountdown(resolvedAt, currentTime) {
   if (!resolvedAt) return 'ກຳລັງປະມວນຜົນ...';
   const resolvedTime = new Date(resolvedAt).getTime();
@@ -62,6 +61,10 @@ export default function App() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentTime, setCurrentTime] = useState(Date.now());
 
+  // ສະຖານະການດຶງ GPS
+  const [isLocating, setIsLocating] = useState(false);
+  const [gpsMessage, setGpsMessage] = useState('');
+
   const [formData, setFormData] = useState({
     title: '',
     type: 'sos',
@@ -72,7 +75,6 @@ export default function App() {
     lng: 102.6331
   });
 
-  // ຈັບເວລາ Real-time ທຸກໆ 1 ວິນາທີ ເພື່ອໃຫ້ໂມງນັບຖອຍຫຼັງຍ່າງ
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(Date.now());
@@ -114,10 +116,42 @@ export default function App() {
     };
   }, []);
 
+  // ຟັງຊັນດຶງ GPS ຈາກອຸປະກອນຕົວຈິງ
+  const handleGetCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      alert('ອຸປະກອນຂອງທ່ານບໍ່ຮອງຮັບລະບົບ GPS');
+      return;
+    }
+
+    setIsLocating(true);
+    setGpsMessage('ກຳລັງດຶງພິກັດ GPS...');
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setFormData((prev) => ({
+          ...prev,
+          lat: latitude,
+          lng: longitude
+        }));
+        setIsLocating(false);
+        setGpsMessage(`✅ ໄດ້ຮັບພິກັດ GPS ແລ້ວ (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`);
+      },
+      (err) => {
+        setIsLocating(false);
+        setGpsMessage('');
+        console.error(err);
+        alert('ບໍ່ສາມາດດຶງ GPS ໄດ້: ກະລຸນາກົດ "ອະນຸຍາດ (Allow)" ໃຫ້ເວັບໄຊເຂົ້າເຖິງຕຳແໜ່ງ Location ໃນມືຖືຂອງທ່ານ');
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  };
+
   const handleLocationSelect = (lat, lng) => {
     setFormData((prev) => ({ ...prev, lat, lng }));
     setIsPickingLocation(false);
     setIsModalOpen(true);
+    setGpsMessage(`📍 ເລືອກເທິງແຜນທີ່: (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
   };
 
   const handleSubmit = async (e) => {
@@ -141,6 +175,7 @@ export default function App() {
 
       if (!error) {
         setIsModalOpen(false);
+        setGpsMessage('');
         setFormData({
           title: '',
           type: 'sos',
@@ -181,9 +216,6 @@ export default function App() {
     alert('ຕໍ່ອາຍຸການແຈ້ງເຕືອນສຳເລັດແລ້ວ!');
   };
 
-  // ຄັດກອງ:
-  // 1. ຖ້າ "ຊ່ວຍເຫຼືອແລ້ວ" ໃຫ້ນັບຖອຍຫຼັງ 1 ຊົ່ວໂມງ (3600 ວິນາທີ) -> ເມື່ອຄົບ 1 ຊົ່ວໂມງ ໝຸດຈະຫາຍໄປເອງ
-  // 2. ຖ້າ "ລໍຖ້າການຊ່ວຍເຫຼືອ" ໃຫ້ຢູ່ 3 ມື້ (72 ຊົ່ວໂມງ)
   const activeReports = reports.filter((r) => {
     const createdAt = new Date(r.created_at).getTime();
     const hoursSinceCreated = (currentTime - createdAt) / (1000 * 60 * 60);
@@ -191,9 +223,9 @@ export default function App() {
     if (r.status === 'resolved') {
       if (!r.resolved_at) return true;
       const secondsSinceResolved = (currentTime - new Date(r.resolved_at).getTime()) / 1000;
-      return secondsSinceResolved < 3600; // ຢູ່ພຽງ 1 ຊົ່ວໂມງ
+      return secondsSinceResolved < 3600;
     } else {
-      return hoursSinceCreated <= 72; // ຢູ່ 3 ມື້
+      return hoursSinceCreated <= 72;
     }
   });
 
@@ -301,7 +333,6 @@ export default function App() {
               >
                 <Popup>
                   <div className="popup-content">
-                    {/* ປ້າຍນັບຖອຍຫຼັງ Real-time 1 ຊົ່ວໂມງ */}
                     {report.status === 'resolved' ? (
                       <div className="resolved-countdown-banner">
                         ⏱️ ✅ ຊ່ວຍເຫຼືອແລ້ວ • ໝຸດຈະຫາຍໄປໃນ: {formatCountdown(report.resolved_at, currentTime)}
@@ -362,6 +393,7 @@ export default function App() {
         </MapContainer>
       </div>
 
+      {/* Modal Report Form */}
       {isModalOpen && (
         <div className="modal-overlay">
           <div className="modal-box">
@@ -427,26 +459,49 @@ export default function App() {
                 />
               </div>
 
-              <div style={{ marginBottom: '15px' }}>
+              {/* ພາກສ່ວນກຳນົດພິກັດ (GPS & Map Picker) */}
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ fontSize: '13px', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
+                  ພິກັດຈຸດເກີດເຫດ
+                </label>
+
+                {gpsMessage && (
+                  <div className="gps-success-text">
+                    {gpsMessage}
+                  </div>
+                )}
+
+                {/* ປຸ່ມທີ 1: ດຶງ GPS ປັດຈຸບັນ */}
                 <button 
                   type="button" 
-                  style={{
-                    width: '100%',
-                    padding: '8px',
-                    borderRadius: '6px',
-                    border: '1px dashed #dc2626',
-                    background: '#fef2f2',
-                    color: '#dc2626',
-                    fontSize: '13px',
-                    fontWeight: '600',
-                    cursor: 'pointer'
-                  }}
+                  className="btn-gps"
+                  onClick={handleGetCurrentLocation}
+                  disabled={isLocating}
+                >
+                  {isLocating ? (
+                    <>
+                      <Loader2 size={16} className="animate-spin" />
+                      ກຳລັງຊອກຫາຕຳແໜ່ງ GPS...
+                    </>
+                  ) : (
+                    <>
+                      <Crosshair size={16} />
+                      📍 ດຶງຕຳແໜ່ງປັດຈຸບັນຂອງຂ້ອຍ (GPS)
+                    </>
+                  )}
+                </button>
+
+                {/* ປຸ່ມທີ 2: ເລືອກເທິງແຜນທີ່ດ້ວຍມື */}
+                <button 
+                  type="button" 
+                  className="btn-pick-map"
                   onClick={() => {
                     setIsModalOpen(false);
                     setIsPickingLocation(true);
                   }}
                 >
-                  📍 ເລືອກພິກັດເທິງແຜນທີ່ ({formData.lat.toFixed(3)}, {formData.lng.toFixed(3)})
+                  <MapPin size={15} />
+                  🗺️ ຫຼື ຈິ້ມເລືອກຈຸດເທິງແຜນທີ່ດ້ວຍຕົນເອງ
                 </button>
               </div>
 

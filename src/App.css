@@ -233,17 +233,72 @@ body {
   border-left: 3px solid #ef4444;
 }
 
-/* ປ້າຍນັບຖອຍຫຼັງ Real-time 1 ຊົ່ວໂມງ */
 .resolved-countdown-banner {
   background-color: #ecfdf5;
-  color: #047857;
+  color: #065f46;
   padding: 8px 12px;
   border-radius: 8px;
+  border: 1px solid #34d399;
   font-size: 12.5px;
   font-weight: 700;
   margin-bottom: 10px;
-  border: 1px solid #34d399;
   box-shadow: 0 1px 3px rgba(16, 185, 129, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ປຸ່ມ GPS ແລະ ປຸ່ມເລືອກແຜນທີ່ */
+.btn-gps {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1.5px solid #2563eb;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  transition: background-color 0.2s;
+}
+
+.btn-gps:hover {
+  background: #dbeafe;
+}
+
+.btn-pick-map {
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px dashed #6b7280;
+  background: #f9fafb;
+  color: #4b5563;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn-pick-map:hover {
+  background: #f3f4f6;
+}
+
+.gps-success-text {
+  font-size: 12px;
+  color: #059669;
+  font-weight: 600;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 /* Modal */
@@ -265,6 +320,8 @@ body {
   max-width: 420px;
   padding: 20px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .modal-box h2 {
