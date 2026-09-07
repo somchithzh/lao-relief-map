@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
-import { ShieldAlert, Plus, Phone, X, MapPin, CheckCircle, RefreshCw, Crosshair, Loader2, Share2, MessageCircle, Copy, Send } from 'lucide-react';
+import { ShieldAlert, Plus, Phone, X, MapPin, CheckCircle, RefreshCw, Crosshair, Loader2, Share2, MessageCircle, Copy, Send, Camera, Image } from 'lucide-react';
 import { supabase } from './supabase';
 import './App.css';
 
@@ -61,11 +61,14 @@ export default function App() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentTime, setCurrentTime] = useState(Date.now());
 
-  // Modal ສຳລັບເລືອກຊ່ອງທາງແຊຣ໌
   const [shareReport, setShareReport] = useState(null);
 
   const [isLocating, setIsLocating] = useState(false);
   const [gpsMessage, setGpsMessage] = useState('');
+
+  // ຈັດການຮູບພາບ
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -155,12 +158,46 @@ export default function App() {
     setGpsMessage(`📍 ເລືອກເທິງແຜນທີ່: (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedImage(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.title) return;
 
     setIsSubmitting(true);
     try {
+      let uploadedImageUrl = null;
+
+      // ອັບໂຫຼດຮູບຂຶ້ນ Supabase Storage (ຖ້າມີການເລືອກຮູບ)
+      if (selectedImage) {
+        const fileExt = selectedImage.name.split('.').pop() || 'jpg';
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
+
+        const { error: uploadErr } = await supabase.storage
+          .from('report-images')
+          .upload(fileName, selectedImage);
+
+        if (!uploadErr) {
+          const { data: publicUrlData } = supabase.storage
+            .from('report-images')
+            .getPublicUrl(fileName);
+          uploadedImageUrl = publicUrlData.publicUrl;
+        } else {
+          console.error('Upload image error:', uploadErr);
+        }
+      }
+
       const { error } = await supabase.from('reports').insert([
         {
           type: formData.type,
@@ -170,6 +207,7 @@ export default function App() {
           phone: formData.phone,
           lat: formData.lat,
           lng: formData.lng,
+          image_url: uploadedImageUrl,
           status: 'pending'
         }
       ]);
@@ -177,6 +215,8 @@ export default function App() {
       if (!error) {
         setIsModalOpen(false);
         setGpsMessage('');
+        setSelectedImage(null);
+        setImagePreview(null);
         setFormData({
           title: '',
           type: 'sos',
@@ -217,7 +257,6 @@ export default function App() {
     alert('ຕໍ່ອາຍຸການແຈ້ງເຕືອນສຳເລັດແລ້ວ!');
   };
 
-  // ວິທີແຊຣ໌ແຕ່ລະຊ່ອງທາງ
   const shareToWhatsApp = () => {
     if (!shareReport) return;
     const text = `🚨 [Lao Relief Map - ແຈ້ງເຫດດ່ວນ]
@@ -378,6 +417,17 @@ https://somchithzh.github.io/lao-relief-map/`;
               >
                 <Popup>
                   <div className="popup-content">
+                    {/* ຮູບພາບ (ຖ້າມີ) */}
+                    {report.image_url && (
+                      <img 
+                        src={report.image_url} 
+                        alt="ພາບສະພາບຕົວຈິງ" 
+                        className="popup-image" 
+                        onClick={() => window.open(report.image_url, '_blank')}
+                        title="ຄລິກເພື່ອເບິ່ງຮູບໃຫຍ່"
+                      />
+                    )}
+
                     {report.status === 'resolved' ? (
                       <div className="resolved-countdown-banner">
                         ⏱️ ✅ ຊ່ວຍເຫຼືອແລ້ວ • ໝຸດຈະຫາຍໄປໃນ: {formatCountdown(report.resolved_at, currentTime)}
@@ -405,7 +455,6 @@ https://somchithzh.github.io/lao-relief-map/`;
                       📍 {report.location_name} • 🕒 {Math.floor(hoursPassed)} ຊົ່ວໂມງຜ່ານມາ
                     </p>
 
-                    {/* ແຖວປຸ່ມໂທ ແລະ ປຸ່ມແຊຣ໌ (ສະອາດຕາ ເຫັນເບີໂທຊັດເຈນ) */}
                     <div style={{ display: 'flex', gap: '8px', marginTop: '10px', alignItems: 'center' }}>
                       {report.phone && (
                         <a href={`tel:${report.phone}`} className="popup-phone">
@@ -413,7 +462,6 @@ https://somchithzh.github.io/lao-relief-map/`;
                         </a>
                       )}
 
-                      {/* ປຸ່ມແຊຣ໌ອັນດຽວ */}
                       <button 
                         className="btn-popup-share"
                         onClick={() => setShareReport(report)}
@@ -447,7 +495,7 @@ https://somchithzh.github.io/lao-relief-map/`;
         </MapContainer>
       </div>
 
-      {/* Modal ເລືອກຊ່ອງທາງແຊຣ໌ (Share Options) */}
+      {/* Modal Share Options */}
       {shareReport && (
         <div className="modal-overlay" onClick={() => setShareReport(null)}>
           <div className="modal-box" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '380px' }}>
@@ -460,22 +508,18 @@ https://somchithzh.github.io/lao-relief-map/`;
               📍 <strong>{shareReport.title}</strong> ({shareReport.location_name})
             </p>
 
-            {/* ຕົວເລືອກ 1: WhatsApp */}
             <button className="share-option-btn share-wa" onClick={shareToWhatsApp}>
               <MessageCircle size={18} /> ແຊຣ໌ເຂົ້າ WhatsApp
             </button>
 
-            {/* ຕົວເລືອກ 2: Facebook / Messenger */}
             <button className="share-option-btn share-fb" onClick={shareToFacebook}>
               <Send size={18} /> ແຊຣ໌ເທິງ Facebook / Messenger
             </button>
 
-            {/* ຕົວເລືອກ 3: Copy ລິ້ງ ແລະ ຂໍ້ຄວາມ */}
             <button className="share-option-btn share-copy" onClick={shareCopyText}>
               <Copy size={18} /> ຄັດລອກຂໍ້ຄວາມ ແລະ ລິ້ງ (Copy)
             </button>
 
-            {/* ຕົວເລືອກ 4: ແຊຣ໌ຜ່ານລະບົບມືຖື */}
             {navigator.share && (
               <button className="share-option-btn share-native" onClick={shareNativeDevice}>
                 <Share2 size={18} /> ເປີດແອັບອື່ນໆໃນມືຖື...
@@ -540,6 +584,35 @@ https://somchithzh.github.io/lao-relief-map/`;
                 />
               </div>
 
+              {/* ພາກສ່ວນແນບຮູບພາບ */}
+              <div className="form-group">
+                <label>ຮູບພາບສະພາບຕົວຈິງ (ຖ້າມີ)</label>
+                {imagePreview ? (
+                  <div className="image-preview-container">
+                    <img src={imagePreview} alt="Preview" />
+                    <button type="button" className="btn-remove-img" onClick={handleRemoveImage}>
+                      <X size={14} />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="upload-box">
+                    <Camera size={24} color="#64748b" />
+                    <span style={{ fontSize: '13px', color: '#475569', fontWeight: '600' }}>
+                      ກົດຖ່າຍຮູບ ຫຼື ເລືອກຮູບຈາກມືຖື
+                    </span>
+                    <span style={{ fontSize: '11px', color: '#94a3b8' }}>
+                      (ຮອງຮັບ JPG, PNG)
+                    </span>
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      onChange={handleImageChange} 
+                      style={{ display: 'none' }} 
+                    />
+                  </label>
+                )}
+              </div>
+
               <div className="form-group">
                 <label>ເບີໂທຕິດຕໍ່ສຸກເສີນ (WhatsApp/ໂທ)</label>
                 <input 
@@ -599,7 +672,7 @@ https://somchithzh.github.io/lao-relief-map/`;
                   ຍົກເລີກ
                 </button>
                 <button type="submit" className="btn-submit" disabled={isSubmitting}>
-                  {isSubmitting ? 'ກຳລັງສົ່ງ...' : 'ສົ່ງລາຍງານ'}
+                  {isSubmitting ? 'ກຳລັງອັບໂຫຼດ ແລະ ສົ່ງ...' : 'ສົ່ງລາຍງານ'}
                 </button>
               </div>
             </form>
