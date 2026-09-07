@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
-import { ShieldAlert, Plus, Phone, X, MapPin, CheckCircle, RefreshCw, Crosshair, Loader2, Share2, MessageCircle } from 'lucide-react';
+import { ShieldAlert, Plus, Phone, X, MapPin, CheckCircle, RefreshCw, Crosshair, Loader2, Share2, MessageCircle, Copy, Send } from 'lucide-react';
 import { supabase } from './supabase';
 import './App.css';
 
@@ -60,6 +60,9 @@ export default function App() {
   const [isPickingLocation, setIsPickingLocation] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentTime, setCurrentTime] = useState(Date.now());
+
+  // Modal ສຳລັບເລືອກຊ່ອງທາງແຊຣ໌
+  const [shareReport, setShareReport] = useState(null);
 
   const [isLocating, setIsLocating] = useState(false);
   const [gpsMessage, setGpsMessage] = useState('');
@@ -214,36 +217,47 @@ export default function App() {
     alert('ຕໍ່ອາຍຸການແຈ້ງເຕືອນສຳເລັດແລ້ວ!');
   };
 
-  // ຟັງຊັນແຊຣ໌ເຂົ້າ WhatsApp
-  const handleShareWhatsApp = (report) => {
+  // ວິທີແຊຣ໌ແຕ່ລະຊ່ອງທາງ
+  const shareToWhatsApp = () => {
+    if (!shareReport) return;
     const text = `🚨 [Lao Relief Map - ແຈ້ງເຫດດ່ວນ]
-📌 ຫົວຂໍ້: ${report.title}
-📍 ສະຖານທີ່: ${report.location_name}
-📝 ລາຍລະອຽດ: ${report.description || 'ບໍ່ມີ'}
-📞 ເບີຕິດຕໍ່: ${report.phone}
+📌 ຫົວຂໍ້: ${shareReport.title}
+📍 ສະຖານທີ່: ${shareReport.location_name}
+📝 ລາຍລະອຽດ: ${shareReport.description || 'ບໍ່ມີ'}
+📞 ເບີຕິດຕໍ່: ${shareReport.phone}
 🗺️ ເບິ່ງພິກັດເທິງແຜນທີ່: https://somchithzh.github.io/lao-relief-map/`;
 
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
-  // ຟັງຊັນແຊຣ໌ທົ່ວໄປ (Messenger, Facebook, ຫຼື Copy Link)
-  const handleShareGeneral = async (report) => {
-    const shareText = `🚨 [Lao Relief Map] ${report.title} ທີ່ ${report.location_name} (ໂທ: ${report.phone})`;
-    const shareUrl = 'https://somchithzh.github.io/lao-relief-map/';
+  const shareToFacebook = () => {
+    const url = 'https://somchithzh.github.io/lao-relief-map/';
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+  };
 
+  const shareCopyText = () => {
+    if (!shareReport) return;
+    const text = `🚨 [Lao Relief Map] ${shareReport.title} ທີ່ ${shareReport.location_name} (ໂທ: ${shareReport.phone})
+https://somchithzh.github.io/lao-relief-map/`;
+
+    navigator.clipboard.writeText(text);
+    alert('ຄັດລອກຂໍ້ຄວາມ ແລະ ລິ້ງແຜນທີ່ແລ້ວ! ສາມາດນຳໄປ Paste ໃນ Messenger ຫຼື ແຊັດໄດ້ເລີຍ.');
+  };
+
+  const shareNativeDevice = async () => {
+    if (!shareReport) return;
     if (navigator.share) {
       try {
         await navigator.share({
           title: 'Lao Relief Map',
-          text: shareText,
-          url: shareUrl,
+          text: `🚨 [ແຈ້ງເຫດ] ${shareReport.title} ທີ່ ${shareReport.location_name} (ໂທ: ${shareReport.phone})`,
+          url: 'https://somchithzh.github.io/lao-relief-map/',
         });
       } catch (err) {
         console.log(err);
       }
     } else {
-      navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
-      alert('ຄັດລອກຂໍ້ຄວາມ ແລະ ລິ້ງແຜນທີ່ຮຽບຮ້ອຍແລ້ວ! ສາມາດ Paste ສົ່ງໃນ Messenger ໄດ້ເລີຍ.');
+      shareCopyText();
     }
   };
 
@@ -391,48 +405,40 @@ export default function App() {
                       📍 {report.location_name} • 🕒 {Math.floor(hoursPassed)} ຊົ່ວໂມງຜ່ານມາ
                     </p>
 
-                    {/* ແຖບປຸ່ມຕິດຕໍ່ ແລະ ແຊຣ໌ */}
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '10px' }}>
+                    {/* ແຖວປຸ່ມໂທ ແລະ ປຸ່ມແຊຣ໌ (ສະອາດຕາ ເຫັນເບີໂທຊັດເຈນ) */}
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '10px', alignItems: 'center' }}>
                       {report.phone && (
                         <a href={`tel:${report.phone}`} className="popup-phone">
-                          <Phone size={13} /> ໂທ
+                          <Phone size={14} /> ໂທ: {report.phone}
                         </a>
                       )}
 
-                      {/* ປຸ່ມ WhatsApp */}
+                      {/* ປຸ່ມແຊຣ໌ອັນດຽວ */}
                       <button 
-                        className="popup-whatsapp"
-                        onClick={() => handleShareWhatsApp(report)}
+                        className="btn-popup-share"
+                        onClick={() => setShareReport(report)}
                       >
-                        <MessageCircle size={13} /> WhatsApp
+                        <Share2 size={14} /> ແຊຣ໌
                       </button>
-
-                      {/* ປຸ່ມ Messenger / ແຊຣ໌ */}
-                      <button 
-                        className="popup-share"
-                        onClick={() => handleShareGeneral(report)}
-                      >
-                        <Share2 size={13} /> ແຊຣ໌
-                      </button>
-
-                      {report.status !== 'resolved' && (
-                        <button 
-                          className="btn-action-resolve"
-                          onClick={() => handleMarkResolved(report.id)}
-                        >
-                          <CheckCircle size={13} /> ຊ່ວຍແລ້ວ
-                        </button>
-                      )}
-
-                      {report.status !== 'resolved' && hoursPassed >= 48 && (
-                        <button 
-                          className="btn-action-renew"
-                          onClick={() => handleRenewReport(report.id)}
-                        >
-                          <RefreshCw size={13} /> ຍັງຕ້ອງການຊ່ວຍ
-                        </button>
-                      )}
                     </div>
+
+                    {report.status !== 'resolved' && (
+                      <button 
+                        className="btn-action-resolve"
+                        onClick={() => handleMarkResolved(report.id)}
+                      >
+                        <CheckCircle size={14} /> ຊ່ວຍເຫຼືອແລ້ວ
+                      </button>
+                    )}
+
+                    {report.status !== 'resolved' && hoursPassed >= 48 && (
+                      <button 
+                        className="btn-action-renew"
+                        onClick={() => handleRenewReport(report.id)}
+                      >
+                        <RefreshCw size={14} /> ຍັງຕ້ອງການຊ່ວຍ
+                      </button>
+                    )}
                   </div>
                 </Popup>
               </Marker>
@@ -440,6 +446,44 @@ export default function App() {
           })}
         </MapContainer>
       </div>
+
+      {/* Modal ເລືອກຊ່ອງທາງແຊຣ໌ (Share Options) */}
+      {shareReport && (
+        <div className="modal-overlay" onClick={() => setShareReport(null)}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '380px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+              <h2 style={{ fontSize: '17px', margin: 0 }}>ແບ່ງປັນເຫດການ</h2>
+              <X size={20} style={{ cursor: 'pointer' }} onClick={() => setShareReport(null)} />
+            </div>
+
+            <p style={{ fontSize: '13px', color: '#4b5563', marginBottom: '16px' }}>
+              📍 <strong>{shareReport.title}</strong> ({shareReport.location_name})
+            </p>
+
+            {/* ຕົວເລືອກ 1: WhatsApp */}
+            <button className="share-option-btn share-wa" onClick={shareToWhatsApp}>
+              <MessageCircle size={18} /> ແຊຣ໌ເຂົ້າ WhatsApp
+            </button>
+
+            {/* ຕົວເລືອກ 2: Facebook / Messenger */}
+            <button className="share-option-btn share-fb" onClick={shareToFacebook}>
+              <Send size={18} /> ແຊຣ໌ເທິງ Facebook / Messenger
+            </button>
+
+            {/* ຕົວເລືອກ 3: Copy ລິ້ງ ແລະ ຂໍ້ຄວາມ */}
+            <button className="share-option-btn share-copy" onClick={shareCopyText}>
+              <Copy size={18} /> ຄັດລອກຂໍ້ຄວາມ ແລະ ລິ້ງ (Copy)
+            </button>
+
+            {/* ຕົວເລືອກ 4: ແຊຣ໌ຜ່ານລະບົບມືຖື */}
+            {navigator.share && (
+              <button className="share-option-btn share-native" onClick={shareNativeDevice}>
+                <Share2 size={18} /> ເປີດແອັບອື່ນໆໃນມືຖື...
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Modal Report Form */}
       {isModalOpen && (
