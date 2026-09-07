@@ -122,6 +122,7 @@ body {
   border: 2.5px solid white;
   cursor: pointer;
   transition: transform 0.15s ease;
+  position: relative;
 }
 
 .custom-pin:hover {
@@ -132,10 +133,23 @@ body {
 .pin-warning { background-color: #f59e0b; }
 .pin-shelter { background-color: #10b981; }
 .pin-donation { background-color: #3b82f6; }
+.pin-resolved { background-color: #6b7280; opacity: 0.85; }
 
-/* Popup */
+/* ໝຸດທີ່ລໍຖ້າເກີນ 24 ຊົ່ວໂມງ ໃຫ້ມີວົງແຫວນສີແດງກະພິບເຕືອນ */
+.pin-urgent {
+  animation: pulse-ring 1.5s infinite;
+}
+
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+/* Popup Content */
 .popup-content {
   padding: 4px;
+  min-width: 220px;
 }
 
 .popup-content h3 {
@@ -162,7 +176,7 @@ body {
   margin-bottom: 8px;
 }
 
-/* ປັບປຸ່ມໂທລະສັບໃຫ້ສີຂາວແຈ້ງຊັດເຈນ */
+/* ປຸ່ມໂທລະສັບ */
 .leaflet-popup-content a.popup-phone,
 .popup-phone {
   display: inline-flex !important;
@@ -171,18 +185,69 @@ body {
   background-color: #2563eb !important;
   color: #ffffff !important;
   text-decoration: none !important;
-  padding: 8px 16px !important;
+  padding: 8px 14px !important;
   border-radius: 8px;
   font-size: 13px !important;
   font-weight: 700 !important;
   box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35);
-  margin-top: 6px;
-  transition: background-color 0.2s, transform 0.1s;
+  margin-top: 4px;
+  margin-right: 6px;
 }
 
-.leaflet-popup-content a.popup-phone:hover {
-  background-color: #1d4ed8 !important;
-  color: #ffffff !important;
+/* ປຸ່ມຊ່ວຍເຫຼືອແລ້ວ */
+.btn-action-resolve {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background-color: #10b981;
+  color: white;
+  border: none;
+  padding: 7px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+/* ປຸ່ມຕໍ່ອາຍຸ */
+.btn-action-renew {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background-color: #f59e0b;
+  color: white;
+  border: none;
+  padding: 7px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+/* ປ້າຍເຕືອນລໍຖ້າເກີນ 24 ຊົ່ວໂມງ */
+.urgent-banner {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  border-left: 3px solid #ef4444;
+}
+
+/* ປ້າຍຊ່ວຍແລ້ວ */
+.resolved-banner {
+  background-color: #d1fae5;
+  color: #065f46;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  border-left: 3px solid #10b981;
 }
 
 /* Modal */

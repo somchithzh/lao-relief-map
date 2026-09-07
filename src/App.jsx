@@ -1,26 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
-import { ShieldAlert, Plus, Phone, X, MapPin, Loader2 } from 'lucide-react';
+import { ShieldAlert, Plus, Phone, X, MapPin, CheckCircle, RefreshCw } from 'lucide-react';
 import { supabase } from './supabase';
 import './App.css';
 
-const createCustomIcon = (type) => {
-  const colorClass = 
-    type === 'sos' ? 'pin-sos' :
-    type === 'warning' ? 'pin-warning' :
-    type === 'shelter' ? 'pin-shelter' : 'pin-donation';
+const createCustomIcon = (report, isUrgent) => {
+  let colorClass = 'pin-' + report.type;
+  if (report.status === 'resolved') {
+    colorClass = 'pin-resolved';
+  } else if (isUrgent) {
+    colorClass += ' pin-urgent';
+  }
 
-  const iconSymbol = 
-    type === 'sos' ? '🚨' :
-    type === 'warning' ? '⚠️' :
-    type === 'shelter' ? '🏠' : '📦';
+  let iconSymbol = '🚨';
+  if (report.status === 'resolved') {
+    iconSymbol = '✅';
+  } else if (report.type === 'warning') {
+    iconSymbol = '⚠️';
+  } else if (report.type === 'shelter') {
+    iconSymbol = '🏠';
+  } else if (report.type === 'donation') {
+    iconSymbol = '📦';
+  }
 
   return L.divIcon({
     className: 'custom-leaflet-marker',
     html: `<div class="custom-pin ${colorClass}">${iconSymbol}</div>`,
     iconSize: [34, 34],
-    iconAnchor: [17, 17],
+    iconAnchor:,
     popupAnchor: [0, -17],
   });
 };
@@ -53,39 +61,21 @@ export default function App() {
     lng: 102.6331
   });
 
-  // 1. ດຶງຂໍ້ມູນຈາກ Supabase
   const fetchReports = async () => {
     try {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('reports')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching reports:', error);
-        return;
-      }
-
       if (data) {
-        const formatted = data.map((item) => ({
-          id: item.id,
-          type: item.type,
-          title: item.title,
-          description: item.description,
-          locationName: item.location_name,
-          phone: item.phone,
-          lat: item.lat,
-          lng: item.lng,
-          time: new Date(item.created_at).toLocaleTimeString('lo-LA', { hour: '2-digit', minute: '2-digit' })
-        }));
-        setReports(formatted);
+        setReports(data);
       }
     } catch (err) {
       console.error(err);
     }
   };
 
-  // 2. ຕິດຕັ້ງລະບົບ Real-time
   useEffect(() => {
     fetchReports();
 
@@ -93,21 +83,9 @@ export default function App() {
       .channel('realtime-reports')
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'reports' },
-        (payload) => {
-          const item = payload.new;
-          const newReport = {
-            id: item.id,
-            type: item.type,
-            title: item.title,
-            description: item.description,
-            locationName: item.location_name,
-            phone: item.phone,
-            lat: item.lat,
-            lng: item.lng,
-            time: 'ຫາກໍ່ລາຍງານ'
-          };
-          setReports((prev) => [newReport, ...prev]);
+        { event: '*', schema: 'public', table: 'reports' },
+        () => {
+          fetchReports();
         }
       )
       .subscribe();
@@ -123,7 +101,6 @@ export default function App() {
     setIsModalOpen(true);
   };
 
-  // 3. ສົ່ງລາຍງານໃໝ່ຂຶ້ນ Supabase
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.title) return;
@@ -138,13 +115,12 @@ export default function App() {
           location_name: formData.locationName,
           phone: formData.phone,
           lat: formData.lat,
-          lng: formData.lng
+          lng: formData.lng,
+          status: 'pending'
         }
       ]);
 
-      if (error) {
-        alert('ເກີດຂໍ້ຜິດພາດ: ' + error.message);
-      } else {
+      if (!error) {
         setIsModalOpen(false);
         setFormData({
           title: '',
@@ -163,9 +139,44 @@ export default function App() {
     }
   };
 
+  const handleMarkResolved = async (id) => {
+    if (!confirm('ທ່ານແນ່ໃຈບໍ່ວ່າຈຸດນີ້ໄດ້ຮັບການຊ່ວຍເຫຼືອ ຫຼື ແກ້ໄຂແລ້ວ?')) return;
+    await supabase
+      .from('reports')
+      .update({ status: 'resolved', resolved_at: new Date().toISOString() })
+      .eq('id', id);
+    fetchReports();
+  };
+
+  const handleRenewReport = async (id) => {
+    await supabase
+      .from('reports')
+      .update({ created_at: new Date().toISOString() })
+      .eq('id', id);
+    fetchReports();
+    alert('ຕໍ່ອາຍຸການແຈ້ງເຕືອນສຳເລັດແລ້ວ!');
+  };
+
+  // ຄັດກອງຕາມເວລາ:
+  // 1. ຖ້າ "ຊ່ວຍເຫຼືອແລ້ວ" ກາຍ 24 ຊົ່ວໂມງ -> ເຊື່ອງ
+  // 2. ຖ້າ "ລໍຖ້າການຊ່ວຍເຫຼືອ" ກາຍ 3 ມື້ (72 ຊົ່ວໂມງ) -> ເຊື່ອງ
+  const activeReports = reports.filter((r) => {
+    const now = new Date();
+    const createdAt = new Date(r.created_at);
+    const hoursSinceCreated = (now - createdAt) / (1000 * 60 * 60);
+
+    if (r.status === 'resolved') {
+      if (!r.resolved_at) return true;
+      const hoursSinceResolved = (now - new Date(r.resolved_at)) / (1000 * 60 * 60);
+      return hoursSinceResolved <= 24;
+    } else {
+      return hoursSinceCreated <= 72;
+    }
+  });
+
   const filteredReports = filter === 'all' 
-    ? reports 
-    : reports.filter((r) => r.type === filter);
+    ? activeReports 
+    : activeReports.filter((r) => r.type === filter);
 
   return (
     <div className="app-container">
@@ -190,7 +201,7 @@ export default function App() {
           className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
           onClick={() => setFilter('all')}
         >
-          ທັງໝົດ ({reports.length})
+          ທັງໝົດ ({activeReports.length})
         </button>
         <button 
           className={`filter-btn ${filter === 'sos' ? 'active' : ''}`}
@@ -257,34 +268,78 @@ export default function App() {
             onLocationSelect={handleLocationSelect} 
           />
 
-          {filteredReports.map((report) => (
-            <Marker 
-              key={report.id} 
-              position={[report.lat, report.lng]} 
-              icon={createCustomIcon(report.type)}
-            >
-              <Popup>
-                <div className="popup-content">
-                  <span className={`popup-badge pin-${report.type}`}>
-                    {report.type === 'sos' && '🚨 ຂໍຄວາມຊ່ວຍເຫຼືອ'}
-                    {report.type === 'warning' && '⚠️ ແຈ້ງເຕືອນ'}
-                    {report.type === 'shelter' && '🏠 ສູນພັກເຊົາ'}
-                    {report.type === 'donation' && '📦 ຈຸດບໍລິຈາກ'}
-                  </span>
-                  <h3>{report.title}</h3>
-                  <p>{report.description}</p>
-                  <p style={{ fontSize: '12px', color: '#6b7280' }}>
-                    📍 {report.locationName} • 🕒 {report.time}
-                  </p>
-                  {report.phone && (
-                    <a href={`tel:${report.phone}`} className="popup-phone">
-                      <Phone size={14} /> ໂທ: {report.phone}
-                    </a>
-                  )}
-                </div>
-              </Popup>
-            </Marker>
-          ))}
+          {filteredReports.map((report) => {
+            const now = new Date();
+            const createdAt = new Date(report.created_at);
+            const hoursPassed = (now - createdAt) / (1000 * 60 * 60);
+            const isUrgent = report.status !== 'resolved' && report.type === 'sos' && hoursPassed >= 24;
+
+            return (
+              <Marker 
+                key={report.id} 
+                position={[report.lat, report.lng]} 
+                icon={createCustomIcon(report, isUrgent)}
+              >
+                <Popup>
+                  <div className="popup-content">
+                    {/* ປ້າຍສະຖານະ */}
+                    {report.status === 'resolved' ? (
+                      <div className="resolved-banner">
+                        ✅ ໄດ້ຮັບການຊ່ວຍເຫຼືອ/ແກ້ໄຂແລ້ວ (ຈະເຊື່ອງໃນ 24 ຊົ່ວໂມງ)
+                      </div>
+                    ) : isUrgent ? (
+                      <div className="urgent-banner">
+                        ⚠️ ດ່ວນພິເສດ: ລໍຖ້າມາແລ້ວເກີນ 24 ຊົ່ວໂມງ!
+                      </div>
+                    ) : null}
+
+                    <span className={`popup-badge pin-${report.status === 'resolved' ? 'resolved' : report.type}`}>
+                      {report.status === 'resolved' ? '✅ ແກ້ໄຂແລ້ວ' : (
+                        <>
+                          {report.type === 'sos' && '🚨 ຂໍຄວາມຊ່ວຍເຫຼືອ'}
+                          {report.type === 'warning' && '⚠️ ແຈ້ງເຕືອນ'}
+                          {report.type === 'shelter' && '🏠 ສູນພັກເຊົາ'}
+                          {report.type === 'donation' && '📦 ຈຸດບໍລິຈາກ'}
+                        </>
+                      )}
+                    </span>
+
+                    <h3>{report.title}</h3>
+                    <p>{report.description}</p>
+                    <p style={{ fontSize: '12px', color: '#6b7280' }}>
+                      📍 {report.location_name} • 🕒 {Math.floor(hoursPassed)} ຊົ່ວໂມງຜ່ານມາ
+                    </p>
+
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '8px' }}>
+                      {report.phone && (
+                        <a href={`tel:${report.phone}`} className="popup-phone">
+                          <Phone size={14} /> ໂທ: {report.phone}
+                        </a>
+                      )}
+
+                      {report.status !== 'resolved' && (
+                        <button 
+                          className="btn-action-resolve"
+                          onClick={() => handleMarkResolved(report.id)}
+                        >
+                          <CheckCircle size={14} /> ຊ່ວຍເຫຼືອແລ້ວ
+                        </button>
+                      )}
+
+                      {report.status !== 'resolved' && hoursPassed >= 48 && (
+                        <button 
+                          className="btn-action-renew"
+                          onClick={() => handleRenewReport(report.id)}
+                        >
+                          <RefreshCw size={14} /> ຍັງຕ້ອງການຊ່ວຍເຫຼືອ
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </Popup>
+              </Marker>
+            );
+          })}
         </MapContainer>
       </div>
 
