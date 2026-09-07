@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
-import { ShieldAlert, Plus, Phone, X, MapPin, CheckCircle, RefreshCw, Crosshair, Loader2 } from 'lucide-react';
+import { ShieldAlert, Plus, Phone, X, MapPin, CheckCircle, RefreshCw, Crosshair, Loader2, Share2, MessageCircle } from 'lucide-react';
 import { supabase } from './supabase';
 import './App.css';
 
@@ -61,7 +61,6 @@ export default function App() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentTime, setCurrentTime] = useState(Date.now());
 
-  // ສະຖານະການດຶງ GPS
   const [isLocating, setIsLocating] = useState(false);
   const [gpsMessage, setGpsMessage] = useState('');
 
@@ -116,7 +115,6 @@ export default function App() {
     };
   }, []);
 
-  // ຟັງຊັນດຶງ GPS ຈາກອຸປະກອນຕົວຈິງ
   const handleGetCurrentLocation = () => {
     if (!navigator.geolocation) {
       alert('ອຸປະກອນຂອງທ່ານບໍ່ຮອງຮັບລະບົບ GPS');
@@ -141,7 +139,7 @@ export default function App() {
         setIsLocating(false);
         setGpsMessage('');
         console.error(err);
-        alert('ບໍ່ສາມາດດຶງ GPS ໄດ້: ກະລຸນາກົດ "ອະນຸຍາດ (Allow)" ໃຫ້ເວັບໄຊເຂົ້າເຖິງຕຳແໜ່ງ Location ໃນມືຖືຂອງທ່ານ');
+        alert('ບໍ່ສາມາດດຶງ GPS ໄດ້: ກະລຸນາກົດ "ອະນຸຍາດ (Allow)" ໃຫ້ເວັບໄຊເຂົ້າເຖິງຕຳແໜ່ງ Location');
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
@@ -214,6 +212,39 @@ export default function App() {
       .eq('id', id);
     fetchReports();
     alert('ຕໍ່ອາຍຸການແຈ້ງເຕືອນສຳເລັດແລ້ວ!');
+  };
+
+  // ຟັງຊັນແຊຣ໌ເຂົ້າ WhatsApp
+  const handleShareWhatsApp = (report) => {
+    const text = `🚨 [Lao Relief Map - ແຈ້ງເຫດດ່ວນ]
+📌 ຫົວຂໍ້: ${report.title}
+📍 ສະຖານທີ່: ${report.location_name}
+📝 ລາຍລະອຽດ: ${report.description || 'ບໍ່ມີ'}
+📞 ເບີຕິດຕໍ່: ${report.phone}
+🗺️ ເບິ່ງພິກັດເທິງແຜນທີ່: https://somchithzh.github.io/lao-relief-map/`;
+
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+  };
+
+  // ຟັງຊັນແຊຣ໌ທົ່ວໄປ (Messenger, Facebook, ຫຼື Copy Link)
+  const handleShareGeneral = async (report) => {
+    const shareText = `🚨 [Lao Relief Map] ${report.title} ທີ່ ${report.location_name} (ໂທ: ${report.phone})`;
+    const shareUrl = 'https://somchithzh.github.io/lao-relief-map/';
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Lao Relief Map',
+          text: shareText,
+          url: shareUrl,
+        });
+      } catch (err) {
+        console.log(err);
+      }
+    } else {
+      navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
+      alert('ຄັດລອກຂໍ້ຄວາມ ແລະ ລິ້ງແຜນທີ່ຮຽບຮ້ອຍແລ້ວ! ສາມາດ Paste ສົ່ງໃນ Messenger ໄດ້ເລີຍ.');
+    }
   };
 
   const activeReports = reports.filter((r) => {
@@ -360,19 +391,36 @@ export default function App() {
                       📍 {report.location_name} • 🕒 {Math.floor(hoursPassed)} ຊົ່ວໂມງຜ່ານມາ
                     </p>
 
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '8px' }}>
+                    {/* ແຖບປຸ່ມຕິດຕໍ່ ແລະ ແຊຣ໌ */}
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '10px' }}>
                       {report.phone && (
                         <a href={`tel:${report.phone}`} className="popup-phone">
-                          <Phone size={14} /> ໂທ: {report.phone}
+                          <Phone size={13} /> ໂທ
                         </a>
                       )}
+
+                      {/* ປຸ່ມ WhatsApp */}
+                      <button 
+                        className="popup-whatsapp"
+                        onClick={() => handleShareWhatsApp(report)}
+                      >
+                        <MessageCircle size={13} /> WhatsApp
+                      </button>
+
+                      {/* ປຸ່ມ Messenger / ແຊຣ໌ */}
+                      <button 
+                        className="popup-share"
+                        onClick={() => handleShareGeneral(report)}
+                      >
+                        <Share2 size={13} /> ແຊຣ໌
+                      </button>
 
                       {report.status !== 'resolved' && (
                         <button 
                           className="btn-action-resolve"
                           onClick={() => handleMarkResolved(report.id)}
                         >
-                          <CheckCircle size={14} /> ຊ່ວຍເຫຼືອແລ້ວ
+                          <CheckCircle size={13} /> ຊ່ວຍແລ້ວ
                         </button>
                       )}
 
@@ -381,7 +429,7 @@ export default function App() {
                           className="btn-action-renew"
                           onClick={() => handleRenewReport(report.id)}
                         >
-                          <RefreshCw size={14} /> ຍັງຕ້ອງການຊ່ວຍເຫຼືອ
+                          <RefreshCw size={13} /> ຍັງຕ້ອງການຊ່ວຍ
                         </button>
                       )}
                     </div>
@@ -459,7 +507,6 @@ export default function App() {
                 />
               </div>
 
-              {/* ພາກສ່ວນກຳນົດພິກັດ (GPS & Map Picker) */}
               <div style={{ marginBottom: '16px' }}>
                 <label style={{ fontSize: '13px', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
                   ພິກັດຈຸດເກີດເຫດ
@@ -471,7 +518,6 @@ export default function App() {
                   </div>
                 )}
 
-                {/* ປຸ່ມທີ 1: ດຶງ GPS ປັດຈຸບັນ */}
                 <button 
                   type="button" 
                   className="btn-gps"
@@ -491,7 +537,6 @@ export default function App() {
                   )}
                 </button>
 
-                {/* ປຸ່ມທີ 2: ເລືອກເທິງແຜນທີ່ດ້ວຍມື */}
                 <button 
                   type="button" 
                   className="btn-pick-map"
