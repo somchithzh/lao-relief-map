@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { ShieldAlert, Plus, Phone, X, MapPin, CheckCircle, RefreshCw, Crosshair, Loader2, Share2, MessageCircle, Copy, Send, Camera, Smartphone } from 'lucide-react';
+import { ShieldAlert, Plus, Phone, X, MapPin, CheckCircle, RefreshCw, Crosshair, Loader2, Share2, MessageCircle, Copy, Send, Camera, Smartphone, Layers } from 'lucide-react';
 import { supabase } from './supabase';
 import './App.css';
 
@@ -93,6 +93,9 @@ export default function App() {
     center: [18.5, 103.5],
     zoom: 7
   });
+
+  // ຮູບແບບແຜນທີ່: 'street' (ຖະໜົນ) ຫຼື 'satellite' (ດາວທຽມ)
+  const [mapType, setMapType] = useState('street');
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPickingLocation, setIsPickingLocation] = useState(false);
@@ -375,7 +378,6 @@ https://somchithzh.github.io/lao-relief-map/`;
           </div>
         </div>
 
-        {/* ສະຫຼັບຕຳແໜ່ງ: ປຸ່ມລາຍງານເຫດຢູ່ກ່ອນ, ປຸ່ມຕິດຕັ້ງແອັບຢູ່ຂວາສຸດ */}
         <div className="header-actions">
           <button className="btn-report" onClick={() => setIsModalOpen(true)}>
             <Plus size={16} />
@@ -389,6 +391,7 @@ https://somchithzh.github.io/lao-relief-map/`;
         </div>
       </header>
 
+      {/* ແຖບເລືອກແຂວງ, ສະຫຼັບດາວທຽມ, ແລະ ປຸ່ມ Filter */}
       <div className="filter-bar">
         <select 
           className="province-select" 
@@ -401,6 +404,15 @@ https://somchithzh.github.io/lao-relief-map/`;
             </option>
           ))}
         </select>
+
+        {/* ປຸ່ມສະຫຼັບແຜນທີ່ດາວທຽມ */}
+        <button 
+          className={`btn-satellite ${mapType === 'satellite' ? 'active' : ''}`}
+          onClick={() => setMapType(mapType === 'street' ? 'satellite' : 'street')}
+        >
+          <Layers size={14} />
+          {mapType === 'street' ? '🛰️ ດາວທຽມ' : '🗺️ ຖະໜົນ'}
+        </button>
 
         <button 
           className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
@@ -462,10 +474,19 @@ https://somchithzh.github.io/lao-relief-map/`;
           zoom={mapTarget.zoom} 
           scrollWheelZoom={true}
         >
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
+          {/* ສະຫຼັບລະຫວ່າງ ແຜນທີ່ຖະໜົນ OpenStreetMap ແລະ ພາບຖ່າຍດາວທຽມ Esri */}
+          {mapType === 'street' ? (
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+          ) : (
+            <TileLayer
+              attribution='Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+              maxZoom={19}
+            />
+          )}
 
           <MapController 
             targetCenter={mapTarget.center} 
