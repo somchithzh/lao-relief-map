@@ -109,7 +109,29 @@ body {
   z-index: 999;
 }
 
-/* ຊ່ອງຄົ້ນຫາ */
+/* ປຸ່ມກົດເປີດເລືອກພື້ນທີ່ */
+.btn-location-picker {
+  padding: 6px 13px;
+  border-radius: 20px;
+  border: 1.5px solid #2563eb;
+  background-color: #eff6ff;
+  color: #1d4ed8;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.btn-location-picker:hover {
+  background-color: #dbeafe;
+}
+
+/* ຊ່ອງຄົ້ນຫາດ່ວນ */
 .search-box {
   position: relative;
   display: flex;
@@ -149,20 +171,6 @@ body {
   right: 8px;
   color: #94a3b8;
   cursor: pointer;
-}
-
-.province-select {
-  padding: 6px 12px;
-  border-radius: 20px;
-  border: 1.5px solid #2563eb;
-  background-color: #eff6ff;
-  color: #1d4ed8;
-  font-size: 12.5px;
-  font-weight: 700;
-  cursor: pointer;
-  outline: none;
-  white-space: nowrap;
-  flex-shrink: 0;
 }
 
 .btn-satellite {
@@ -228,27 +236,6 @@ body {
 
 .btn-river:hover {
   background-color: #dbeafe;
-}
-
-/* ປຸ່ມສະຖິຕິ */
-.btn-stats {
-  padding: 6px 12px;
-  border-radius: 20px;
-  border: 1.5px solid #8b5cf6;
-  background-color: #f5f3ff;
-  color: #7c3aed;
-  font-size: 12.5px;
-  font-weight: 700;
-  cursor: pointer;
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  flex-shrink: 0;
-}
-
-.btn-stats:hover {
-  background-color: #ede9fe;
 }
 
 .filter-btn {
@@ -499,6 +486,10 @@ body {
   gap: 6px;
 }
 
+.btn-pick-map:hover {
+  background: #f3f4f6;
+}
+
 .gps-success-text {
   font-size: 12px;
   color: #059669;
@@ -522,6 +513,11 @@ body {
   align-items: center !important;
   justify-content: center !important;
   gap: 6px;
+}
+
+.upload-box:hover {
+  background: #f1f5f9;
+  border-color: #2563eb;
 }
 
 .upload-icon-circle {
@@ -585,36 +581,68 @@ body {
 .share-copy { background-color: #374151; color: white; }
 .share-native { background-color: #eff6ff; color: #1d4ed8; border: 1.5px solid #2563eb; }
 
-/* ຕາຕະລາງສະຖິຕິ Dashboard */
-.stats-grid {
+/* ໜ້າຕ່າງເລືອກພື້ນທີ່ ແລະ ເມືອງ */
+.loc-search-input {
+  width: 100%;
+  padding: 10px 14px 10px 34px;
+  border-radius: 10px;
+  border: 1.5px solid #cbd5e1;
+  font-size: 13.5px;
+  outline: none;
+  margin-bottom: 14px;
+}
+
+.loc-search-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.loc-category-btn {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  transition: all 0.15s;
+}
+
+.loc-category-btn:hover {
+  background: #eff6ff;
+  border-color: #93c5fd;
+}
+
+.loc-district-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  margin-bottom: 16px;
+  gap: 6px;
+  padding: 6px 0 10px 10px;
 }
 
-.stat-card {
-  padding: 12px;
-  border-radius: 10px;
-  text-align: center;
-}
-
-.stat-card-num {
-  font-size: 24px;
-  font-weight: 800;
-  line-height: 1.2;
-}
-
-.stat-card-label {
+.loc-district-item {
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
   font-size: 12px;
-  font-weight: 600;
-  margin-top: 4px;
+  color: #334155;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
 }
 
-.card-sos { background: #fee2e2; color: #dc2626; }
-.card-warning { background: #fef3c7; color: #d97706; }
-.card-shelter { background: #d1fae5; color: #059669; }
-.card-donation { background: #dbeafe; color: #2563eb; }
+.loc-district-item:hover {
+  background: #2563eb;
+  color: white;
+  border-color: #2563eb;
+}
 
 .river-table {
   width: 100%;

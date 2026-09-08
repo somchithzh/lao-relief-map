@@ -1,31 +1,123 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { ShieldAlert, Plus, Phone, X, MapPin, CheckCircle, RefreshCw, Crosshair, Loader2, Share2, MessageCircle, Copy, Send, Camera, Smartphone, Layers, CloudRain, Waves, Search, BarChart3 } from 'lucide-react';
+import { ShieldAlert, Plus, Phone, X, MapPin, CheckCircle, RefreshCw, Crosshair, Loader2, Share2, MessageCircle, Copy, Send, Camera, Smartphone, Layers, CloudRain, Waves, Search, ChevronDown, ChevronRight } from 'lucide-react';
 import { supabase } from './supabase';
 import './App.css';
 
-const PROVINCES = {
-  all: { name: '📍 ທົ່ວປະເທດ (18 ແຂວງ)', lat: 18.5, lng: 103.5, zoom: 7 },
-  vientiane_cap: { name: 'ນະຄອນຫຼວງວຽງຈັນ', lat: 17.9757, lng: 102.6331, zoom: 11 },
-  vientiane_prov: { name: 'ແຂວງ ວຽງຈັນ', lat: 18.9242, lng: 102.4491, zoom: 9 },
-  luangprabang: { name: 'ຫຼວງພະບາງ', lat: 19.8893, lng: 102.1350, zoom: 10 },
-  khammouane: { name: 'ຄຳມ່ວນ (ທ່າແຂກ)', lat: 17.4042, lng: 104.8306, zoom: 9 },
-  savannakhet: { name: 'ສະຫວັນນະເຂດ', lat: 16.5413, lng: 104.7570, zoom: 9 },
-  champasak: { name: 'ຈຳປາສັກ (ປາກເຊ)', lat: 15.1213, lng: 105.7818, zoom: 9 },
-  xayabury: { name: 'ໄຊຍະບູລີ', lat: 19.2553, lng: 101.7547, zoom: 9 },
-  bolikhamxay: { name: 'ບໍລິຄຳໄຊ (ປາກຊັນ)', lat: 18.3778, lng: 103.6586, zoom: 9 },
-  xiengkhouang: { name: 'ຊຽງຂວາງ (ໂພນສະຫວັນ)', lat: 19.4526, lng: 103.2208, zoom: 9 },
-  houaphanh: { name: 'ຫົວພັນ (ຊຳເໜືອ)', lat: 20.4208, lng: 104.0439, zoom: 9 },
-  oudomxay: { name: 'ອຸດົມໄຊ (ເມືອງໄຊ)', lat: 20.6908, lng: 101.9840, zoom: 9 },
-  luangnamtha: { name: 'ຫຼວງນ້ຳທາ', lat: 20.9578, lng: 101.4019, zoom: 9 },
-  bokeo: { name: 'ບໍ່ແກ້ວ (ຫ້ວຍຊາຍ)', lat: 20.2764, lng: 100.4136, zoom: 9 },
-  phongsaly: { name: 'ຜົ້ງສາລີ', lat: 21.6833, lng: 102.1000, zoom: 9 },
-  salavan: { name: 'ສາລະວັນ', lat: 15.7167, lng: 106.4167, zoom: 9 },
-  sekong: { name: 'ເຊກອງ', lat: 15.3444, lng: 106.7208, zoom: 9 },
-  attapeu: { name: 'ອັດຕະປື', lat: 14.8107, lng: 106.8327, zoom: 9 },
-  xaysomboun: { name: 'ໄຊສົມບູນ', lat: 18.9167, lng: 103.1167, zoom: 9 },
-};
+// ຖານຂໍ້ມູນເມືອງ ແລະ ແຂວງທົ່ວປະເທດລາວ
+const LAO_DISTRICTS = [
+  // ນະຄອນຫຼວງວຽງຈັນ
+  { id: 'vt_all', name: 'ນະຄອນຫຼວງວຽງຈັນ (ທັງໝົດ)', province: 'ນະຄອນຫຼວງວຽງຈັນ', lat: 17.9757, lng: 102.6331, zoom: 10, isProv: true },
+  { id: 'vt_chantabuly', name: 'ເມືອງຈັນທະບູລີ', province: 'ນະຄອນຫຼວງວຽງຈັນ', lat: 17.9786, lng: 102.6105, zoom: 12 },
+  { id: 'vt_sikhottabong', name: 'ເມືອງສີໂຄດຕະບອງ', province: 'ນະຄອນຫຼວງວຽງຈັນ', lat: 17.9850, lng: 102.5780, zoom: 12 },
+  { id: 'vt_xaysettha', name: 'ເມືອງໄຊເສດຖາ', province: 'ນະຄອນຫຼວງວຽງຈັນ', lat: 17.9620, lng: 102.6500, zoom: 12 },
+  { id: 'vt_sisattanak', name: 'ເມືອງສີສັດຕະນາກ', province: 'ນະຄອນຫຼວງວຽງຈັນ', lat: 17.9400, lng: 102.6300, zoom: 12 },
+  { id: 'vt_naxaithong', name: 'ເມືອງນາຊາຍທອງ', province: 'ນະຄອນຫຼວງວຽງຈັນ', lat: 18.1200, lng: 102.5200, zoom: 11 },
+  { id: 'vt_xaithany', name: 'ເມືອງໄຊທານີ', province: 'ນະຄອນຫຼວງວຽງຈັນ', lat: 18.0600, lng: 102.7300, zoom: 11 },
+  { id: 'vt_hadxayfong', name: 'ເມືອງຫາດຊາຍຟອງ', province: 'ນະຄອນຫຼວງວຽງຈັນ', lat: 17.8800, lng: 102.6800, zoom: 11 },
+  { id: 'vt_sangthong', name: 'ເມືອງສັງທອງ', province: 'ນະຄອນຫຼວງວຽງຈັນ', lat: 18.2300, lng: 102.1800, zoom: 11 },
+  { id: 'vt_pakngum', name: 'ເມືອງປາກງື່ມ', province: 'ນະຄອນຫຼວງວຽງຈັນ', lat: 18.1800, lng: 103.0500, zoom: 11 },
+
+  // ແຂວງ ວຽງຈັນ
+  { id: 'vp_all', name: 'ແຂວງ ວຽງຈັນ (ທັງໝົດ)', province: 'ແຂວງ ວຽງຈັນ', lat: 18.9242, lng: 102.4491, zoom: 9, isProv: true },
+  { id: 'vp_vangvieng', name: 'ເມືອງວັງວຽງ', province: 'ແຂວງ ວຽງຈັນ', lat: 18.9240, lng: 102.4480, zoom: 12 },
+  { id: 'vp_kasi', name: 'ເມືອງກາສີ', province: 'ແຂວງ ວຽງຈັນ', lat: 19.2312, lng: 102.2471, zoom: 12 },
+  { id: 'vp_phonhong', name: 'ເມືອງໂພນໂຮງ', province: 'ແຂວງ ວຽງຈັນ', lat: 18.4980, lng: 102.4170, zoom: 12 },
+  { id: 'vp_keooudom', name: 'ເມືອງແກ້ວອຸດົມ', province: 'ແຂວງ ວຽງຈັນ', lat: 18.5400, lng: 102.5500, zoom: 12 },
+  { id: 'vp_thoulakhom', name: 'ເມືອງທຸລະຄົມ', province: 'ແຂວງ ວຽງຈັນ', lat: 18.3300, lng: 102.6700, zoom: 12 },
+  { id: 'vp_feuang', name: 'ເມືອງເຟືອງ', province: 'ແຂວງ ວຽງຈັນ', lat: 18.8200, lng: 101.9800, zoom: 12 },
+  { id: 'vp_hinhurp', name: 'ເມືອງຫີນເຫີບ', province: 'ແຂວງ ວຽງຈັນ', lat: 18.6600, lng: 102.3700, zoom: 12 },
+
+  // ຫຼວງພະບາງ
+  { id: 'lp_all', name: 'ແຂວງ ຫຼວງພະບາງ (ທັງໝົດ)', province: 'ຫຼວງພະບາງ', lat: 19.8893, lng: 102.1350, zoom: 9, isProv: true },
+  { id: 'lp_city', name: 'ນະຄອນ ຫຼວງພະບາງ', province: 'ຫຼວງພະບາງ', lat: 19.8893, lng: 102.1350, zoom: 12 },
+  { id: 'lp_nongkhiaw', name: 'ເມືອງງອຍ (ໜອງຂຽວ)', province: 'ຫຼວງພະບາງ', lat: 20.5714, lng: 102.6106, zoom: 12 },
+  { id: 'lp_xienghone', name: 'ເມືອງຊຽງເງິນ', province: 'ຫຼວງພະບາງ', lat: 19.7500, lng: 102.2000, zoom: 12 },
+  { id: 'lp_pakou', name: 'ເມືອງປາກອູ', province: 'ຫຼວງພະບາງ', lat: 20.0500, lng: 102.2300, zoom: 12 },
+  { id: 'lp_nambak', name: 'ເມືອງນ້ຳບາກ', province: 'ຫຼວງພະບາງ', lat: 20.6200, lng: 102.3300, zoom: 12 },
+  { id: 'lp_phoukhoun', name: 'ເມືອງພູຄູນ', province: 'ຫຼວງພະບາງ', lat: 19.3500, lng: 102.4300, zoom: 12 },
+
+  // ຄຳມ່ວນ
+  { id: 'km_all', name: 'ແຂວງ ຄຳມ່ວນ (ທັງໝົດ)', province: 'ຄຳມ່ວນ', lat: 17.4042, lng: 104.8306, zoom: 9, isProv: true },
+  { id: 'km_thakhek', name: 'ເມືອງທ່າແຂກ', province: 'ຄຳມ່ວນ', lat: 17.4042, lng: 104.8306, zoom: 12 },
+  { id: 'km_khounkham', name: 'ເມືອງຄູນຄຳ (ກອງລໍ)', province: 'ຄຳມ່ວນ', lat: 17.9800, lng: 104.6000, zoom: 12 },
+  { id: 'km_hinboun', name: 'ເມືອງຫີນບູນ', province: 'ຄຳມ່ວນ', lat: 17.7500, lng: 104.6700, zoom: 12 },
+  { id: 'km_mahaxay', name: 'ເມືອງມະຫາໄຊ', province: 'ຄຳມ່ວນ', lat: 17.4200, lng: 105.1800, zoom: 12 },
+  { id: 'km_xebangfai', name: 'ເມືອງເຊບັ້ງໄຟ', province: 'ຄຳມ່ວນ', lat: 17.0700, lng: 104.9800, zoom: 12 },
+  { id: 'km_nakai', name: 'ເມືອງນາກາຍ', province: 'ຄຳມ່ວນ', lat: 17.7200, lng: 105.1500, zoom: 12 },
+
+  // ສະຫວັນນະເຂດ
+  { id: 'sv_all', name: 'ແຂວງ ສະຫວັນນະເຂດ (ທັງໝົດ)', province: 'ສະຫວັນນະເຂດ', lat: 16.5413, lng: 104.7570, zoom: 9, isProv: true },
+  { id: 'sv_kaysone', name: 'ນະຄອນ ໄກສອນ ພົມວິຫານ', province: 'ສະຫວັນນະເຂດ', lat: 16.5413, lng: 104.7570, zoom: 12 },
+  { id: 'sv_outhoumphone', name: 'ເມືອງອຸທຸມພອນ (ເຊໂນ)', province: 'ສະຫວັນນະເຂດ', lat: 16.7000, lng: 105.0000, zoom: 12 },
+  { id: 'sv_xepon', name: 'ເມືອງເຊໂປນ', province: 'ສະຫວັນນະເຂດ', lat: 16.7000, lng: 106.2000, zoom: 12 },
+  { id: 'sv_songkhone', name: 'ເມືອງສອງຄອນ', province: 'ສະຫວັນນະເຂດ', lat: 16.3200, lng: 105.3100, zoom: 12 },
+
+  // ຈຳປາສັກ
+  { id: 'cp_all', name: 'ແຂວງ ຈຳປາສັກ (ທັງໝົດ)', province: 'ຈຳປາສັກ', lat: 15.1213, lng: 105.7818, zoom: 9, isProv: true },
+  { id: 'cp_pakse', name: 'ນະຄອນ ປາກເຊ', province: 'ຈຳປາສັກ', lat: 15.1213, lng: 105.7818, zoom: 12 },
+  { id: 'cp_champasak', name: 'ເມືອງຈຳປາສັກ (ວັດພູ)', province: 'ຈຳປາສັກ', lat: 14.8900, lng: 105.8800, zoom: 12 },
+  { id: 'cp_khong', name: 'ເມືອງໂຂງ (ສີ່ພັນດອນ)', province: 'ຈຳປາສັກ', lat: 14.1200, lng: 105.9800, zoom: 12 },
+  { id: 'cp_paksong', name: 'ເມືອງປາກຊ່ອງ', province: 'ຈຳປາສັກ', lat: 15.1800, lng: 106.2300, zoom: 12 },
+
+  // ບໍລິຄຳໄຊ
+  { id: 'bk_all', name: 'ແຂວງ ບໍລິຄຳໄຊ (ທັງໝົດ)', province: 'ບໍລິຄຳໄຊ', lat: 18.3778, lng: 103.6586, zoom: 9, isProv: true },
+  { id: 'bk_paksan', name: 'ເມືອງປາກຊັນ', province: 'ບໍລິຄຳໄຊ', lat: 18.3778, lng: 103.6586, zoom: 12 },
+  { id: 'bk_thaphabath', name: 'ເມືອງທ່າພະບາດ', province: 'ບໍລິຄຳໄຊ', lat: 18.2800, lng: 103.2000, zoom: 12 },
+  { id: 'bk_khamkeuth', name: 'ເມືອງຄຳເກີດ (ຫຼັກ 20)', province: 'ບໍລິຄຳໄຊ', lat: 18.1700, lng: 104.9700, zoom: 12 },
+
+  // ໄຊຍະບູລີ
+  { id: 'xb_all', name: 'ແຂວງ ໄຊຍະບູລີ (ທັງໝົດ)', province: 'ໄຊຍະບູລີ', lat: 19.2553, lng: 101.7547, zoom: 9, isProv: true },
+  { id: 'xb_xayabury', name: 'ເມືອງໄຊຍະບູລີ', province: 'ໄຊຍະບູລີ', lat: 19.2553, lng: 101.7547, zoom: 12 },
+  { id: 'xb_hongsa', name: 'ເມືອງຫົງສາ', province: 'ໄຊຍະບູລີ', lat: 19.7000, lng: 101.3300, zoom: 12 },
+  { id: 'xb_kenethao', name: 'ເມືອງແກ່ນທ້າວ', province: 'ໄຊຍະບູລີ', lat: 17.8500, lng: 101.3700, zoom: 12 },
+
+  // ຊຽງຂວາງ
+  { id: 'xk_all', name: 'ແຂວງ ຊຽງຂວາງ (ທັງໝົດ)', province: 'ຊຽງຂວາງ', lat: 19.4526, lng: 103.2208, zoom: 9, isProv: true },
+  { id: 'xk_paek', name: 'ເມືອງແປກ (ໂພນສະຫວັນ)', province: 'ຊຽງຂວາງ', lat: 19.4526, lng: 103.2208, zoom: 12 },
+  { id: 'xk_kham', name: 'ເມືອງຄຳ', province: 'ຊຽງຂວາງ', lat: 19.7800, lng: 103.6200, zoom: 12 },
+
+  // ຫົວພັນ
+  { id: 'hp_all', name: 'ແຂວງ ຫົວພັນ (ທັງໝົດ)', province: 'ຫົວພັນ', lat: 20.4208, lng: 104.0439, zoom: 9, isProv: true },
+  { id: 'hp_samneua', name: 'ເມືອງຊຳເໜືອ', province: 'ຫົວພັນ', lat: 20.4208, lng: 104.0439, zoom: 12 },
+  { id: 'hp_viengxay', name: 'ເມືອງວຽງໄຊ', province: 'ຫົວພັນ', lat: 20.4000, lng: 104.2200, zoom: 12 },
+
+  // ອຸດົມໄຊ
+  { id: 'ox_all', name: 'ແຂວງ ອຸດົມໄຊ (ທັງໝົດ)', province: 'ອຸດົມໄຊ', lat: 20.6908, lng: 101.9840, zoom: 9, isProv: true },
+  { id: 'ox_xay', name: 'ເມືອງໄຊ', province: 'ອຸດົມໄຊ', lat: 20.6908, lng: 101.9840, zoom: 12 },
+
+  // ຫຼວງນ້ຳທາ
+  { id: 'ln_all', name: 'ແຂວງ ຫຼວງນ້ຳທາ (ທັງໝົດ)', province: 'ຫຼວງນ້ຳທາ', lat: 20.9578, lng: 101.4019, zoom: 9, isProv: true },
+  { id: 'ln_namtha', name: 'ເມືອງຫຼວງນ້ຳທາ', province: 'ຫຼວງນ້ຳທາ', lat: 20.9578, lng: 101.4019, zoom: 12 },
+  { id: 'ln_botene', name: 'ບໍ່ເຕັນ (ດ່ານຊາຍແດນ)', province: 'ຫຼວງນ້ຳທາ', lat: 21.1900, lng: 101.6800, zoom: 13 },
+
+  // ບໍ່ແກ້ວ
+  { id: 'bo_all', name: 'ແຂວງ ບໍ່ແກ້ວ (ທັງໝົດ)', province: 'ບໍ່ແກ້ວ', lat: 20.2764, lng: 100.4136, zoom: 9, isProv: true },
+  { id: 'bo_houayxay', name: 'ເມືອງຫ້ວຍຊາຍ', province: 'ບໍ່ແກ້ວ', lat: 20.2764, lng: 100.4136, zoom: 12 },
+  { id: 'bo_tonpheung', name: 'ເມືອງຕົ້ນເຜິ້ງ (ເຂດເສດຖະກິດພິເສດ)', province: 'ບໍ່ແກ້ວ', lat: 20.3500, lng: 100.1200, zoom: 12 },
+
+  // ຜົ້ງສາລີ
+  { id: 'ps_all', name: 'ແຂວງ ຜົ້ງສາລີ (ທັງໝົດ)', province: 'ຜົ້ງສາລີ', lat: 21.6833, lng: 102.1000, zoom: 9, isProv: true },
+  { id: 'ps_phongsaly', name: 'ເມືອງຜົ້ງສາລີ', province: 'ຜົ້ງສາລີ', lat: 21.6833, lng: 102.1000, zoom: 12 },
+
+  // ສາລະວັນ
+  { id: 'sl_all', name: 'ແຂວງ ສາລະວັນ (ທັງໝົດ)', province: 'ສາລະວັນ', lat: 15.7167, lng: 106.4167, zoom: 9, isProv: true },
+  { id: 'sl_salavan', name: 'ເມືອງສາລະວັນ', province: 'ສາລະວັນ', lat: 15.7167, lng: 106.4167, zoom: 12 },
+
+  // ເຊກອງ
+  { id: 'sk_all', name: 'ແຂວງ ເຊກອງ (ທັງໝົດ)', province: 'ເຊກອງ', lat: 15.3444, lng: 106.7208, zoom: 9, isProv: true },
+  { id: 'sk_lammam', name: 'ເມືອງລະມາມ', province: 'ເຊກອງ', lat: 15.3444, lng: 106.7208, zoom: 12 },
+
+  // ອັດຕະປື
+  { id: 'at_all', name: 'ແຂວງ ອັດຕະປື (ທັງໝົດ)', province: 'ອັດຕະປື', lat: 14.8107, lng: 106.8327, zoom: 9, isProv: true },
+  { id: 'at_samakkhixay', name: 'ເມືອງສາມັກຄີໄຊ', province: 'ອັດຕະປື', lat: 14.8107, lng: 106.8327, zoom: 12 },
+  { id: 'at_sanamxay', name: 'ເມືອງສະໜາມໄຊ', province: 'ອັດຕະປື', lat: 14.7300, lng: 106.5200, zoom: 12 },
+
+  // ໄຊສົມບູນ
+  { id: 'xs_all', name: 'ແຂວງ ໄຊສົມບູນ (ທັງໝົດ)', province: 'ໄຊສົມບູນ', lat: 18.9167, lng: 103.1167, zoom: 9, isProv: true },
+  { id: 'xs_anouvong', name: 'ເມືອງອະນຸວົງ', province: 'ໄຊສົມບູນ', lat: 18.9167, lng: 103.1167, zoom: 12 },
+];
 
 const MEKONG_STATIONS = [
   { province: 'ຫຼວງພະບາງ', station: 'ສະຖານີຫຼວງພະບາງ', warn: '17.50 ມ', danger: '18.00 ມ' },
@@ -97,7 +189,13 @@ export default function App() {
   const [reports, setReports] = useState([]);
   const [filter, setFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedProvince, setSelectedProvince] = useState('all');
+
+  // ຈັດການສະຖານທີ່ທີ່ເລືອກ
+  const [currentLocationName, setCurrentLocationName] = useState('📍 ທົ່ວປະເທດ');
+  const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
+  const [locationSearch, setLocationSearch] = useState('');
+  const [expandedProv, setExpandedProv] = useState(null);
+
   const [mapTarget, setMapTarget] = useState({
     center: [18.5, 103.5],
     zoom: 7
@@ -108,7 +206,6 @@ export default function App() {
   const [radarTileUrl, setRadarTileUrl] = useState('');
 
   const [isRiverModalOpen, setIsRiverModalOpen] = useState(false);
-  const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPickingLocation, setIsPickingLocation] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -188,16 +285,17 @@ export default function App() {
     };
   }, []);
 
-  const handleProvinceChange = (e) => {
-    const key = e.target.value;
-    setSelectedProvince(key);
-    const prov = PROVINCES[key];
-    if (prov) {
-      setMapTarget({
-        center: [prov.lat, prov.lng],
-        zoom: prov.zoom
-      });
+  // ເມື່ອກົດເລືອກເມືອງ/ແຂວງ ຈາກ Modal
+  const handleSelectLocation = (loc) => {
+    if (loc.id === 'all') {
+      setCurrentLocationName('📍 ທົ່ວປະເທດ');
+      setMapTarget({ center: [18.5, 103.5], zoom: 7 });
+    } else {
+      setCurrentLocationName(`📍 ${loc.name}`);
+      setMapTarget({ center: [loc.lat, loc.lng], zoom: loc.zoom });
     }
+    setIsLocationModalOpen(false);
+    setLocationSearch('');
   };
 
   const handleGetCurrentLocation = () => {
@@ -271,6 +369,8 @@ export default function App() {
             .from('report-images')
             .getPublicUrl(fileName);
           uploadedImageUrl = publicUrlData.publicUrl;
+        } else {
+          console.error('Upload error:', uploadErr);
         }
       }
 
@@ -376,7 +476,6 @@ https://somchithzh.github.io/lao-relief-map/`;
     }
   };
 
-  // ຄັດກອງຕາມເວລາ
   const activeReports = reports.filter((r) => {
     const createdAt = new Date(r.created_at).getTime();
     const hoursSinceCreated = (currentTime - createdAt) / (1000 * 60 * 60);
@@ -390,21 +489,17 @@ https://somchithzh.github.io/lao-relief-map/`;
     }
   });
 
-  // ນັບສະຖິຕິແຕ່ລະປະເພດ
   const stats = {
     total: activeReports.length,
     sos: activeReports.filter((r) => r.type === 'sos' && r.status !== 'resolved').length,
     warning: activeReports.filter((r) => r.type === 'warning' && r.status !== 'resolved').length,
     shelter: activeReports.filter((r) => r.type === 'shelter' && r.status !== 'resolved').length,
     donation: activeReports.filter((r) => r.type === 'donation' && r.status !== 'resolved').length,
-    resolved: activeReports.filter((r) => r.status === 'resolved').length,
   };
 
-  // ຄັດກອງຕາມປະເພດ ແລະ ຄຳຄົ້ນຫາ (Search)
   const filteredReports = activeReports
     .filter((r) => {
       if (filter === 'all') return true;
-      if (filter === 'resolved') return r.status === 'resolved';
       return r.type === filter && r.status !== 'resolved';
     })
     .filter((r) => {
@@ -416,6 +511,17 @@ https://somchithzh.github.io/lao-relief-map/`;
       const phone = (r.phone || '').toLowerCase();
       return title.includes(q) || desc.includes(q) || loc.includes(q) || phone.includes(q);
     });
+
+  // ກັ່ນຕອງເມືອງຕາມຄຳຄົ້ນຫາໃນ Modal
+  const searchedDistricts = locationSearch.trim()
+    ? LAO_DISTRICTS.filter((d) => 
+        d.name.toLowerCase().includes(locationSearch.toLowerCase()) || 
+        d.province.toLowerCase().includes(locationSearch.toLowerCase())
+      )
+    : [];
+
+  // ແຍກລາຍຊື່ແຂວງສຳລັບສະແດງໃນ Modal
+  const provinceList = Array.from(new Set(LAO_DISTRICTS.filter(d => !d.isCountry).map(d => d.province)));
 
   return (
     <div className="app-container">
@@ -441,8 +547,18 @@ https://somchithzh.github.io/lao-relief-map/`;
         </div>
       </header>
 
-      {/* ແຖບຄົ້ນຫາ, ເລືອກແຂວງ, ສະຖິຕິ ແລະ Filter */}
+      {/* ແຖບເລືອກພື້ນທີ່, ຄົ້ນຫາ, ດາວທຽມ, ແລະ Filter */}
       <div className="filter-bar">
+        {/* ປຸ່ມກົດເປີດເລືອກແຂວງ/ເມືອງ */}
+        <button 
+          className="btn-location-picker"
+          onClick={() => setIsLocationModalOpen(true)}
+        >
+          <MapPin size={14} />
+          <span>{currentLocationName}</span>
+          <ChevronDown size={14} />
+        </button>
+
         {/* ຊ່ອງຄົ້ນຫາດ່ວນ */}
         <div className="search-box">
           <Search size={14} className="search-icon" />
@@ -457,18 +573,6 @@ https://somchithzh.github.io/lao-relief-map/`;
             <X size={14} className="search-clear" onClick={() => setSearchQuery('')} />
           )}
         </div>
-
-        <select 
-          className="province-select" 
-          value={selectedProvince} 
-          onChange={handleProvinceChange}
-        >
-          {Object.entries(PROVINCES).map(([key, prov]) => (
-            <option key={key} value={key}>
-              {prov.name}
-            </option>
-          ))}
-        </select>
 
         <button 
           className={`btn-satellite ${mapType === 'satellite' ? 'active' : ''}`}
@@ -494,16 +598,6 @@ https://somchithzh.github.io/lao-relief-map/`;
           🌊 ລະດັບນ້ຳ
         </button>
 
-        {/* ປຸ່ມເປີດເບິ່ງສະຖິຕິລວມ */}
-        <button 
-          className="btn-stats"
-          onClick={() => setIsStatsModalOpen(true)}
-        >
-          <BarChart3 size={14} />
-          📊 ສະຖິຕິ ({stats.total})
-        </button>
-
-        {/* ປຸ່ມ Filter ພ້ອມຕົວເລກສະຖິຕິແຕ່ລະປະເພດ */}
         <button 
           className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
           onClick={() => setFilter('all')}
@@ -686,41 +780,108 @@ https://somchithzh.github.io/lao-relief-map/`;
         </MapContainer>
       </div>
 
-      {/* Modal ສະຖິຕິສະຖານະການພາບລວມ */}
-      {isStatsModalOpen && (
-        <div className="modal-overlay" onClick={() => setIsStatsModalOpen(false)}>
-          <div className="modal-box" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '400px' }}>
+      {/* Modal ເລືອກພື້ນທີ່ ແລະ ເມືອງ (Location & District Picker Modal) */}
+      {isLocationModalOpen && (
+        <div className="modal-overlay" onClick={() => setIsLocationModalOpen(false)}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '440px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
               <h2 style={{ fontSize: '17px', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <BarChart3 size={20} color="#7c3aed" />
-                ສະຫຼຸບສະຖານະການ Real-time
+                <MapPin size={20} color="#2563eb" />
+                ເລືອກພື້ນທີ່ ຫຼື ຄົ້ນຫາເມືອງ
               </h2>
-              <X size={20} style={{ cursor: 'pointer' }} onClick={() => setIsStatsModalOpen(false)} />
+              <X size={20} style={{ cursor: 'pointer' }} onClick={() => setIsLocationModalOpen(false)} />
             </div>
 
-            <div className="stats-grid">
-              <div className="stat-card card-sos">
-                <div className="stat-card-num">{stats.sos}</div>
-                <div className="stat-card-label">🚨 ຂໍຄວາມຊ່ວຍເຫຼືອ</div>
-              </div>
-              <div className="stat-card card-warning">
-                <div className="stat-card-num">{stats.warning}</div>
-                <div className="stat-card-label">⚠️ ແຈ້ງເຕືອນ/ທາງຂາດ</div>
-              </div>
-              <div className="stat-card card-shelter">
-                <div className="stat-card-num">{stats.shelter}</div>
-                <div className="stat-card-label">🏠 ສູນພັກເຊົາ</div>
-              </div>
-              <div className="stat-card card-donation">
-                <div className="stat-card-num">{stats.donation}</div>
-                <div className="stat-card-label">📦 ຈຸດບໍລິຈາກ</div>
-              </div>
+            {/* ຊ່ອງຄົ້ນຫາເມືອງ/ແຂວງ */}
+            <div style={{ position: 'relative', marginBottom: '12px' }}>
+              <Search size={16} style={{ position: 'absolute', left: '12px', top: '13px', color: '#94a3b8' }} />
+              <input 
+                type="text"
+                className="loc-search-input"
+                placeholder="ພິມຊື່ເມືອງ ຫຼື ແຂວງ (ເຊັ່ນ: ວັງວຽງ, ທ່າແຂກ...)"
+                value={locationSearch}
+                onChange={(e) => setLocationSearch(e.target.value)}
+                autoFocus
+              />
             </div>
 
-            <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '8px', fontSize: '12.5px', color: '#475569', lineHeight: '1.6' }}>
-              <div>• <strong>ຈຳນວນເຫດການທັງໝົດ:</strong> {stats.total} ຈຸດ</div>
-              <div>• <strong>ໄດ້ຮັບການຊ່ວຍເຫຼືອແລ້ວ:</strong> {stats.resolved} ຈຸດ (ກຳລັງນັບຖອຍຫຼັງ)</div>
-            </div>
+            {/* ຖ້າມີການພິມຄົ້ນຫາ -> ສະແດງຜົນການຄົ້ນຫາ */}
+            {locationSearch.trim() ? (
+              <div>
+                <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '8px', fontWeight: '600' }}>
+                  ພົບ {searchedDistricts.length} ເມືອງ/ແຂວງ:
+                </div>
+                <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                  {searchedDistricts.map((d) => (
+                    <div 
+                      key={d.id}
+                      className="loc-district-item"
+                      style={{ marginBottom: '6px', padding: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                      onClick={() => handleSelectLocation(d)}
+                    >
+                      <div>
+                        <strong>{d.name}</strong>
+                        <div style={{ fontSize: '11px', color: '#64748b' }}>{d.province}</div>
+                      </div>
+                      <span style={{ fontSize: '11px', color: '#2563eb' }}>Zoom 🔍</span>
+                    </div>
+                  ))}
+                  {searchedDistricts.length === 0 && (
+                    <div style={{ textAlign: 'center', padding: '20px', color: '#94a3b8', fontSize: '13px' }}>
+                      ບໍ່ພົບຊື່ເມືອງນີ້
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              /* ຖ້າບໍ່ໄດ້ພິມ -> ສະແດງລາຍຊື່ແຂວງ ແລະ ເມືອງພາຍໃນ */
+              <div style={{ maxHeight: '340px', overflowY: 'auto' }}>
+                {/* ປຸ່ມທົ່ວປະເທດ */}
+                <button 
+                  className="loc-category-btn"
+                  style={{ background: '#eff6ff', borderColor: '#bfdbfe', color: '#1d4ed8' }}
+                  onClick={() => handleSelectLocation({ id: 'all', name: 'ທົ່ວປະເທດ' })}
+                >
+                  <span>📍 ທົ່ວປະເທດ (ມຸມມອງໃຫຍ່)</span>
+                  <ChevronRight size={16} />
+                </button>
+
+                <div style={{ fontSize: '12px', fontWeight: '700', color: '#64748b', margin: '12px 0 6px 4px' }}>
+                  ເລືອກຕາມແຂວງ:
+                </div>
+
+                {provinceList.map((provName) => {
+                  const provDistricts = LAO_DISTRICTS.filter((d) => d.province === provName);
+                  const isExpanded = expandedProv === provName;
+
+                  return (
+                    <div key={provName} style={{ marginBottom: '4px' }}>
+                      <button 
+                        className="loc-category-btn"
+                        onClick={() => setExpandedProv(isExpanded ? null : provName)}
+                      >
+                        <span>{provName} ({provDistricts.length} ເມືອງ)</span>
+                        {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                      </button>
+
+                      {isExpanded && (
+                        <div className="loc-district-grid">
+                          {provDistricts.map((d) => (
+                            <button 
+                              key={d.id}
+                              className="loc-district-item"
+                              onClick={() => handleSelectLocation(d)}
+                            >
+                              {d.name}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       )}
