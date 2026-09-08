@@ -72,10 +72,30 @@ body {
   background-color: #ffffff;
   padding: 8px 20px;
   display: flex;
+  align-items: center;
   gap: 10px;
   overflow-x: auto;
   border-bottom: 1px solid #e5e7eb;
   z-index: 999;
+}
+
+/* Dropdown ເລືອກແຂວງ */
+.province-select {
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1.5px solid #2563eb;
+  background-color: #eff6ff;
+  color: #1d4ed8;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  outline: none;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.province-select:hover {
+  background-color: #dbeafe;
 }
 
 .filter-btn {
@@ -145,7 +165,7 @@ body {
   100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
 }
 
-/* Popup */
+/* Popup Content */
 .popup-content {
   padding: 4px;
   min-width: 240px;
@@ -339,7 +359,7 @@ body {
   gap: 5px;
 }
 
-/* ກ່ອງອັບໂຫຼດຮູບ: ຈັດເຄິ່ງກາງ ແລະ ເປັນລະບຽບ */
+/* ກ່ອງອັບໂຫຼດຮູບ */
 .upload-box {
   border: 1.5px dashed #94a3b8;
   background: #f8fafc;

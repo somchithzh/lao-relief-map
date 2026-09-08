@@ -1,9 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { ShieldAlert, Plus, Phone, X, MapPin, CheckCircle, RefreshCw, Crosshair, Loader2, Share2, MessageCircle, Copy, Send, Camera } from 'lucide-react';
 import { supabase } from './supabase';
 import './App.css';
+
+// ຂໍ້ມູນ 18 ແຂວງໃນປະເທດລາວ ພ້ອມພິກັດ ແລະ ລະດັບ Zoom
+const PROVINCES = {
+  all: { name: '📍 ທົ່ວປະເທດ (18 ແຂວງ)', lat: 18.5, lng: 103.5, zoom: 7 },
+  vientiane_cap: { name: 'ນະຄອນຫຼວງວຽງຈັນ', lat: 17.9757, lng: 102.6331, zoom: 11 },
+  vientiane_prov: { name: 'ແຂວງ ວຽງຈັນ', lat: 18.9242, lng: 102.4491, zoom: 9 },
+  luangprabang: { name: 'ຫຼວງພະບາງ', lat: 19.8893, lng: 102.1350, zoom: 10 },
+  khammouane: { name: 'ຄຳມ່ວນ (ທ່າແຂກ)', lat: 17.4042, lng: 104.8306, zoom: 9 },
+  savannakhet: { name: 'ສະຫວັນນະເຂດ', lat: 16.5413, lng: 104.7570, zoom: 9 },
+  champasak: { name: 'ຈຳປາສັກ (ປາກເຊ)', lat: 15.1213, lng: 105.7818, zoom: 9 },
+  xayabury: { name: 'ໄຊຍະບູລີ', lat: 19.2553, lng: 101.7547, zoom: 9 },
+  bolikhamxay: { name: 'ບໍລິຄຳໄຊ (ປາກຊັນ)', lat: 18.3778, lng: 103.6586, zoom: 9 },
+  xiengkhouang: { name: 'ຊຽງຂວາງ (ໂພນສະຫວັນ)', lat: 19.4526, lng: 103.2208, zoom: 9 },
+  houaphanh: { name: 'ຫົວພັນ (ຊຳເໜືອ)', lat: 20.4208, lng: 104.0439, zoom: 9 },
+  oudomxay: { name: 'ອຸດົມໄຊ (ເມືອງໄຊ)', lat: 20.6908, lng: 101.9840, zoom: 9 },
+  luangnamtha: { name: 'ຫຼວງນ້ຳທາ', lat: 20.9578, lng: 101.4019, zoom: 9 },
+  bokeo: { name: 'ບໍ່ແກ້ວ (ຫ້ວຍຊາຍ)', lat: 20.2764, lng: 100.4136, zoom: 9 },
+  phongsaly: { name: 'ຜົ້ງສາລີ', lat: 21.6833, lng: 102.1000, zoom: 9 },
+  salavan: { name: 'ສາລະວັນ', lat: 15.7167, lng: 106.4167, zoom: 9 },
+  sekong: { name: 'ເຊກອງ', lat: 15.3444, lng: 106.7208, zoom: 9 },
+  attapeu: { name: 'ອັດຕະປື', lat: 14.8107, lng: 106.8327, zoom: 9 },
+  xaysomboun: { name: 'ໄຊສົມບູນ', lat: 18.9167, lng: 103.1167, zoom: 9 },
+};
 
 const createCustomIcon = (report, isUrgent) => {
   let colorClass = 'pin-' + report.type;
@@ -44,6 +67,17 @@ function LocationPicker({ isPicking, onLocationSelect }) {
   return null;
 }
 
+// ຄວບຄຸມການບິນ ແລະ Zoom ໄປຫາແຂວງທີ່ເລືອກ
+function MapController({ targetCenter, targetZoom }) {
+  const map = useMap();
+  useEffect(() => {
+    if (targetCenter) {
+      map.flyTo(targetCenter, targetZoom, { duration: 1.2 });
+    }
+  }, [targetCenter, targetZoom, map]);
+  return null;
+}
+
 function formatCountdown(resolvedAt, currentTime) {
   if (!resolvedAt) return 'ກຳລັງປະມວນຜົນ...';
   const resolvedTime = new Date(resolvedAt).getTime();
@@ -56,6 +90,12 @@ function formatCountdown(resolvedAt, currentTime) {
 export default function App() {
   const [reports, setReports] = useState([]);
   const [filter, setFilter] = useState('all');
+  const [selectedProvince, setSelectedProvince] = useState('all');
+  const [mapTarget, setMapTarget] = useState({
+    center: [18.5, 103.5],
+    zoom: 7
+  });
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPickingLocation, setIsPickingLocation] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -119,6 +159,19 @@ export default function App() {
       supabase.removeChannel(channel);
     };
   }, []);
+
+  // ເມື່ອເລືອກແຂວງ -> ສັ່ງໃຫ້ແຜນທີ່ FlyTo ໄປຫາແຂວງນັ້ນ
+  const handleProvinceChange = (e) => {
+    const key = e.target.value;
+    setSelectedProvince(key);
+    const prov = PROVINCES[key];
+    if (prov) {
+      setMapTarget({
+        center: [prov.lat, prov.lng],
+        zoom: prov.zoom
+      });
+    }
+  };
 
   const handleGetCurrentLocation = () => {
     if (!navigator.geolocation) {
@@ -331,7 +384,21 @@ https://somchithzh.github.io/lao-relief-map/`;
         </button>
       </header>
 
+      {/* ແຖບເລືອກແຂວງ ແລະ ຄັດກອງປະເພດ */}
       <div className="filter-bar">
+        {/* ເມນູເລືອກ 18 ແຂວງ */}
+        <select 
+          className="province-select" 
+          value={selectedProvince} 
+          onChange={handleProvinceChange}
+        >
+          {Object.entries(PROVINCES).map(([key, prov]) => (
+            <option key={key} value={key}>
+              {prov.name}
+            </option>
+          ))}
+        </select>
+
         <button 
           className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
           onClick={() => setFilter('all')}
@@ -388,13 +455,19 @@ https://somchithzh.github.io/lao-relief-map/`;
         )}
 
         <MapContainer 
-          center={[18.5, 103.5]} 
-          zoom={7} 
+          center={mapTarget.center} 
+          zoom={mapTarget.zoom} 
           scrollWheelZoom={true}
         >
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+
+          {/* ຕົວຄວບຄຸມການບິນ ແລະ Zoom */}
+          <MapController 
+            targetCenter={mapTarget.center} 
+            targetZoom={mapTarget.zoom} 
           />
 
           <LocationPicker 
@@ -477,13 +550,13 @@ https://somchithzh.github.io/lao-relief-map/`;
                     )}
 
                     {report.status !== 'resolved' && hoursPassed >= 48 && (
-                        <button 
-                          className="btn-action-renew"
-                          onClick={() => handleRenewReport(report.id)}
-                        >
-                          <RefreshCw size={14} /> ຍັງຕ້ອງການຊ່ວຍ
-                        </button>
-                      )}
+                      <button 
+                        className="btn-action-renew"
+                        onClick={() => handleRenewReport(report.id)}
+                      >
+                        <RefreshCw size={14} /> ຍັງຕ້ອງການຊ່ວຍ
+                      </button>
+                    )}
                   </div>
                 </Popup>
               </Marker>
@@ -581,7 +654,6 @@ https://somchithzh.github.io/lao-relief-map/`;
                 />
               </div>
 
-              {/* ພາກສ່ວນແນບຮູບພາບ (ຈັດເຄິ່ງກາງ ຊື່ກົງ ແລະ ເປັນລະບຽບ) */}
               <div className="form-group">
                 <label>ຮູບພາບສະພາບຕົວຈິງ (ຖ້າມີ)</label>
                 {imagePreview ? (
