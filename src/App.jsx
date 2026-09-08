@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { ShieldAlert, Plus, Phone, X, MapPin, CheckCircle, RefreshCw, Crosshair, Loader2, Share2, MessageCircle, Copy, Send, Camera, Smartphone, Download } from 'lucide-react';
+import { ShieldAlert, Plus, Phone, X, MapPin, CheckCircle, RefreshCw, Crosshair, Loader2, Share2, MessageCircle, Copy, Send, Camera, Smartphone } from 'lucide-react';
 import { supabase } from './supabase';
 import './App.css';
 
@@ -375,21 +375,20 @@ https://somchithzh.github.io/lao-relief-map/`;
           </div>
         </div>
 
+        {/* ສະຫຼັບຕຳແໜ່ງ: ປຸ່ມລາຍງານເຫດຢູ່ກ່ອນ, ປຸ່ມຕິດຕັ້ງແອັບຢູ່ຂວາສຸດ */}
         <div className="header-actions">
-          {/* ປຸ່ມຕິດຕັ້ງແອັບມືຖື */}
-          <button className="btn-install" onClick={() => setIsInstallModalOpen(true)}>
-            <Smartphone size={16} />
-            ຕິດຕັ້ງແອັບ
-          </button>
-
           <button className="btn-report" onClick={() => setIsModalOpen(true)}>
             <Plus size={16} />
             ລາຍງານເຫດ
           </button>
+
+          <button className="btn-install" onClick={() => setIsInstallModalOpen(true)}>
+            <Smartphone size={16} />
+            ຕິດຕັ້ງແອັບ
+          </button>
         </div>
       </header>
 
-      {/* ແຖບເລືອກ 18 ແຂວງ ແລະ ປຸ່ມ Filter */}
       <div className="filter-bar">
         <select 
           className="province-select" 
