@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { ShieldAlert, Plus, Phone, X, MapPin, CheckCircle, RefreshCw, Crosshair, Loader2, Share2, MessageCircle, Copy, Send, Camera, Smartphone, Layers } from 'lucide-react';
+import { ShieldAlert, Plus, Phone, X, MapPin, CheckCircle, RefreshCw, Crosshair, Loader2, Share2, MessageCircle, Copy, Send, Camera, Smartphone, Layers, CloudRain, Waves } from 'lucide-react';
 import { supabase } from './supabase';
 import './App.css';
 
@@ -26,6 +26,15 @@ const PROVINCES = {
   attapeu: { name: 'ອັດຕະປື', lat: 14.8107, lng: 106.8327, zoom: 9 },
   xaysomboun: { name: 'ໄຊສົມບູນ', lat: 18.9167, lng: 103.1167, zoom: 9 },
 };
+
+// ຂໍ້ມູນເກນລະດັບນ້ຳຂອງ 5 ສະຖານີຫຼັກໃນລາວ
+const MEKONG_STATIONS = [
+  { province: 'ຫຼວງພະບາງ', station: 'ສະຖານີຫຼວງພະບາງ', warn: '17.50 ມ', danger: '18.00 ມ' },
+  { province: 'ນະຄອນຫຼວງວຽງຈັນ', station: 'ຫຼັກ 4 / ດອນຈັນ', warn: '11.50 ມ', danger: '12.50 ມ' },
+  { province: 'ຄຳມ່ວນ', station: 'ສະຖານີທ່າແຂກ', warn: '13.00 ມ', danger: '14.00 ມ' },
+  { province: 'ສະຫວັນນະເຂດ', station: 'ສະຖານີສະຫວັນນະເຂດ', warn: '12.00 ມ', danger: '13.00 ມ' },
+  { province: 'ຈຳປາສັກ', station: 'ສະຖານີປາກເຊ', warn: '11.00 ມ', danger: '12.00 ມ' },
+];
 
 const createCustomIcon = (report, isUrgent) => {
   let colorClass = 'pin-' + report.type;
@@ -94,8 +103,12 @@ export default function App() {
     zoom: 7
   });
 
-  // ຮູບແບບແຜນທີ່: 'street' (ຖະໜົນ) ຫຼື 'satellite' (ດາວທຽມ)
   const [mapType, setMapType] = useState('street');
+
+  // ລະບົບເຣດາຝົນ Real-time
+  const [showRadar, setShowRadar] = useState(false);
+  const [radarTileUrl, setRadarTileUrl] = useState('');
+  const [isRiverModalOpen, setIsRiverModalOpen] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPickingLocation, setIsPickingLocation] = useState(false);
@@ -127,6 +140,21 @@ export default function App() {
     }, 1000);
     return () => clearInterval(timer);
   }, []);
+
+  // ດຶງຂໍ້ມູນເຣດາຝົນລ່າສຸດຈາກ RainViewer API ເມື່ອກົດເປີດ
+  useEffect(() => {
+    if (showRadar && !radarTileUrl) {
+      fetch('https://api.rainviewer.com/public/weather-maps.json')
+        .then((res) => res.json())
+        .then((data) => {
+          if (data && data.radar && data.radar.past && data.radar.past.length > 0) {
+            const latest = data.radar.past[data.radar.past.length - 1];
+            setRadarTileUrl(`${data.host}${latest.path}/256/{z}/{x}/{y}/2/1_1.png`);
+          }
+        })
+        .catch((err) => console.error('Radar fetch error:', err));
+    }
+  }, [showRadar, radarTileUrl]);
 
   const fetchReports = async () => {
     try {
@@ -391,7 +419,7 @@ https://somchithzh.github.io/lao-relief-map/`;
         </div>
       </header>
 
-      {/* ແຖບເລືອກແຂວງ, ສະຫຼັບດາວທຽມ, ແລະ ປຸ່ມ Filter */}
+      {/* ແຖບເລືອກແຂວງ, ດາວທຽມ, ເຣດາຝົນ, ລະດັບນ້ຳ ແລະ ປຸ່ມ Filter */}
       <div className="filter-bar">
         <select 
           className="province-select" 
@@ -405,13 +433,30 @@ https://somchithzh.github.io/lao-relief-map/`;
           ))}
         </select>
 
-        {/* ປຸ່ມສະຫຼັບແຜນທີ່ດາວທຽມ */}
         <button 
           className={`btn-satellite ${mapType === 'satellite' ? 'active' : ''}`}
           onClick={() => setMapType(mapType === 'street' ? 'satellite' : 'street')}
         >
           <Layers size={14} />
           {mapType === 'street' ? '🛰️ ດາວທຽມ' : '🗺️ ຖະໜົນ'}
+        </button>
+
+        {/* ປຸ່ມເຣດາຝົນ Real-time */}
+        <button 
+          className={`btn-radar ${showRadar ? 'active' : ''}`}
+          onClick={() => setShowRadar(!showRadar)}
+        >
+          <CloudRain size={14} />
+          {showRadar ? '🌧️ ປິດເຣດາຝົນ' : '🌧️ ເຣດາຝົນ'}
+        </button>
+
+        {/* ປຸ່ມລະດັບນ້ຳຂອງ */}
+        <button 
+          className="btn-river"
+          onClick={() => setIsRiverModalOpen(true)}
+        >
+          <Waves size={14} />
+          🌊 ລະດັບນ້ຳຂອງ
         </button>
 
         <button 
@@ -474,7 +519,6 @@ https://somchithzh.github.io/lao-relief-map/`;
           zoom={mapTarget.zoom} 
           scrollWheelZoom={true}
         >
-          {/* ສະຫຼັບລະຫວ່າງ ແຜນທີ່ຖະໜົນ OpenStreetMap ແລະ ພາບຖ່າຍດາວທຽມ Esri */}
           {mapType === 'street' ? (
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -485,6 +529,16 @@ https://somchithzh.github.io/lao-relief-map/`;
               attribution='Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
               url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
               maxZoom={19}
+            />
+          )}
+
+          {/* ຊັ້ນເຣດາຝົນຊ້ອນເທິງແຜນທີ່ */}
+          {showRadar && radarTileUrl && (
+            <TileLayer
+              url={radarTileUrl}
+              opacity={0.65}
+              zIndex={500}
+              attribution='&copy; <a href="https://www.rainviewer.com">RainViewer</a>'
             />
           )}
 
@@ -587,6 +641,51 @@ https://somchithzh.github.io/lao-relief-map/`;
           })}
         </MapContainer>
       </div>
+
+      {/* Modal ຂໍ້ມູນລະດັບນ້ຳຂອງ */}
+      {isRiverModalOpen && (
+        <div className="modal-overlay" onClick={() => setIsRiverModalOpen(false)}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '440px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <h2 style={{ fontSize: '17px', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Waves size={20} color="#2563eb" />
+                ເກນລະດັບນ້ຳຂອງເຝົ້າລະວັງ (Mekong Levels)
+              </h2>
+              <X size={20} style={{ cursor: 'pointer' }} onClick={() => setIsRiverModalOpen(false)} />
+            </div>
+
+            <p style={{ fontSize: '12.5px', color: '#64748b', marginBottom: '12px', lineHeight: '1.5' }}>
+              ລະດັບນ້ຳມາດຕະຖານຕາມແຕ່ລະສະຖານີວັດແທກຫຼັກ ແຄມແມ່ນ້ຳຂອງໃນ ສປປ ລາວ:
+            </p>
+
+            <table className="river-table">
+              <thead>
+                <tr>
+                  <th>ແຂວງ / ຈຸດວັດແທກ</th>
+                  <th>ລະດັບເຕືອນໄພ</th>
+                  <th>ລະດັບອັນຕະລາຍ</th>
+                </tr>
+              </thead>
+              <tbody>
+                {MEKONG_STATIONS.map((st, idx) => (
+                  <tr key={idx}>
+                    <td>
+                      <strong>{st.province}</strong>
+                      <div style={{ fontSize: '11px', color: '#64748b' }}>{st.station}</div>
+                    </td>
+                    <td><span className="badge-warn">{st.warn}</span></td>
+                    <td><span className="badge-danger">{st.danger}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            <div style={{ marginTop: '16px', background: '#f8fafc', padding: '10px', borderRadius: '8px', fontSize: '11.5px', color: '#64748b' }}>
+              💡 <em>ໝາຍເຫດ: ຖ້າລະດັບນ້ຳຮອດເກນເຕືອນໄພ ໃຫ້ກະກຽມຍົກຍ້າຍສິ່ງຂອງຂຶ້ນບ່ອນສູງ ແລະ ຕິດຕາມຂ່າວສານຢ່າງໃກ້ຊິດ.</em>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal ແນະນຳການຕິດຕັ້ງແອັບມືຖື */}
       {isInstallModalOpen && (
