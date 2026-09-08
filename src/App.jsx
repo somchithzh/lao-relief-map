@@ -381,7 +381,7 @@ https://somchithzh.github.io/lao-relief-map/`;
         </button>
       </header>
 
-      {/* Dropdown 18 ແຂວງ ແລະ ປຸ່ມ Filter */}
+      {/* ແຖບເລືອກ 18 ແຂວງ ແລະ ປຸ່ມ Filter */}
       <div className="filter-bar">
         <select 
           className="province-select" 
