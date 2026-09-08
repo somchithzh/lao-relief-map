@@ -5,7 +5,6 @@ import { ShieldAlert, Plus, Phone, X, MapPin, CheckCircle, RefreshCw, Crosshair,
 import { supabase } from './supabase';
 import './App.css';
 
-// ຂໍ້ມູນ 18 ແຂວງໃນປະເທດລາວ ພ້ອມພິກັດ ແລະ ລະດັບ Zoom
 const PROVINCES = {
   all: { name: '📍 ທົ່ວປະເທດ (18 ແຂວງ)', lat: 18.5, lng: 103.5, zoom: 7 },
   vientiane_cap: { name: 'ນະຄອນຫຼວງວຽງຈັນ', lat: 17.9757, lng: 102.6331, zoom: 11 },
@@ -67,7 +66,6 @@ function LocationPicker({ isPicking, onLocationSelect }) {
   return null;
 }
 
-// ຄວບຄຸມການບິນ ແລະ Zoom ໄປຫາແຂວງທີ່ເລືອກ
 function MapController({ targetCenter, targetZoom }) {
   const map = useMap();
   useEffect(() => {
@@ -160,7 +158,6 @@ export default function App() {
     };
   }, []);
 
-  // ເມື່ອເລືອກແຂວງ -> ສັ່ງໃຫ້ແຜນທີ່ FlyTo ໄປຫາແຂວງນັ້ນ
   const handleProvinceChange = (e) => {
     const key = e.target.value;
     setSelectedProvince(key);
@@ -384,9 +381,8 @@ https://somchithzh.github.io/lao-relief-map/`;
         </button>
       </header>
 
-      {/* ແຖບເລືອກແຂວງ ແລະ ຄັດກອງປະເພດ */}
       <div className="filter-bar">
-        {/* ເມນູເລືອກ 18 ແຂວງ */}
+        {/* Dropdown ເລືອກ 18 ແຂວງ */}
         <select 
           className="province-select" 
           value={selectedProvince} 
@@ -464,7 +460,6 @@ https://somchithzh.github.io/lao-relief-map/`;
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
 
-          {/* ຕົວຄວບຄຸມການບິນ ແລະ Zoom */}
           <MapController 
             targetCenter={mapTarget.center} 
             targetZoom={mapTarget.zoom} 
