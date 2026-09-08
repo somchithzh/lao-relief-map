@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { ShieldAlert, Plus, Phone, X, MapPin, CheckCircle, RefreshCw, Crosshair, Loader2, Share2, MessageCircle, Copy, Send, Camera, Smartphone, Layers, CloudRain, Waves } from 'lucide-react';
+import { ShieldAlert, Plus, Phone, X, MapPin, CheckCircle, RefreshCw, Crosshair, Loader2, Share2, MessageCircle, Copy, Send, Camera, Smartphone, Layers, CloudRain, Waves, Search, BarChart3 } from 'lucide-react';
 import { supabase } from './supabase';
 import './App.css';
 
@@ -27,7 +27,6 @@ const PROVINCES = {
   xaysomboun: { name: 'ໄຊສົມບູນ', lat: 18.9167, lng: 103.1167, zoom: 9 },
 };
 
-// ຂໍ້ມູນເກນລະດັບນ້ຳຂອງ 5 ສະຖານີຫຼັກໃນລາວ
 const MEKONG_STATIONS = [
   { province: 'ຫຼວງພະບາງ', station: 'ສະຖານີຫຼວງພະບາງ', warn: '17.50 ມ', danger: '18.00 ມ' },
   { province: 'ນະຄອນຫຼວງວຽງຈັນ', station: 'ຫຼັກ 4 / ດອນຈັນ', warn: '11.50 ມ', danger: '12.50 ມ' },
@@ -97,6 +96,7 @@ function formatCountdown(resolvedAt, currentTime) {
 export default function App() {
   const [reports, setReports] = useState([]);
   const [filter, setFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedProvince, setSelectedProvince] = useState('all');
   const [mapTarget, setMapTarget] = useState({
     center: [18.5, 103.5],
@@ -104,12 +104,11 @@ export default function App() {
   });
 
   const [mapType, setMapType] = useState('street');
-
-  // ລະບົບເຣດາຝົນ Real-time
   const [showRadar, setShowRadar] = useState(false);
   const [radarTileUrl, setRadarTileUrl] = useState('');
-  const [isRiverModalOpen, setIsRiverModalOpen] = useState(false);
 
+  const [isRiverModalOpen, setIsRiverModalOpen] = useState(false);
+  const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPickingLocation, setIsPickingLocation] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -141,7 +140,6 @@ export default function App() {
     return () => clearInterval(timer);
   }, []);
 
-  // ດຶງຂໍ້ມູນເຣດາຝົນລ່າສຸດຈາກ RainViewer API ເມື່ອກົດເປີດ
   useEffect(() => {
     if (showRadar && !radarTileUrl) {
       fetch('https://api.rainviewer.com/public/weather-maps.json')
@@ -152,7 +150,7 @@ export default function App() {
             setRadarTileUrl(`${data.host}${latest.path}/256/{z}/{x}/{y}/2/1_1.png`);
           }
         })
-        .catch((err) => console.error('Radar fetch error:', err));
+        .catch((err) => console.error('Radar error:', err));
     }
   }, [showRadar, radarTileUrl]);
 
@@ -378,6 +376,7 @@ https://somchithzh.github.io/lao-relief-map/`;
     }
   };
 
+  // ຄັດກອງຕາມເວລາ
   const activeReports = reports.filter((r) => {
     const createdAt = new Date(r.created_at).getTime();
     const hoursSinceCreated = (currentTime - createdAt) / (1000 * 60 * 60);
@@ -391,9 +390,32 @@ https://somchithzh.github.io/lao-relief-map/`;
     }
   });
 
-  const filteredReports = filter === 'all' 
-    ? activeReports 
-    : activeReports.filter((r) => r.type === filter);
+  // ນັບສະຖິຕິແຕ່ລະປະເພດ
+  const stats = {
+    total: activeReports.length,
+    sos: activeReports.filter((r) => r.type === 'sos' && r.status !== 'resolved').length,
+    warning: activeReports.filter((r) => r.type === 'warning' && r.status !== 'resolved').length,
+    shelter: activeReports.filter((r) => r.type === 'shelter' && r.status !== 'resolved').length,
+    donation: activeReports.filter((r) => r.type === 'donation' && r.status !== 'resolved').length,
+    resolved: activeReports.filter((r) => r.status === 'resolved').length,
+  };
+
+  // ຄັດກອງຕາມປະເພດ ແລະ ຄຳຄົ້ນຫາ (Search)
+  const filteredReports = activeReports
+    .filter((r) => {
+      if (filter === 'all') return true;
+      if (filter === 'resolved') return r.status === 'resolved';
+      return r.type === filter && r.status !== 'resolved';
+    })
+    .filter((r) => {
+      if (!searchQuery.trim()) return true;
+      const q = searchQuery.toLowerCase();
+      const title = (r.title || '').toLowerCase();
+      const desc = (r.description || '').toLowerCase();
+      const loc = (r.location_name || '').toLowerCase();
+      const phone = (r.phone || '').toLowerCase();
+      return title.includes(q) || desc.includes(q) || loc.includes(q) || phone.includes(q);
+    });
 
   return (
     <div className="app-container">
@@ -419,8 +441,23 @@ https://somchithzh.github.io/lao-relief-map/`;
         </div>
       </header>
 
-      {/* ແຖບເລືອກແຂວງ, ດາວທຽມ, ເຣດາຝົນ, ລະດັບນ້ຳ ແລະ ປຸ່ມ Filter */}
+      {/* ແຖບຄົ້ນຫາ, ເລືອກແຂວງ, ສະຖິຕິ ແລະ Filter */}
       <div className="filter-bar">
+        {/* ຊ່ອງຄົ້ນຫາດ່ວນ */}
+        <div className="search-box">
+          <Search size={14} className="search-icon" />
+          <input 
+            type="text" 
+            className="search-input" 
+            placeholder="ຄົ້ນຫາບ້ານ, ເມືອງ, ຫົວຂໍ້..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          {searchQuery && (
+            <X size={14} className="search-clear" onClick={() => setSearchQuery('')} />
+          )}
+        </div>
+
         <select 
           className="province-select" 
           value={selectedProvince} 
@@ -441,53 +478,61 @@ https://somchithzh.github.io/lao-relief-map/`;
           {mapType === 'street' ? '🛰️ ດາວທຽມ' : '🗺️ ຖະໜົນ'}
         </button>
 
-        {/* ປຸ່ມເຣດາຝົນ Real-time */}
         <button 
           className={`btn-radar ${showRadar ? 'active' : ''}`}
           onClick={() => setShowRadar(!showRadar)}
         >
           <CloudRain size={14} />
-          {showRadar ? '🌧️ ປິດເຣດາຝົນ' : '🌧️ ເຣດາຝົນ'}
+          {showRadar ? '🌧️ ປິດເຣດາ' : '🌧️ ເຣດາຝົນ'}
         </button>
 
-        {/* ປຸ່ມລະດັບນ້ຳຂອງ */}
         <button 
           className="btn-river"
           onClick={() => setIsRiverModalOpen(true)}
         >
           <Waves size={14} />
-          🌊 ລະດັບນ້ຳຂອງ
+          🌊 ລະດັບນ້ຳ
         </button>
 
+        {/* ປຸ່ມເປີດເບິ່ງສະຖິຕິລວມ */}
+        <button 
+          className="btn-stats"
+          onClick={() => setIsStatsModalOpen(true)}
+        >
+          <BarChart3 size={14} />
+          📊 ສະຖິຕິ ({stats.total})
+        </button>
+
+        {/* ປຸ່ມ Filter ພ້ອມຕົວເລກສະຖິຕິແຕ່ລະປະເພດ */}
         <button 
           className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
           onClick={() => setFilter('all')}
         >
-          ທັງໝົດ ({activeReports.length})
+          ທັງໝົດ <span className="stat-pill">{stats.total}</span>
         </button>
         <button 
           className={`filter-btn ${filter === 'sos' ? 'active' : ''}`}
           onClick={() => setFilter('sos')}
         >
-          🚨 ຂໍຄວາມຊ່ວຍເຫຼືອ
+          🚨 ຂໍຄວາມຊ່ວຍເຫຼືອ <span className="stat-pill">{stats.sos}</span>
         </button>
         <button 
           className={`filter-btn ${filter === 'warning' ? 'active' : ''}`}
           onClick={() => setFilter('warning')}
         >
-          ⚠️ ແຈ້ງເຕືອນ
+          ⚠️ ແຈ້ງເຕືອນ <span className="stat-pill">{stats.warning}</span>
         </button>
         <button 
           className={`filter-btn ${filter === 'shelter' ? 'active' : ''}`}
           onClick={() => setFilter('shelter')}
         >
-          🏠 ສູນພັກເຊົາ
+          🏠 ສູນພັກເຊົາ <span className="stat-pill">{stats.shelter}</span>
         </button>
         <button 
           className={`filter-btn ${filter === 'donation' ? 'active' : ''}`}
           onClick={() => setFilter('donation')}
         >
-          📦 ຈຸດບໍລິຈາກ
+          📦 ຈຸດບໍລິຈາກ <span className="stat-pill">{stats.donation}</span>
         </button>
       </div>
 
@@ -532,7 +577,6 @@ https://somchithzh.github.io/lao-relief-map/`;
             />
           )}
 
-          {/* ຊັ້ນເຣດາຝົນຊ້ອນເທິງແຜນທີ່ */}
           {showRadar && radarTileUrl && (
             <TileLayer
               url={radarTileUrl}
@@ -642,6 +686,45 @@ https://somchithzh.github.io/lao-relief-map/`;
         </MapContainer>
       </div>
 
+      {/* Modal ສະຖິຕິສະຖານະການພາບລວມ */}
+      {isStatsModalOpen && (
+        <div className="modal-overlay" onClick={() => setIsStatsModalOpen(false)}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '400px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+              <h2 style={{ fontSize: '17px', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <BarChart3 size={20} color="#7c3aed" />
+                ສະຫຼຸບສະຖານະການ Real-time
+              </h2>
+              <X size={20} style={{ cursor: 'pointer' }} onClick={() => setIsStatsModalOpen(false)} />
+            </div>
+
+            <div className="stats-grid">
+              <div className="stat-card card-sos">
+                <div className="stat-card-num">{stats.sos}</div>
+                <div className="stat-card-label">🚨 ຂໍຄວາມຊ່ວຍເຫຼືອ</div>
+              </div>
+              <div className="stat-card card-warning">
+                <div className="stat-card-num">{stats.warning}</div>
+                <div className="stat-card-label">⚠️ ແຈ້ງເຕືອນ/ທາງຂາດ</div>
+              </div>
+              <div className="stat-card card-shelter">
+                <div className="stat-card-num">{stats.shelter}</div>
+                <div className="stat-card-label">🏠 ສູນພັກເຊົາ</div>
+              </div>
+              <div className="stat-card card-donation">
+                <div className="stat-card-num">{stats.donation}</div>
+                <div className="stat-card-label">📦 ຈຸດບໍລິຈາກ</div>
+              </div>
+            </div>
+
+            <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '8px', fontSize: '12.5px', color: '#475569', lineHeight: '1.6' }}>
+              <div>• <strong>ຈຳນວນເຫດການທັງໝົດ:</strong> {stats.total} ຈຸດ</div>
+              <div>• <strong>ໄດ້ຮັບການຊ່ວຍເຫຼືອແລ້ວ:</strong> {stats.resolved} ຈຸດ (ກຳລັງນັບຖອຍຫຼັງ)</div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Modal ຂໍ້ມູນລະດັບນ້ຳຂອງ */}
       {isRiverModalOpen && (
         <div className="modal-overlay" onClick={() => setIsRiverModalOpen(false)}>
@@ -679,10 +762,6 @@ https://somchithzh.github.io/lao-relief-map/`;
                 ))}
               </tbody>
             </table>
-
-            <div style={{ marginTop: '16px', background: '#f8fafc', padding: '10px', borderRadius: '8px', fontSize: '11.5px', color: '#64748b' }}>
-              💡 <em>ໝາຍເຫດ: ຖ້າລະດັບນ້ຳຮອດເກນເຕືອນໄພ ໃຫ້ກະກຽມຍົກຍ້າຍສິ່ງຂອງຂຶ້ນບ່ອນສູງ ແລະ ຕິດຕາມຂ່າວສານຢ່າງໃກ້ຊິດ.</em>
-            </div>
           </div>
         </div>
       )}
@@ -719,10 +798,6 @@ https://somchithzh.github.io/lao-relief-map/`;
                 <li>ກົດເລືອກ <strong>"Install app (ຕິດຕັ້ງແອັບ)"</strong> ຫຼື <strong>"Add to Home screen"</strong>.</li>
               </ol>
             </div>
-
-            <p style={{ fontSize: '12px', color: '#059669', fontWeight: '600', textAlign: 'center' }}>
-              ✨ ຫຼັງຈາກຕິດຕັ້ງແລ້ວ ຈະມີໄອຄອນແອັບສີແດງຂຶ້ນໜ້າຈໍມືຖື ເປີດໃຊ້ງານໄດ້ເຕັມຈໍທັນທີ!
-            </p>
           </div>
         </div>
       )}
