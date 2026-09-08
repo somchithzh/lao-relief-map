@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { ShieldAlert, Plus, Phone, X, MapPin, CheckCircle, RefreshCw, Crosshair, Loader2, Share2, MessageCircle, Copy, Send, Camera } from 'lucide-react';
+import { ShieldAlert, Plus, Phone, X, MapPin, CheckCircle, RefreshCw, Crosshair, Loader2, Share2, MessageCircle, Copy, Send, Camera, Smartphone, Download } from 'lucide-react';
 import { supabase } from './supabase';
 import './App.css';
 
@@ -100,6 +100,7 @@ export default function App() {
   const [currentTime, setCurrentTime] = useState(Date.now());
 
   const [shareReport, setShareReport] = useState(null);
+  const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
 
   const [isLocating, setIsLocating] = useState(false);
   const [gpsMessage, setGpsMessage] = useState('');
@@ -241,8 +242,6 @@ export default function App() {
             .from('report-images')
             .getPublicUrl(fileName);
           uploadedImageUrl = publicUrlData.publicUrl;
-        } else {
-          console.error('Upload error:', uploadErr);
         }
       }
 
@@ -369,16 +368,25 @@ https://somchithzh.github.io/lao-relief-map/`;
     <div className="app-container">
       <header className="header">
         <div className="header-title">
-          <ShieldAlert color="#dc2626" size={26} />
+          <ShieldAlert color="#dc2626" size={24} />
           <div>
-            <h1>Lao Relief Map (ແຜນທີ່ຊ່ວຍເຫຼືອໄພພິບັດ)</h1>
-            <span>ລະບົບລາຍງານ ແລະ ຊ່ວຍເຫຼືອສຸກເສີນ Real-time</span>
+            <h1>Lao Relief Map</h1>
+            <span>ແຜນທີ່ຊ່ວຍເຫຼືອໄພພິບັດ Real-time</span>
           </div>
         </div>
-        <button className="btn-report" onClick={() => setIsModalOpen(true)}>
-          <Plus size={18} />
-          ລາຍງານເຫດດ່ວນ
-        </button>
+
+        <div className="header-actions">
+          {/* ປຸ່ມຕິດຕັ້ງແອັບມືຖື */}
+          <button className="btn-install" onClick={() => setIsInstallModalOpen(true)}>
+            <Smartphone size={16} />
+            ຕິດຕັ້ງແອັບ
+          </button>
+
+          <button className="btn-report" onClick={() => setIsModalOpen(true)}>
+            <Plus size={16} />
+            ລາຍງານເຫດ
+          </button>
+        </div>
       </header>
 
       {/* ແຖບເລືອກ 18 ແຂວງ ແລະ ປຸ່ມ Filter */}
@@ -411,7 +419,7 @@ https://somchithzh.github.io/lao-relief-map/`;
           className={`filter-btn ${filter === 'warning' ? 'active' : ''}`}
           onClick={() => setFilter('warning')}
         >
-          ⚠️ ແຈ້ງເຕືອນ/ທາງຂາດ
+          ⚠️ ແຈ້ງເຕືອນ
         </button>
         <button 
           className={`filter-btn ${filter === 'shelter' ? 'active' : ''}`}
@@ -560,6 +568,46 @@ https://somchithzh.github.io/lao-relief-map/`;
         </MapContainer>
       </div>
 
+      {/* Modal ແນະນຳການຕິດຕັ້ງແອັບມືຖື */}
+      {isInstallModalOpen && (
+        <div className="modal-overlay" onClick={() => setIsInstallModalOpen(false)}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '380px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+              <h2 style={{ fontSize: '17px', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Smartphone size={20} color="#2563eb" />
+                ຕິດຕັ້ງແອັບເທິງໜ້າຈໍມືຖື
+              </h2>
+              <X size={20} style={{ cursor: 'pointer' }} onClick={() => setIsInstallModalOpen(false)} />
+            </div>
+
+            <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '10px', marginBottom: '14px' }}>
+              <h4 style={{ fontSize: '14px', fontWeight: '700', marginBottom: '8px', color: '#1e293b' }}>
+                🍎 ສຳລັບ iPhone / iPad (Safari):
+              </h4>
+              <ol style={{ fontSize: '13px', color: '#475569', paddingLeft: '20px', lineHeight: '1.7' }}>
+                <li>ກົດປຸ່ມ <strong>Share</strong> (ຮູບສີ່ຫຼ່ຽມລູກສອນຊີ້ຂຶ້ນ ⬆️) ຢູ່ລຸ່ມສຸດຂອງ Safari.</li>
+                <li>ເລື່ອນລົງແລ້ວກົດເລືອກ <strong>"Add to Home Screen (ເພີ່ມໃສ່ໜ້າຈໍໂຮມ ➕)"</strong>.</li>
+                <li>ກົດປຸ່ມ <strong>"Add (ເພີ່ມ)"</strong> ຢູ່ມຸມຂວາເທິງ.</li>
+              </ol>
+            </div>
+
+            <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '10px', marginBottom: '14px' }}>
+              <h4 style={{ fontSize: '14px', fontWeight: '700', marginBottom: '8px', color: '#1e293b' }}>
+                🤖 ສຳລັບ Android (Chrome):
+              </h4>
+              <ol style={{ fontSize: '13px', color: '#475569', paddingLeft: '20px', lineHeight: '1.7' }}>
+                <li>ກົດປຸ່ມເມນູ <strong>ຈຸດສາມຈຸດ (⋮)</strong> ຢູ່ມຸມຂວາເທິງຂອງ Chrome.</li>
+                <li>ກົດເລືອກ <strong>"Install app (ຕິດຕັ້ງແອັບ)"</strong> ຫຼື <strong>"Add to Home screen"</strong>.</li>
+              </ol>
+            </div>
+
+            <p style={{ fontSize: '12px', color: '#059669', fontWeight: '600', textAlign: 'center' }}>
+              ✨ ຫຼັງຈາກຕິດຕັ້ງແລ້ວ ຈະມີໄອຄອນແອັບສີແດງຂຶ້ນໜ້າຈໍມືຖື ເປີດໃຊ້ງານໄດ້ເຕັມຈໍທັນທີ!
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Modal Share Options */}
       {shareReport && (
         <div className="modal-overlay" onClick={() => setShareReport(null)}>
@@ -649,7 +697,6 @@ https://somchithzh.github.io/lao-relief-map/`;
                 />
               </div>
 
-              {/* ກ່ອງອັບໂຫຼດຮູບ: ຈັດເຄິ່ງກາງ ຊື່ກົງ */}
               <div className="form-group">
                 <label>ຮູບພາບສະພາບຕົວຈິງ (ຖ້າມີ)</label>
                 {imagePreview ? (
