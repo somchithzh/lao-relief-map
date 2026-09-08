@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { ShieldAlert, Plus, Phone, X, MapPin, CheckCircle, RefreshCw, Crosshair, Loader2, Share2, MessageCircle, Copy, Send, Camera, Smartphone, Layers, CloudRain, Waves, Search, ChevronDown, ChevronRight } from 'lucide-react';
+import { ShieldAlert, Plus, Phone, X, MapPin, CheckCircle, RefreshCw, Crosshair, Loader2, Share2, MessageCircle, Copy, Send, Camera, Smartphone, Layers, CloudRain, Waves, Search, ChevronDown, ChevronRight, Navigation } from 'lucide-react';
 import { supabase } from './supabase';
 import './App.css';
 
@@ -740,19 +740,30 @@ https://somchithzh.github.io/lao-relief-map/`;
                       📍 {report.location_name} • 🕒 {Math.floor(hoursPassed)} ຊົ່ວໂມງຜ່ານມາ
                     </p>
 
-                    <div style={{ display: 'flex', gap: '8px', marginTop: '10px', alignItems: 'center' }}>
+                    <div style={{ marginTop: '10px' }}>
                       {report.phone && (
-                        <a href={`tel:${report.phone}`} className="popup-phone">
+                        <a href={`tel:${report.phone}`} className="popup-phone" style={{ width: '100%', marginBottom: '6px' }}>
                           <Phone size={14} /> ໂທ: {report.phone}
                         </a>
                       )}
 
-                      <button 
-                        className="btn-popup-share"
-                        onClick={() => setShareReport(report)}
-                      >
-                        <Share2 size={14} /> ແຊຣ໌
-                      </button>
+                      <div style={{ display: 'flex', gap: '6px' }}>
+                        <a 
+                          href={`https://www.google.com/maps/dir/?api=1&destination=${report.lat},${report.lng}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="btn-popup-nav"
+                        >
+                          <Navigation size={14} /> ນຳທາງ
+                        </a>
+
+                        <button 
+                          className="btn-popup-share"
+                          onClick={() => setShareReport(report)}
+                        >
+                          <Share2 size={14} /> ແຊຣ໌
+                        </button>
+                      </div>
                     </div>
 
                     {report.status !== 'resolved' && (
