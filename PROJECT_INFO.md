@@ -4,6 +4,17 @@
 - ຖານຂໍ້ມູນ: Supabase (ຕາຕະລາງ reports, bucket: report-images)
 - Tech Stack: React (Vite) + Leaflet + OpenStreetMap + Esri Satellite
 
+## ໂຄງສ້າງໄຟລ໌ໂຄງການ (Modular Structure):
+- `src/App.jsx`: ແຜນທີ່ ແລະ ໜ້າຫຼັກ
+- `src/App.css`: Stylesheet ທັງໝົດ
+- `src/data/districts.js`: ຖານຂໍ້ມູນເມືອງ 18 ແຂວງທົ່ວລາວ
+- `src/data/stations.js`: ສະຖານີວັດແທກລະດັບນ້ຳຂອງ
+- `src/components/LocationModal.jsx`: ໜ້າຕ່າງເລືອກເມືອງ/ແຂວງ
+- `src/components/RiverModal.jsx`: ໜ້າຕ່າງລະດັບນ້ຳຂອງ
+- `src/components/InstallModal.jsx`: ໜ້າຕ່າງແນະນຳຕິດຕັ້ງແອັບ
+- `src/components/ShareModal.jsx`: ໜ້າຕ່າງແບ່ງປັນເຫດການ
+- `src/components/ReportModal.jsx`: ໜ້າຕ່າງຟອມລາຍງານເຫດ
+
 ## ຟັງຊັນທີ່ສຳເລັດແລ້ວ:
 1. ໝຸດ 4 ປະເພດ: 🚨 SOS, ⚠️ ແຈ້ງເຕືອນ, 🏠 ສູນພັກເຊົາ, 📦 ຈຸດບໍລິຈາກ
 2. ລະບົບຖານຂໍ້ມູນ Real-time ຜ່ານ Supabase
