@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { ShieldAlert, Plus, Phone, X, MapPin, CheckCircle, RefreshCw, Smartphone, Layers, CloudRain, Waves, Search, ChevronDown, Navigation, Share2 } from 'lucide-react';
+import { ShieldAlert, Plus, Phone, X, MapPin, CheckCircle, RefreshCw, Smartphone, Layers, CloudRain, Waves, Search, ChevronDown, Navigation, Share2, PhoneCall } from 'lucide-react';
 import { supabase } from './supabase';
 import LocationModal from './components/LocationModal';
 import RiverModal from './components/RiverModal';
 import InstallModal from './components/InstallModal';
 import ShareModal from './components/ShareModal';
 import ReportModal from './components/ReportModal';
+import EmergencyModal from './components/EmergencyModal';
 import './App.css';
 
 const createCustomIcon = (report, isUrgent) => {
@@ -85,6 +86,7 @@ export default function App() {
   const [showRadar, setShowRadar] = useState(false);
   const [radarTileUrl, setRadarTileUrl] = useState('');
 
+  const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
   const [isRiverModalOpen, setIsRiverModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPickingLocation, setIsPickingLocation] = useState(false);
@@ -247,6 +249,12 @@ export default function App() {
         </div>
 
         <div className="header-actions">
+          {/* ປຸ່ມເບີສຸກເສີນ */}
+          <button className="btn-emergency" onClick={() => setIsEmergencyModalOpen(true)}>
+            <PhoneCall size={16} />
+            ເບີສຸກເສີນ
+          </button>
+
           <button className="btn-report" onClick={() => setIsModalOpen(true)}>
             <Plus size={16} />
             ລາຍງານເຫດ
@@ -502,6 +510,11 @@ export default function App() {
       </div>
 
       {/* Components ຕ່າງໆທີ່ແຍກອອກມາ */}
+      <EmergencyModal 
+        isOpen={isEmergencyModalOpen} 
+        onClose={() => setIsEmergencyModalOpen(false)} 
+      />
+
       <LocationModal 
         isOpen={isLocationModalOpen} 
         onClose={() => setIsLocationModalOpen(false)} 
