@@ -881,3 +881,77 @@ body {
 .btn-call-mini:hover {
   background: #059669;
 }
+
+/* Cluster Pin Styles */
+.custom-cluster-wrapper {
+  background: transparent;
+  border: none;
+}
+
+.custom-cluster-pin {
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  border: 2.5px solid white;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.15s ease;
+}
+
+.custom-cluster-pin:hover {
+  transform: scale(1.15);
+}
+
+.cluster-normal {
+  background: #2563eb;
+}
+
+.cluster-sos {
+  background: #dc2626;
+  animation: pulse-ring 1.5s infinite;
+}
+
+.cluster-urgent {
+  background: #991b1b;
+  border-color: #fef08a;
+  animation: pulse-ring 1.2s infinite;
+}
+
+.cluster-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  font-size: 11px;
+}
+
+.cluster-count {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+/* ປຸ່ມເປີດ/ປິດ Cluster */
+.btn-cluster-toggle {
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1.5px solid #6366f1;
+  background-color: #eef2ff;
+  color: #4f46e5;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.btn-cluster-toggle.active {
+  background-color: #4f46e5;
+  color: white;
+}

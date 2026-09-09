@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { ShieldAlert, Plus, Phone, X, MapPin, CheckCircle, RefreshCw, Smartphone, Layers, CloudRain, Waves, Search, ChevronDown, Navigation, Share2, PhoneCall } from 'lucide-react';
+import { ShieldAlert, Plus, MapPin, Smartphone, Layers, CloudRain, Waves, Search, ChevronDown, PhoneCall, Grid } from 'lucide-react';
 import { supabase } from './supabase';
 import LocationModal from './components/LocationModal';
 import RiverModal from './components/RiverModal';
@@ -9,6 +9,7 @@ import InstallModal from './components/InstallModal';
 import ShareModal from './components/ShareModal';
 import ReportModal from './components/ReportModal';
 import EmergencyModal from './components/EmergencyModal';
+import ClusterLayer from './components/ClusterLayer';
 import './App.css';
 
 const createCustomIcon = (report, isUrgent) => {
@@ -73,6 +74,7 @@ export default function App() {
   const [reports, setReports] = useState([]);
   const [filter, setFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [enableCluster, setEnableCluster] = useState(true);
 
   const [currentLocationName, setCurrentLocationName] = useState('📍 ທົ່ວປະເທດ');
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
@@ -249,7 +251,6 @@ export default function App() {
         </div>
 
         <div className="header-actions">
-          {/* ປຸ່ມເບີສຸກເສີນ */}
           <button className="btn-emergency" onClick={() => setIsEmergencyModalOpen(true)}>
             <PhoneCall size={16} />
             ເບີສຸກເສີນ
@@ -291,6 +292,16 @@ export default function App() {
             <X size={14} className="search-clear" onClick={() => setSearchQuery('')} />
           )}
         </div>
+
+        {/* ປຸ່ມເປີດ/ປິດ ຮວມໝຸດ Cluster */}
+        <button 
+          className={`btn-cluster-toggle ${enableCluster ? 'active' : ''}`}
+          onClick={() => setEnableCluster(!enableCluster)}
+          title="ກົດເພື່ອເປີດ/ປິດ ການຮວມໝຸດ"
+        >
+          <Grid size={14} />
+          {enableCluster ? '🧩 ຮວມໝຸດ: ເປີດ' : '📍 ແຍກໝຸດ: ປິດ'}
+        </button>
 
         <button 
           className={`btn-satellite ${mapType === 'satellite' ? 'active' : ''}`}
@@ -408,108 +419,21 @@ export default function App() {
             onLocationSelect={handleLocationSelect} 
           />
 
-          {filteredReports.map((report) => {
-            const createdAt = new Date(report.created_at).getTime();
-            const hoursPassed = (currentTime - createdAt) / (1000 * 60 * 60);
-            const isUrgent = report.status !== 'resolved' && report.type === 'sos' && hoursPassed >= 24;
-
-            return (
-              <Marker 
-                key={report.id} 
-                position={[report.lat, report.lng]} 
-                icon={createCustomIcon(report, isUrgent)}
-              >
-                <Popup>
-                  <div className="popup-content">
-                    {report.image_url && (
-                      <img 
-                        src={report.image_url} 
-                        alt="ພາບສະພາບຕົວຈິງ" 
-                        className="popup-image" 
-                        onClick={() => window.open(report.image_url, '_blank')}
-                        title="ຄລິກເພື່ອເບິ່ງຮູບໃຫຍ່"
-                      />
-                    )}
-
-                    {report.status === 'resolved' ? (
-                      <div className="resolved-countdown-banner">
-                        ⏱️ ✅ ຊ່ວຍເຫຼືອແລ້ວ • ໝຸດຈະຫາຍໄປໃນ: {formatCountdown(report.resolved_at, currentTime)}
-                      </div>
-                    ) : isUrgent ? (
-                      <div className="urgent-banner">
-                        ⚠️ ດ່ວນພິເສດ: ລໍຖ້າມາແລ້ວເກີນ 24 ຊົ່ວໂມງ!
-                      </div>
-                    ) : null}
-
-                    <span className={`popup-badge pin-${report.status === 'resolved' ? 'resolved' : report.type}`}>
-                      {report.status === 'resolved' ? '✅ ແກ້ໄຂແລ້ວ' : (
-                        <>
-                          {report.type === 'sos' && '🚨 ຂໍຄວາມຊ່ວຍເຫຼືອ'}
-                          {report.type === 'warning' && '⚠️ ແຈ້ງເຕືອນ'}
-                          {report.type === 'shelter' && '🏠 ສູນພັກເຊົາ'}
-                          {report.type === 'donation' && '📦 ຈຸດບໍລິຈາກ'}
-                        </>
-                      )}
-                    </span>
-
-                    <h3>{report.title}</h3>
-                    <p>{report.description}</p>
-                    <p style={{ fontSize: '12px', color: '#6b7280' }}>
-                      📍 {report.location_name} • 🕒 {Math.floor(hoursPassed)} ຊົ່ວໂມງຜ່ານມາ
-                    </p>
-
-                    <div style={{ marginTop: '10px' }}>
-                      {report.phone && (
-                        <a href={`tel:${report.phone}`} className="popup-phone" style={{ width: '100%', marginBottom: '6px' }}>
-                          <Phone size={14} /> ໂທ: {report.phone}
-                        </a>
-                      )}
-
-                      <div style={{ display: 'flex', gap: '6px' }}>
-                        <a 
-                          href={`https://www.google.com/maps/dir/?api=1&destination=${report.lat},${report.lng}`} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          className="btn-popup-nav"
-                        >
-                          <Navigation size={14} /> ນຳທາງ
-                        </a>
-
-                        <button 
-                          className="btn-popup-share"
-                          onClick={() => setShareReport(report)}
-                        >
-                          <Share2 size={14} /> ແຊຣ໌
-                        </button>
-                      </div>
-                    </div>
-
-                    {report.status !== 'resolved' && (
-                      <button 
-                        className="btn-action-resolve"
-                        onClick={() => handleMarkResolved(report.id)}
-                      >
-                        <CheckCircle size={14} /> ຊ່ວຍເຫຼືອແລ້ວ
-                      </button>
-                    )}
-
-                    {report.status !== 'resolved' && hoursPassed >= 48 && (
-                      <button 
-                        className="btn-action-renew"
-                        onClick={() => handleRenewReport(report.id)}
-                      >
-                        <RefreshCw size={14} /> ຍັງຕ້ອງການຊ່ວຍ
-                      </button>
-                    )}
-                  </div>
-                </Popup>
-              </Marker>
-            );
-          })}
+          {/* ສະແດງໝຸດແບບ Cluster ຫຼື ແຍກປົກກະຕິ */}
+          <ClusterLayer 
+            reports={filteredReports}
+            enableCluster={enableCluster}
+            createCustomIcon={createCustomIcon}
+            currentTime={currentTime}
+            setShareReport={setShareReport}
+            handleMarkResolved={handleMarkResolved}
+            handleRenewReport={handleRenewReport}
+            formatCountdown={formatCountdown}
+          />
         </MapContainer>
       </div>
 
-      {/* Components ຕ່າງໆທີ່ແຍກອອກມາ */}
+      {/* Components Modals */}
       <EmergencyModal 
         isOpen={isEmergencyModalOpen} 
         onClose={() => setIsEmergencyModalOpen(false)} 
