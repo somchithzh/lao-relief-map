@@ -241,29 +241,29 @@ export default function App() {
 
   return (
     <div className="app-container">
-      {/* Header ປັບໃໝ່ ບໍ່ລົ້ນໜ້າຈໍມືຖື */}
+      {/* Header ພ້ອມຊື່ພາສາລາວ "ແຜນທີ່ຊ່ວຍເຫຼືອໄພພິບັດ" */}
       <header className="header">
         <div className="header-title">
-          <ShieldAlert color="#dc2626" size={22} />
-          <div>
+          <ShieldAlert color="#dc2626" size={22} style={{ flexShrink: 0 }} />
+          <div className="title-text-group">
             <h1>Lao Relief Map</h1>
-            <span className="header-subtitle">ແຜນທີ່ຊ່ວຍເຫຼືອໄພພິບັດ Real-time</span>
+            <span className="header-subtitle">ແຜນທີ່ຊ່ວຍເຫຼືອໄພພິບັດ</span>
           </div>
         </div>
 
         <div className="header-actions">
           <button className="btn-emergency" onClick={() => setIsEmergencyModalOpen(true)}>
-            <PhoneCall size={14} />
+            <PhoneCall size={13} />
             <span>ເບີສຸກເສີນ</span>
           </button>
 
           <button className="btn-report" onClick={() => setIsModalOpen(true)}>
-            <Plus size={14} />
+            <Plus size={13} />
             <span>ລາຍງານເຫດ</span>
           </button>
 
           <button className="btn-install" onClick={() => setIsInstallModalOpen(true)} title="ຕິດຕັ້ງແອັບ">
-            <Smartphone size={14} />
+            <Smartphone size={13} />
             <span className="btn-text-install">ຕິດຕັ້ງແອັບ</span>
           </button>
         </div>
@@ -295,7 +295,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* ແຖວທີ 2: Filter Pills ເລື່ອນແນວນອນສະອາດໆ */}
+      {/* ແຖວທີ 2: Filter Pills ເລື່ອນແນວນອນ */}
       <div className="category-scroll-bar">
         <button 
           className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
@@ -331,7 +331,7 @@ export default function App() {
 
       {/* Map Area */}
       <div className="map-wrapper">
-        {/* ປຸ່ມເຄື່ອງມືລອຍເທິງແຜນທີ່ ດ້ານຂວາມື (Floating Map Controls ແບບ Google Maps) */}
+        {/* ປຸ່ມເຄື່ອງມືລອຍເທິງແຜນທີ່ ດ້ານຂວາມື */}
         <div className="floating-map-controls">
           <button 
             className={`map-tool-btn ${mapType === 'satellite' ? 'active' : ''}`}
@@ -442,7 +442,7 @@ export default function App() {
         </MapContainer>
       </div>
 
-      {/* Modals ທັງໝົດ */}
+      {/* Modals */}
       <EmergencyModal 
         isOpen={isEmergencyModalOpen} 
         onClose={() => setIsEmergencyModalOpen(false)} 
