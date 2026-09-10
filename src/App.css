@@ -170,6 +170,7 @@ body {
   display: flex;
   align-items: center;
   flex: 1;
+  max-width: 280px; 
   min-width: 0;
 }
 
@@ -985,4 +986,8 @@ body {
   .map-tool-label {
     font-size: 9px;
   }
+    .search-box {
+    max-width: none;
+  }
+
 }
