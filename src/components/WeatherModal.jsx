@@ -3,12 +3,12 @@ import { X, CloudRain, Wind, Droplets, AlertTriangle } from 'lucide-react';
 
 const getWeatherInfo = (code) => {
   if (code === 0) return { label: 'ແຈ່ມໃສ / ແດດອອກ', icon: '☀️', danger: false };
-  if (.includes(code)) return { label: 'ມີເມກບາງສ່ວນ', icon: '⛅', danger: false };
-  if ([45, 48].includes(code)) return { label: 'ມີໝອກປົກຄຸມ', icon: '🌫️', danger: false };
-  if ([51, 53, 55].includes(code)) return { label: 'ຝົນຕົກຮຳ / ປອຍໆ', icon: '🌦️', danger: false };
-  if ([61, 63].includes(code)) return { label: 'ຝົນຕົກປານກາງ', icon: '🌧️', danger: false };
-  if ([65, 80, 81, 82].includes(code)) return { label: 'ຝົນຕົກໜັກ', icon: '⛈️', danger: true };
-  if ([95, 96, 99].includes(code)) return { label: 'ພະຍຸຝົນຟ້າຮ້ອງ', icon: '🌩️', danger: true };
+  if (code >= 1 && code <= 3) return { label: 'ມີເມກບາງສ່ວນ', icon: '⛅', danger: false };
+  if (code === 45 || code === 48) return { label: 'ມີໝອກປົກຄຸມ', icon: '🌫️', danger: false };
+  if (code >= 51 && code <= 55) return { label: 'ຝົນຕົກຮຳ / ປອຍໆ', icon: '🌦️', danger: false };
+  if (code === 61 || code === 63) return { label: 'ຝົນຕົກປານກາງ', icon: '🌧️', danger: false };
+  if (code === 65 || (code >= 80 && code <= 82)) return { label: 'ຝົນຕົກໜັກ', icon: '⛈️', danger: true };
+  if (code >= 95 && code <= 99) return { label: 'ພະຍຸຝົນຟ້າຮ້ອງ', icon: '🌩️', danger: true };
   return { label: 'ມີເມກ', icon: '☁️', danger: false };
 };
 
@@ -63,7 +63,6 @@ export default function WeatherModal({ isOpen, onClose, lat, lng, locationName }
           </div>
         ) : current ? (
           <div>
-            {/* ກາດສະພາບອາກາດປັດຈຸບັນ */}
             <div className={`weather-current-card ${currentInfo.danger ? 'weather-alert' : ''}`}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
@@ -108,25 +107,24 @@ export default function WeatherModal({ isOpen, onClose, lat, lng, locationName }
               </div>
             </div>
 
-            {/* ພະຍາກອນ 3 ມື້ຕໍ່ໜ້າ */}
             {daily && daily.time && (
               <div style={{ marginTop: '16px' }}>
                 <div style={{ fontSize: '13px', fontWeight: '700', color: '#1e293b', marginBottom: '8px' }}>
                   📅 ພະຍາກອນອາກາດ 3 ມື້ຕໍ່ໜ້າ:
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  {daily.time.slice(1, 4).map((dayStr, idx) => {
-                    const actualIdx = idx + 1;
-                    const code = daily.weather_code[actualIdx];
+                  {daily.time.slice(1, 4).map((dayStr, i) => {
+                    const dayIdx = i + 1;
+                    const code = daily.weather_code.at(dayIdx);
                     const info = getWeatherInfo(code);
-                    const maxT = Math.round(daily.temperature_2m_max[actualIdx]);
-                    const minT = Math.round(daily.temperature_2m_min[actualIdx]);
-                    const rainSum = daily.precipitation_sum[actualIdx];
-                    const rainProb = daily.precipitation_probability_max ? daily.precipitation_probability_max[actualIdx] : null;
+                    const maxT = Math.round(daily.temperature_2m_max.at(dayIdx));
+                    const minT = Math.round(daily.temperature_2m_min.at(dayIdx));
+                    const rainSum = daily.precipitation_sum.at(dayIdx);
+                    const rainProb = daily.precipitation_probability_max ? daily.precipitation_probability_max.at(dayIdx) : null;
 
                     const dateObj = new Date(dayStr);
                     const dayLabels = ['ອາທິດ', 'ຈັນ', 'ອັງຄານ', 'ພຸດ', 'ພະຫັດ', 'ສຸກ', 'ເສົາ'];
-                    const dayName = actualIdx === 1 ? 'ມື້ອື່ນ' : actualIdx === 2 ? 'ມື້ຮື' : `ວັນ${dayLabels[dateObj.getDay()]}`;
+                    const dayName = dayIdx === 1 ? 'ມື້ອື່ນ' : dayIdx === 2 ? 'ມື້ຮື' : `ວັນ${dayLabels[dateObj.getDay()]}`;
 
                     return (
                       <div key={dayStr} className="weather-daily-item">

@@ -248,6 +248,8 @@ export default function App() {
       return title.includes(q) || desc.includes(q) || loc.includes(q) || phone.includes(q);
     });
 
+  const [targetLat, targetLng] = mapTarget.center;
+
   return (
     <div className="app-container">
       {/* Header */}
@@ -503,8 +505,8 @@ export default function App() {
       <WeatherModal 
         isOpen={isWeatherModalOpen}
         onClose={() => setIsWeatherModalOpen(false)}
-        lat={mapTarget.center[0]}
-        lng={mapTarget.center}
+        lat={targetLat}
+        lng={targetLng}
         locationName={currentLocationName.replace('📍 ', '')}
       />
 
