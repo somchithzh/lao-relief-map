@@ -18,57 +18,81 @@ body {
   flex-direction: column;
   height: 100vh;
   width: 100vw;
+  overflow: hidden;
 }
 
 /* Header */
 .header {
   background-color: #ffffff;
-  padding: 10px 16px;
+  padding: 8px 14px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   z-index: 1000;
-  gap: 10px;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .header-title {
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
 }
 
 .header-title h1 {
-  font-size: 17px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 800;
   color: #dc2626;
   white-space: nowrap;
 }
 
-.header-title span {
-  font-size: 12px;
+.header-subtitle {
+  font-size: 11px;
   color: #6b7280;
+  white-space: nowrap;
 }
 
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex-wrap: nowrap;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.btn-emergency {
+  background-color: #fef2f2;
+  color: #dc2626;
+  border: 1.5px solid #ef4444;
+  padding: 7px 11px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.btn-emergency:hover {
+  background-color: #fee2e2;
 }
 
 .btn-report {
   background-color: #dc2626;
   color: white;
   border: none;
-  padding: 8px 14px;
+  padding: 7px 12px;
   border-radius: 8px;
-  font-weight: 600;
-  font-size: 13px;
+  font-weight: 700;
+  font-size: 12px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   white-space: nowrap;
   transition: background 0.2s;
 }
@@ -81,14 +105,14 @@ body {
   background-color: #eff6ff;
   color: #1d4ed8;
   border: 1.5px solid #2563eb;
-  padding: 8px 12px;
+  padding: 7px 10px;
   border-radius: 8px;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 12px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   white-space: nowrap;
   transition: all 0.2s;
 }
@@ -97,48 +121,47 @@ body {
   background-color: #dbeafe;
 }
 
-/* Filter Bar */
-.filter-bar {
+/* ແຖວເລືອກເມືອງ ແລະ ຄົ້ນຫາ */
+.search-location-bar {
   background-color: #ffffff;
-  padding: 8px 16px;
+  padding: 6px 14px;
   display: flex;
   align-items: center;
   gap: 8px;
-  overflow-x: auto;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid #f1f5f9;
   z-index: 999;
+  flex-shrink: 0;
 }
 
-/* ປຸ່ມກົດເປີດເລືອກພື້ນທີ່ */
 .btn-location-picker {
-  padding: 6px 13px;
+  padding: 6px 11px;
   border-radius: 20px;
   border: 1.5px solid #2563eb;
   background-color: #eff6ff;
   color: #1d4ed8;
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   flex-shrink: 0;
-  transition: all 0.2s;
+  max-width: 140px;
 }
 
-.btn-location-picker:hover {
-  background-color: #dbeafe;
+.location-name-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-/* ຊ່ອງຄົ້ນຫາດ່ວນ */
 .search-box {
   position: relative;
   display: flex;
   align-items: center;
-  min-width: 170px;
-  max-width: 220px;
-  flex-shrink: 0;
+  flex: 1;
+  min-width: 0;
 }
 
 .search-input {
@@ -147,7 +170,7 @@ body {
   border-radius: 20px;
   border: 1.5px solid #cbd5e1;
   background-color: #f8fafc;
-  font-size: 12.5px;
+  font-size: 12px;
   color: #1e293b;
   outline: none;
   transition: all 0.2s;
@@ -173,82 +196,36 @@ body {
   cursor: pointer;
 }
 
-.btn-satellite {
-  padding: 6px 12px;
-  border-radius: 20px;
-  border: 1.5px solid #0f766e;
-  background-color: #f0fdfa;
-  color: #0f766e;
-  font-size: 12.5px;
-  font-weight: 700;
-  cursor: pointer;
-  white-space: nowrap;
+/* ແຖວ Filter Pills ເລື່ອນແນວນອນ */
+.category-scroll-bar {
+  background-color: #ffffff;
+  padding: 4px 14px 7px 14px;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
+  overflow-x: auto;
+  border-bottom: 1px solid #e2e8f0;
+  z-index: 998;
   flex-shrink: 0;
-  transition: all 0.2s;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
 
-.btn-satellite.active {
-  background-color: #0f766e;
-  color: white;
-}
-
-.btn-radar {
-  padding: 6px 12px;
-  border-radius: 20px;
-  border: 1.5px solid #0284c7;
-  background-color: #f0f9ff;
-  color: #0284c7;
-  font-size: 12.5px;
-  font-weight: 700;
-  cursor: pointer;
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  flex-shrink: 0;
-  transition: all 0.2s;
-}
-
-.btn-radar.active {
-  background-color: #0284c7;
-  color: white;
-  box-shadow: 0 0 10px rgba(2, 132, 199, 0.4);
-}
-
-.btn-river {
-  padding: 6px 12px;
-  border-radius: 20px;
-  border: 1.5px solid #3b82f6;
-  background-color: #eff6ff;
-  color: #1d4ed8;
-  font-size: 12.5px;
-  font-weight: 700;
-  cursor: pointer;
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  flex-shrink: 0;
-}
-
-.btn-river:hover {
-  background-color: #dbeafe;
+.category-scroll-bar::-webkit-scrollbar {
+  display: none;
 }
 
 .filter-btn {
-  padding: 6px 12px;
+  padding: 5px 11px;
   border-radius: 20px;
   border: 1px solid #d1d5db;
   background: white;
-  font-size: 12.5px;
+  font-size: 12px;
   cursor: pointer;
   white-space: nowrap;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   flex-shrink: 0;
 }
 
@@ -261,11 +238,11 @@ body {
 .stat-pill {
   display: inline-block;
   background: rgba(0,0,0,0.08);
-  padding: 1px 6px;
+  padding: 1px 5px;
   border-radius: 10px;
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
-  margin-left: 3px;
+  margin-left: 2px;
 }
 
 .filter-btn.active .stat-pill {
@@ -273,15 +250,62 @@ body {
   color: white;
 }
 
-/* Map Area */
+/* Map Area & Floating Controls */
 .map-wrapper {
   flex: 1;
   position: relative;
+  overflow: hidden;
 }
 
 .leaflet-container {
   width: 100%;
   height: 100%;
+}
+
+/* ປຸ່ມເຄື່ອງມືລອຍເທິງແຜນທີ່ ດ້ານຂວາມື (Floating Map Controls) */
+.floating-map-controls {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 900;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.map-tool-btn {
+  background: #ffffff;
+  color: #1e293b;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 7px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  min-width: 50px;
+  transition: all 0.2s ease;
+}
+
+.map-tool-btn:hover {
+  background: #f8fafc;
+  transform: translateY(-1px);
+}
+
+.map-tool-btn.active {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+  box-shadow: 0 2px 10px rgba(37, 99, 235, 0.35);
+}
+
+.map-tool-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  margin-top: 3px;
+  white-space: nowrap;
 }
 
 /* Custom Marker */
@@ -319,6 +343,57 @@ body {
   0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
   70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
   100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+/* Cluster Pin Styles */
+.custom-cluster-wrapper {
+  background: transparent;
+  border: none;
+}
+
+.custom-cluster-pin {
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  border: 2.5px solid white;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.15s ease;
+}
+
+.custom-cluster-pin:hover {
+  transform: scale(1.15);
+}
+
+.cluster-normal {
+  background: #2563eb;
+}
+
+.cluster-sos {
+  background: #dc2626;
+  animation: pulse-ring 1.5s infinite;
+}
+
+.cluster-urgent {
+  background: #991b1b;
+  border-color: #fef08a;
+  animation: pulse-ring 1.2s infinite;
+}
+
+.cluster-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  font-size: 11px;
+}
+
+.cluster-count {
+  font-size: 13px;
+  font-weight: 800;
 }
 
 /* Popup */
@@ -377,7 +452,6 @@ body {
   box-shadow: 0 2px 5px rgba(30, 64, 175, 0.3);
 }
 
-/* ປຸ່ມນຳທາງ Google Maps */
 .btn-popup-nav {
   display: inline-flex;
   align-items: center;
@@ -474,240 +548,7 @@ body {
   gap: 6px;
 }
 
-.btn-gps {
-  width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1.5px solid #2563eb;
-  background: #eff6ff;
-  color: #1d4ed8;
-  font-size: 13.5px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.btn-pick-map {
-  width: 100%;
-  padding: 8px;
-  border-radius: 8px;
-  border: 1px dashed #6b7280;
-  background: #f9fafb;
-  color: #4b5563;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-
-.btn-pick-map:hover {
-  background: #f3f4f6;
-}
-
-.gps-success-text {
-  font-size: 12px;
-  color: #059669;
-  font-weight: 600;
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.upload-box {
-  border: 1.5px dashed #94a3b8;
-  background: #f8fafc;
-  border-radius: 10px;
-  padding: 16px 12px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 6px;
-}
-
-.upload-box:hover {
-  background: #f1f5f9;
-  border-color: #2563eb;
-}
-
-.upload-icon-circle {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: #e2e8f0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 4px;
-}
-
-.image-preview-container {
-  position: relative;
-  width: 100%;
-  height: 140px;
-  border-radius: 8px;
-  overflow: hidden;
-  margin-bottom: 6px;
-}
-
-.image-preview-container img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.btn-remove-img {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  background: rgba(0,0,0,0.6);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.share-option-btn {
-  width: 100%;
-  padding: 12px 16px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 10px;
-  border: none;
-}
-
-.share-wa { background-color: #16a34a; color: white; }
-.share-fb { background-color: #1877f2; color: white; }
-.share-copy { background-color: #374151; color: white; }
-.share-native { background-color: #eff6ff; color: #1d4ed8; border: 1.5px solid #2563eb; }
-
-/* ໜ້າຕ່າງເລືອກພື້ນທີ່ ແລະ ເມືອງ */
-.loc-search-input {
-  width: 100%;
-  padding: 10px 14px 10px 34px;
-  border-radius: 10px;
-  border: 1.5px solid #cbd5e1;
-  font-size: 13.5px;
-  outline: none;
-  margin-bottom: 14px;
-}
-
-.loc-search-input:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
-}
-
-.loc-category-btn {
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
-  font-size: 13px;
-  font-weight: 700;
-  color: #1e293b;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 6px;
-  transition: all 0.15s;
-}
-
-.loc-category-btn:hover {
-  background: #eff6ff;
-  border-color: #93c5fd;
-}
-
-.loc-district-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 6px;
-  padding: 6px 0 10px 10px;
-}
-
-.loc-district-item {
-  padding: 8px 10px;
-  border-radius: 6px;
-  background: #ffffff;
-  border: 1px solid #cbd5e1;
-  font-size: 12px;
-  color: #334155;
-  cursor: pointer;
-  text-align: left;
-  transition: all 0.15s;
-}
-
-.loc-district-item:hover {
-  background: #2563eb;
-  color: white;
-  border-color: #2563eb;
-}
-
-.river-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-  font-size: 13px;
-}
-
-.river-table th {
-  background: #f1f5f9;
-  padding: 9px 8px;
-  text-align: left;
-  font-weight: 700;
-  color: #334155;
-  border-bottom: 2px solid #cbd5e1;
-}
-
-.river-table td {
-  padding: 10px 8px;
-  border-bottom: 1px solid #e2e8f0;
-  color: #1e293b;
-}
-
-.badge-warn {
-  display: inline-block;
-  padding: 2px 7px;
-  border-radius: 4px;
-  background: #fef3c7;
-  color: #b45309;
-  font-weight: 700;
-  font-size: 11.5px;
-}
-
-.badge-danger {
-  display: inline-block;
-  padding: 2px 7px;
-  border-radius: 4px;
-  background: #fee2e2;
-  color: #b91c1c;
-  font-weight: 700;
-  font-size: 11.5px;
-}
-
-/* Modal */
+/* Modal System */
 .modal-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -779,25 +620,209 @@ body {
   color: white;
 }
 
-/* Emergency Button & Modal */
-.btn-emergency {
-  background-color: #fef2f2;
-  color: #dc2626;
-  border: 1.5px solid #ef4444;
-  padding: 8px 12px;
+/* Modal Specifics */
+.btn-gps {
+  width: 100%;
+  padding: 10px;
   border-radius: 8px;
+  border: 1.5px solid #2563eb;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 13.5px;
   font-weight: 700;
-  font-size: 13px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 5px;
-  white-space: nowrap;
-  transition: all 0.2s;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
-.btn-emergency:hover {
-  background-color: #fee2e2;
+.btn-pick-map {
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px dashed #6b7280;
+  background: #f9fafb;
+  color: #4b5563;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.gps-success-text {
+  font-size: 12px;
+  color: #059669;
+  font-weight: 600;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.upload-box {
+  border: 1.5px dashed #94a3b8;
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 16px 12px;
+  text-align: center;
+  cursor: pointer;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px;
+}
+
+.upload-icon-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.image-preview-container {
+  position: relative;
+  width: 100%;
+  height: 140px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.image-preview-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.btn-remove-img {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.share-option-btn {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+  border: none;
+}
+
+.share-wa { background-color: #16a34a; color: white; }
+.share-fb { background-color: #1877f2; color: white; }
+.share-copy { background-color: #374151; color: white; }
+.share-native { background-color: #eff6ff; color: #1d4ed8; border: 1.5px solid #2563eb; }
+
+.loc-search-input {
+  width: 100%;
+  padding: 10px 14px 10px 34px;
+  border-radius: 10px;
+  border: 1.5px solid #cbd5e1;
+  font-size: 13.5px;
+  outline: none;
+  margin-bottom: 14px;
+}
+
+.loc-category-btn {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.loc-district-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  padding: 6px 0 10px 10px;
+}
+
+.loc-district-item {
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  font-size: 12px;
+  color: #334155;
+  cursor: pointer;
+  text-align: left;
+}
+
+.river-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 13px;
+}
+
+.river-table th {
+  background: #f1f5f9;
+  padding: 9px 8px;
+  text-align: left;
+  font-weight: 700;
+  color: #334155;
+  border-bottom: 2px solid #cbd5e1;
+}
+
+.river-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #1e293b;
+}
+
+.badge-warn {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: #fef3c7;
+  color: #b45309;
+  font-weight: 700;
+  font-size: 11.5px;
+}
+
+.badge-danger {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: #fee2e2;
+  color: #b91c1c;
+  font-weight: 700;
+  font-size: 11.5px;
 }
 
 .emergency-hotline-grid {
@@ -816,12 +841,6 @@ body {
   flex-direction: column;
   text-decoration: none;
   color: inherit;
-  transition: all 0.15s;
-}
-
-.hotline-card:hover {
-  background: #fee2e2;
-  border-color: #ef4444;
 }
 
 .hotline-number {
@@ -878,80 +897,70 @@ body {
   white-space: nowrap;
 }
 
-.btn-call-mini:hover {
-  background: #059669;
-}
+/* Mobile Responsive Tweaks */
+@media (max-width: 640px) {
+  .header {
+    padding: 7px 10px;
+    gap: 6px;
+  }
 
-/* Cluster Pin Styles */
-.custom-cluster-wrapper {
-  background: transparent;
-  border: none;
-}
+  .header-title h1 {
+    font-size: 15px;
+  }
 
-.custom-cluster-pin {
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  color: white;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  border: 2.5px solid white;
-  cursor: pointer;
-  position: relative;
-  transition: transform 0.15s ease;
-}
+  .header-subtitle {
+    display: none;
+  }
 
-.custom-cluster-pin:hover {
-  transform: scale(1.15);
-}
+  .header-actions {
+    gap: 4px;
+  }
 
-.cluster-normal {
-  background: #2563eb;
-}
+  .btn-emergency {
+    padding: 6px 8px;
+    font-size: 11.5px;
+  }
 
-.cluster-sos {
-  background: #dc2626;
-  animation: pulse-ring 1.5s infinite;
-}
+  .btn-report {
+    padding: 6px 9px;
+    font-size: 11.5px;
+  }
 
-.cluster-urgent {
-  background: #991b1b;
-  border-color: #fef08a;
-  animation: pulse-ring 1.2s infinite;
-}
+  .btn-install {
+    padding: 6px 8px;
+  }
 
-.cluster-badge {
-  position: absolute;
-  top: -6px;
-  right: -6px;
-  font-size: 11px;
-}
+  .btn-text-install {
+    display: none;
+  }
 
-.cluster-count {
-  font-size: 13px;
-  font-weight: 800;
-}
+  .search-location-bar {
+    padding: 6px 10px;
+    gap: 6px;
+  }
 
-/* ປຸ່ມເປີດ/ປິດ Cluster */
-.btn-cluster-toggle {
-  padding: 6px 12px;
-  border-radius: 20px;
-  border: 1.5px solid #6366f1;
-  background-color: #eef2ff;
-  color: #4f46e5;
-  font-size: 12.5px;
-  font-weight: 700;
-  cursor: pointer;
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  flex-shrink: 0;
-  transition: all 0.2s;
-}
+  .btn-location-picker {
+    max-width: 120px;
+    padding: 5px 9px;
+    font-size: 11.5px;
+  }
 
-.btn-cluster-toggle.active {
-  background-color: #4f46e5;
-  color: white;
+  .category-scroll-bar {
+    padding: 4px 10px 6px 10px;
+  }
+
+  .floating-map-controls {
+    top: 10px;
+    right: 10px;
+    gap: 6px;
+  }
+
+  .map-tool-btn {
+    min-width: 44px;
+    padding: 5px 6px;
+  }
+
+  .map-tool-label {
+    font-size: 9px;
+  }
 }

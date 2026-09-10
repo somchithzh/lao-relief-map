@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { ShieldAlert, Plus, MapPin, Smartphone, Layers, CloudRain, Waves, Search, ChevronDown, PhoneCall, Grid } from 'lucide-react';
+import { ShieldAlert, Plus, MapPin, Smartphone, Layers, CloudRain, Waves, Search, ChevronDown, PhoneCall, Grid, X } from 'lucide-react';
 import { supabase } from './supabase';
 import LocationModal from './components/LocationModal';
 import RiverModal from './components/RiverModal';
@@ -241,46 +241,47 @@ export default function App() {
 
   return (
     <div className="app-container">
+      {/* Header ປັບໃໝ່ ບໍ່ລົ້ນໜ້າຈໍມືຖື */}
       <header className="header">
         <div className="header-title">
-          <ShieldAlert color="#dc2626" size={24} />
+          <ShieldAlert color="#dc2626" size={22} />
           <div>
             <h1>Lao Relief Map</h1>
-            <span>ແຜນທີ່ຊ່ວຍເຫຼືອໄພພິບັດ Real-time</span>
+            <span className="header-subtitle">ແຜນທີ່ຊ່ວຍເຫຼືອໄພພິບັດ Real-time</span>
           </div>
         </div>
 
         <div className="header-actions">
           <button className="btn-emergency" onClick={() => setIsEmergencyModalOpen(true)}>
-            <PhoneCall size={16} />
-            ເບີສຸກເສີນ
+            <PhoneCall size={14} />
+            <span>ເບີສຸກເສີນ</span>
           </button>
 
           <button className="btn-report" onClick={() => setIsModalOpen(true)}>
-            <Plus size={16} />
-            ລາຍງານເຫດ
+            <Plus size={14} />
+            <span>ລາຍງານເຫດ</span>
           </button>
 
-          <button className="btn-install" onClick={() => setIsInstallModalOpen(true)}>
-            <Smartphone size={16} />
-            ຕິດຕັ້ງແອັບ
+          <button className="btn-install" onClick={() => setIsInstallModalOpen(true)} title="ຕິດຕັ້ງແອັບ">
+            <Smartphone size={14} />
+            <span className="btn-text-install">ຕິດຕັ້ງແອັບ</span>
           </button>
         </div>
       </header>
 
-      {/* ແຖບເລືອກພື້ນທີ່, ຄົ້ນຫາ, ດາວທຽມ, ແລະ Filter */}
-      <div className="filter-bar">
+      {/* ແຖວທີ 1: ເລືອກເມືອງ ແລະ ຄົ້ນຫາດ່ວນ */}
+      <div className="search-location-bar">
         <button 
           className="btn-location-picker"
           onClick={() => setIsLocationModalOpen(true)}
         >
-          <MapPin size={14} />
-          <span>{currentLocationName}</span>
-          <ChevronDown size={14} />
+          <MapPin size={13} />
+          <span className="location-name-text">{currentLocationName}</span>
+          <ChevronDown size={13} />
         </button>
 
         <div className="search-box">
-          <Search size={14} className="search-icon" />
+          <Search size={13} className="search-icon" />
           <input 
             type="text" 
             className="search-input" 
@@ -289,44 +290,13 @@ export default function App() {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
           {searchQuery && (
-            <X size={14} className="search-clear" onClick={() => setSearchQuery('')} />
+            <X size={13} className="search-clear" onClick={() => setSearchQuery('')} />
           )}
         </div>
+      </div>
 
-        {/* ປຸ່ມເປີດ/ປິດ ຮວມໝຸດ Cluster */}
-        <button 
-          className={`btn-cluster-toggle ${enableCluster ? 'active' : ''}`}
-          onClick={() => setEnableCluster(!enableCluster)}
-          title="ກົດເພື່ອເປີດ/ປິດ ການຮວມໝຸດ"
-        >
-          <Grid size={14} />
-          {enableCluster ? '🧩 ຮວມໝຸດ: ເປີດ' : '📍 ແຍກໝຸດ: ປິດ'}
-        </button>
-
-        <button 
-          className={`btn-satellite ${mapType === 'satellite' ? 'active' : ''}`}
-          onClick={() => setMapType(mapType === 'street' ? 'satellite' : 'street')}
-        >
-          <Layers size={14} />
-          {mapType === 'street' ? '🛰️ ດາວທຽມ' : '🗺️ ຖະໜົນ'}
-        </button>
-
-        <button 
-          className={`btn-radar ${showRadar ? 'active' : ''}`}
-          onClick={() => setShowRadar(!showRadar)}
-        >
-          <CloudRain size={14} />
-          {showRadar ? '🌧️ ປິດເຣດາ' : '🌧️ ເຣດາຝົນ'}
-        </button>
-
-        <button 
-          className="btn-river"
-          onClick={() => setIsRiverModalOpen(true)}
-        >
-          <Waves size={14} />
-          🌊 ລະດັບນ້ຳ
-        </button>
-
+      {/* ແຖວທີ 2: Filter Pills ເລື່ອນແນວນອນສະອາດໆ */}
+      <div className="category-scroll-bar">
         <button 
           className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
           onClick={() => setFilter('all')}
@@ -359,7 +329,47 @@ export default function App() {
         </button>
       </div>
 
+      {/* Map Area */}
       <div className="map-wrapper">
+        {/* ປຸ່ມເຄື່ອງມືລອຍເທິງແຜນທີ່ ດ້ານຂວາມື (Floating Map Controls ແບບ Google Maps) */}
+        <div className="floating-map-controls">
+          <button 
+            className={`map-tool-btn ${mapType === 'satellite' ? 'active' : ''}`}
+            onClick={() => setMapType(mapType === 'street' ? 'satellite' : 'street')}
+            title="ດາວທຽມ / ຖະໜົນ"
+          >
+            <Layers size={17} />
+            <span className="map-tool-label">{mapType === 'street' ? 'ດາວທຽມ' : 'ຖະໜົນ'}</span>
+          </button>
+
+          <button 
+            className={`map-tool-btn ${showRadar ? 'active' : ''}`}
+            onClick={() => setShowRadar(!showRadar)}
+            title="ເຣດາຝົນ"
+          >
+            <CloudRain size={17} />
+            <span className="map-tool-label">ເຣດາຝົນ</span>
+          </button>
+
+          <button 
+            className="map-tool-btn"
+            onClick={() => setIsRiverModalOpen(true)}
+            title="ລະດັບນ້ຳຂອງ"
+          >
+            <Waves size={17} />
+            <span className="map-tool-label">ລະດັບນ້ຳ</span>
+          </button>
+
+          <button 
+            className={`map-tool-btn ${enableCluster ? 'active' : ''}`}
+            onClick={() => setEnableCluster(!enableCluster)}
+            title="ຮວມໝຸດ"
+          >
+            <Grid size={17} />
+            <span className="map-tool-label">ຮວມໝຸດ</span>
+          </button>
+        </div>
+
         {isPickingLocation && (
           <div style={{
             position: 'absolute',
@@ -419,7 +429,6 @@ export default function App() {
             onLocationSelect={handleLocationSelect} 
           />
 
-          {/* ສະແດງໝຸດແບບ Cluster ຫຼື ແຍກປົກກະຕິ */}
           <ClusterLayer 
             reports={filteredReports}
             enableCluster={enableCluster}
@@ -433,7 +442,7 @@ export default function App() {
         </MapContainer>
       </div>
 
-      {/* Components Modals */}
+      {/* Modals ທັງໝົດ */}
       <EmergencyModal 
         isOpen={isEmergencyModalOpen} 
         onClose={() => setIsEmergencyModalOpen(false)} 
