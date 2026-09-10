@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { ShieldAlert, Plus, MapPin, Smartphone, Layers, CloudRain, Waves, Search, ChevronDown, PhoneCall, Grid, X } from 'lucide-react';
+import { ShieldAlert, Plus, MapPin, Smartphone, Layers, CloudRain, Waves, Search, ChevronDown, PhoneCall, Grid, X, List, Map } from 'lucide-react';
 import { supabase } from './supabase';
 import LocationModal from './components/LocationModal';
 import RiverModal from './components/RiverModal';
@@ -10,6 +10,7 @@ import ShareModal from './components/ShareModal';
 import ReportModal from './components/ReportModal';
 import EmergencyModal from './components/EmergencyModal';
 import ClusterLayer from './components/ClusterLayer';
+import ReportListView from './components/ReportListView';
 import './App.css';
 
 const createCustomIcon = (report, isUrgent) => {
@@ -75,6 +76,7 @@ export default function App() {
   const [filter, setFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [enableCluster, setEnableCluster] = useState(true);
+  const [viewMode, setViewMode] = useState('map'); // 'map' | 'list'
 
   const [currentLocationName, setCurrentLocationName] = useState('📍 ທົ່ວປະເທດ');
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
@@ -203,6 +205,11 @@ export default function App() {
     alert('ຕໍ່ອາຍຸການແຈ້ງເຕືອນສຳເລັດແລ້ວ!');
   };
 
+  const handleShowOnMap = (report) => {
+    setViewMode('map');
+    setMapTarget({ center: [report.lat, report.lng], zoom: 15 });
+  };
+
   const activeReports = reports.filter((r) => {
     const createdAt = new Date(r.created_at).getTime();
     const hoursSinceCreated = (currentTime - createdAt) / (1000 * 60 * 60);
@@ -241,7 +248,7 @@ export default function App() {
 
   return (
     <div className="app-container">
-      {/* Header ພ້ອມຊື່ພາສາລາວ "ແຜນທີ່ຊ່ວຍເຫຼືອໄພພິບັດ" */}
+      {/* Header */}
       <header className="header">
         <div className="header-title">
           <ShieldAlert color="#dc2626" size={22} style={{ flexShrink: 0 }} />
@@ -269,7 +276,7 @@ export default function App() {
         </div>
       </header>
 
-      {/* ແຖວທີ 1: ເລືອກເມືອງ ແລະ ຄົ້ນຫາດ່ວນ */}
+      {/* ແຖວເລືອກເມືອງ ແລະ ຄົ້ນຫາ */}
       <div className="search-location-bar">
         <button 
           className="btn-location-picker"
@@ -295,7 +302,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* ແຖວທີ 2: Filter Pills ເລື່ອນແນວນອນ */}
+      {/* ແຖວ Filter Pills */}
       <div className="category-scroll-bar">
         <button 
           className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
@@ -329,118 +336,149 @@ export default function App() {
         </button>
       </div>
 
-      {/* Map Area */}
-      <div className="map-wrapper">
-        {/* ປຸ່ມເຄື່ອງມືລອຍເທິງແຜນທີ່ ດ້ານຂວາມື */}
-        <div className="floating-map-controls">
-          <button 
-            className={`map-tool-btn ${mapType === 'satellite' ? 'active' : ''}`}
-            onClick={() => setMapType(mapType === 'street' ? 'satellite' : 'street')}
-            title="ດາວທຽມ / ຖະໜົນ"
-          >
-            <Layers size={17} />
-            <span className="map-tool-label">{mapType === 'street' ? 'ດາວທຽມ' : 'ຖະໜົນ'}</span>
-          </button>
+      {/* ສະຫຼັບສະແດງລະຫວ່າງ: ແຜນທີ່ (Map) ຫຼື ລາຍການ (List) */}
+      {viewMode === 'map' ? (
+        <div className="map-wrapper">
+          {/* ປຸ່ມເຄື່ອງມືລອຍເທິງແຜນທີ່ */}
+          <div className="floating-map-controls">
+            <button 
+              className={`map-tool-btn ${mapType === 'satellite' ? 'active' : ''}`}
+              onClick={() => setMapType(mapType === 'street' ? 'satellite' : 'street')}
+              title="ດາວທຽມ / ຖະໜົນ"
+            >
+              <Layers size={17} />
+              <span className="map-tool-label">{mapType === 'street' ? 'ດາວທຽມ' : 'ຖະໜົນ'}</span>
+            </button>
 
-          <button 
-            className={`map-tool-btn ${showRadar ? 'active' : ''}`}
-            onClick={() => setShowRadar(!showRadar)}
-            title="ເຣດາຝົນ"
-          >
-            <CloudRain size={17} />
-            <span className="map-tool-label">ເຣດາຝົນ</span>
-          </button>
+            <button 
+              className={`map-tool-btn ${showRadar ? 'active' : ''}`}
+              onClick={() => setShowRadar(!showRadar)}
+              title="ເຣດາຝົນ"
+            >
+              <CloudRain size={17} />
+              <span className="map-tool-label">ເຣດາຝົນ</span>
+            </button>
 
-          <button 
-            className="map-tool-btn"
-            onClick={() => setIsRiverModalOpen(true)}
-            title="ລະດັບນ້ຳຂອງ"
-          >
-            <Waves size={17} />
-            <span className="map-tool-label">ລະດັບນ້ຳ</span>
-          </button>
+            <button 
+              className="map-tool-btn"
+              onClick={() => setIsRiverModalOpen(true)}
+              title="ລະດັບນ້ຳຂອງ"
+            >
+              <Waves size={17} />
+              <span className="map-tool-label">ລະດັບນ້ຳ</span>
+            </button>
 
-          <button 
-            className={`map-tool-btn ${enableCluster ? 'active' : ''}`}
-            onClick={() => setEnableCluster(!enableCluster)}
-            title="ຮວມໝຸດ"
-          >
-            <Grid size={17} />
-            <span className="map-tool-label">ຮວມໝຸດ</span>
-          </button>
-        </div>
-
-        {isPickingLocation && (
-          <div style={{
-            position: 'absolute',
-            top: 15,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 1000,
-            background: '#1f2937',
-            color: 'white',
-            padding: '8px 18px',
-            borderRadius: '20px',
-            fontSize: '13px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}>
-            <MapPin size={16} color="#ef4444" />
-            ກົດຈິ້ມໃສ່ຈຸດເກີດເຫດເທິງແຜນທີ່...
+            <button 
+              className={`map-tool-btn ${enableCluster ? 'active' : ''}`}
+              onClick={() => setEnableCluster(!enableCluster)}
+              title="ຮວມໝຸດ"
+            >
+              <Grid size={17} />
+              <span className="map-tool-label">ຮວມໝຸດ</span>
+            </button>
           </div>
+
+          {isPickingLocation && (
+            <div style={{
+              position: 'absolute',
+              top: 15,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 1000,
+              background: '#1f2937',
+              color: 'white',
+              padding: '8px 18px',
+              borderRadius: '20px',
+              fontSize: '13px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <MapPin size={16} color="#ef4444" />
+              ກົດຈິ້ມໃສ່ຈຸດເກີດເຫດເທິງແຜນທີ່...
+            </div>
+          )}
+
+          <MapContainer 
+            center={mapTarget.center} 
+            zoom={mapTarget.zoom} 
+            scrollWheelZoom={true}
+          >
+            {mapType === 'street' ? (
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+            ) : (
+              <TileLayer
+                attribution='Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+                url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+                maxZoom={19}
+              />
+            )}
+
+            {showRadar && radarTileUrl && (
+              <TileLayer
+                url={radarTileUrl}
+                opacity={0.65}
+                zIndex={500}
+                attribution='&copy; <a href="https://www.rainviewer.com">RainViewer</a>'
+              />
+            )}
+
+            <MapController 
+              targetCenter={mapTarget.center} 
+              targetZoom={mapTarget.zoom} 
+            />
+
+            <LocationPicker 
+              isPicking={isPickingLocation} 
+              onLocationSelect={handleLocationSelect} 
+            />
+
+            <ClusterLayer 
+              reports={filteredReports}
+              enableCluster={enableCluster}
+              createCustomIcon={createCustomIcon}
+              currentTime={currentTime}
+              setShareReport={setShareReport}
+              handleMarkResolved={handleMarkResolved}
+              handleRenewReport={handleRenewReport}
+              formatCountdown={formatCountdown}
+            />
+          </MapContainer>
+        </div>
+      ) : (
+        /* ມຸມມອງລາຍການ (List View) */
+        <ReportListView
+          reports={filteredReports}
+          currentTime={currentTime}
+          setShareReport={setShareReport}
+          handleMarkResolved={handleMarkResolved}
+          handleRenewReport={handleRenewReport}
+          formatCountdown={formatCountdown}
+          onShowOnMap={handleShowOnMap}
+        />
+      )}
+
+      {/* ປຸ່ມລອຍສະຫຼັບມຸມມອງ (Bottom Center Toggle) */}
+      <button
+        className="btn-floating-view-toggle"
+        onClick={() => setViewMode(viewMode === 'map' ? 'list' : 'map')}
+      >
+        {viewMode === 'map' ? (
+          <>
+            <List size={15} />
+            <span>ເບິ່ງແບບລາຍການ ({filteredReports.length})</span>
+          </>
+        ) : (
+          <>
+            <Map size={15} />
+            <span>ເບິ່ງແບບແຜນທີ່ 🗺️</span>
+          </>
         )}
-
-        <MapContainer 
-          center={mapTarget.center} 
-          zoom={mapTarget.zoom} 
-          scrollWheelZoom={true}
-        >
-          {mapType === 'street' ? (
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-          ) : (
-            <TileLayer
-              attribution='Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-              url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-              maxZoom={19}
-            />
-          )}
-
-          {showRadar && radarTileUrl && (
-            <TileLayer
-              url={radarTileUrl}
-              opacity={0.65}
-              zIndex={500}
-              attribution='&copy; <a href="https://www.rainviewer.com">RainViewer</a>'
-            />
-          )}
-
-          <MapController 
-            targetCenter={mapTarget.center} 
-            targetZoom={mapTarget.zoom} 
-          />
-
-          <LocationPicker 
-            isPicking={isPickingLocation} 
-            onLocationSelect={handleLocationSelect} 
-          />
-
-          <ClusterLayer 
-            reports={filteredReports}
-            enableCluster={enableCluster}
-            createCustomIcon={createCustomIcon}
-            currentTime={currentTime}
-            setShareReport={setShareReport}
-            handleMarkResolved={handleMarkResolved}
-            handleRenewReport={handleRenewReport}
-            formatCountdown={formatCountdown}
-          />
-        </MapContainer>
-      </div>
+      </button>
 
       {/* Modals */}
       <EmergencyModal 
