@@ -1246,3 +1246,28 @@ body {
   align-items: center;
   justify-content: space-between;
 }
+
+/* Urgent Filter Pill Button */
+.filter-btn-urgent {
+  border-color: #fca5a5;
+  color: #b91c1c;
+  background-color: #fef2f2;
+  font-weight: 700;
+}
+
+.filter-btn-urgent.active {
+  background-color: #dc2626;
+  color: white;
+  border-color: #dc2626;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+}
+
+.filter-btn-urgent .stat-pill {
+  background: rgba(220, 38, 38, 0.15);
+  color: #b91c1c;
+}
+
+.filter-btn-urgent.active .stat-pill {
+  background: rgba(255, 255, 255, 0.3);
+  color: white;
+}

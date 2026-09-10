@@ -227,6 +227,11 @@ export default function App() {
 
   const stats = {
     total: activeReports.length,
+    urgent: activeReports.filter((r) => {
+      const createdAt = new Date(r.created_at).getTime();
+      const hoursPassed = (currentTime - createdAt) / (1000 * 60 * 60);
+      return r.type === 'sos' && r.status !== 'resolved' && hoursPassed >= 24;
+    }).length,
     sos: activeReports.filter((r) => r.type === 'sos' && r.status !== 'resolved').length,
     warning: activeReports.filter((r) => r.type === 'warning' && r.status !== 'resolved').length,
     shelter: activeReports.filter((r) => r.type === 'shelter' && r.status !== 'resolved').length,
@@ -236,6 +241,11 @@ export default function App() {
   const filteredReports = activeReports
     .filter((r) => {
       if (filter === 'all') return true;
+      if (filter === 'urgent') {
+        const createdAt = new Date(r.created_at).getTime();
+        const hoursPassed = (currentTime - createdAt) / (1000 * 60 * 60);
+        return r.type === 'sos' && r.status !== 'resolved' && hoursPassed >= 24;
+      }
       return r.type === filter && r.status !== 'resolved';
     })
     .filter((r) => {
@@ -306,7 +316,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* ແຖວ Filter Pills */}
+      {/* ແຖວ Filter Pills (ເພີ່ມປຸ່ມດ່ວນ >24h) */}
       <div className="category-scroll-bar">
         <button 
           className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
@@ -314,24 +324,35 @@ export default function App() {
         >
           ທັງໝົດ <span className="stat-pill">{stats.total}</span>
         </button>
+
+        <button 
+          className={`filter-btn filter-btn-urgent ${filter === 'urgent' ? 'active' : ''}`}
+          onClick={() => setFilter('urgent')}
+        >
+          🔥 ດ່ວນ (ເກີນ 24h) <span className="stat-pill">{stats.urgent}</span>
+        </button>
+
         <button 
           className={`filter-btn ${filter === 'sos' ? 'active' : ''}`}
           onClick={() => setFilter('sos')}
         >
           🚨 ຂໍຄວາມຊ່ວຍເຫຼືອ <span className="stat-pill">{stats.sos}</span>
         </button>
+
         <button 
           className={`filter-btn ${filter === 'warning' ? 'active' : ''}`}
           onClick={() => setFilter('warning')}
         >
           ⚠️ ແຈ້ງເຕືອນ <span className="stat-pill">{stats.warning}</span>
         </button>
+
         <button 
           className={`filter-btn ${filter === 'shelter' ? 'active' : ''}`}
           onClick={() => setFilter('shelter')}
         >
           🏠 ສູນພັກເຊົາ <span className="stat-pill">{stats.shelter}</span>
         </button>
+
         <button 
           className={`filter-btn ${filter === 'donation' ? 'active' : ''}`}
           onClick={() => setFilter('donation')}
