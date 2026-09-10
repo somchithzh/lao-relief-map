@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { ShieldAlert, Plus, MapPin, Smartphone, Layers, CloudRain, Waves, Search, ChevronDown, PhoneCall, Grid, X, List, Map } from 'lucide-react';
+import { ShieldAlert, Plus, MapPin, Smartphone, Layers, CloudRain, Waves, Search, ChevronDown, PhoneCall, Grid, X, List, Map, CloudSun } from 'lucide-react';
 import { supabase } from './supabase';
 import LocationModal from './components/LocationModal';
 import RiverModal from './components/RiverModal';
@@ -11,6 +11,7 @@ import ReportModal from './components/ReportModal';
 import EmergencyModal from './components/EmergencyModal';
 import ClusterLayer from './components/ClusterLayer';
 import ReportListView from './components/ReportListView';
+import WeatherModal from './components/WeatherModal';
 import './App.css';
 
 const createCustomIcon = (report, isUrgent) => {
@@ -76,7 +77,7 @@ export default function App() {
   const [filter, setFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [enableCluster, setEnableCluster] = useState(true);
-  const [viewMode, setViewMode] = useState('map'); // 'map' | 'list'
+  const [viewMode, setViewMode] = useState('map');
 
   const [currentLocationName, setCurrentLocationName] = useState('📍 ທົ່ວປະເທດ');
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
@@ -90,6 +91,7 @@ export default function App() {
   const [showRadar, setShowRadar] = useState(false);
   const [radarTileUrl, setRadarTileUrl] = useState('');
 
+  const [isWeatherModalOpen, setIsWeatherModalOpen] = useState(false);
   const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
   const [isRiverModalOpen, setIsRiverModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -336,10 +338,19 @@ export default function App() {
         </button>
       </div>
 
-      {/* ສະຫຼັບສະແດງລະຫວ່າງ: ແຜນທີ່ (Map) ຫຼື ລາຍການ (List) */}
+      {/* Map Area / List Area */}
       {viewMode === 'map' ? (
         <div className="map-wrapper">
-          {/* ປຸ່ມເຄື່ອງມືລອຍເທິງແຜນທີ່ */}
+          {/* ປຸ່ມລອຍສະພາບອາກາດ ມຸມຊ້າຍເທິງແຜນທີ່ */}
+          <button 
+            className="floating-weather-badge"
+            onClick={() => setIsWeatherModalOpen(true)}
+            title="ຄລິກເບິ່ງສະພາບອາກາດ & ພະຍາກອນຝົນ"
+          >
+            <span>🌤️ ສະພາບອາກາດ</span>
+          </button>
+
+          {/* ປຸ່ມເຄື່ອງມືລອຍເທິງແຜນທີ່ ດ້ານຂວາມື */}
           <div className="floating-map-controls">
             <button 
               className={`map-tool-btn ${mapType === 'satellite' ? 'active' : ''}`}
@@ -348,6 +359,15 @@ export default function App() {
             >
               <Layers size={17} />
               <span className="map-tool-label">{mapType === 'street' ? 'ດາວທຽມ' : 'ຖະໜົນ'}</span>
+            </button>
+
+            <button 
+              className="map-tool-btn"
+              onClick={() => setIsWeatherModalOpen(true)}
+              title="ສະພາບອາກາດ & ພະຍາກອນຝົນ"
+            >
+              <CloudSun size={17} />
+              <span className="map-tool-label">ອາກາດ</span>
             </button>
 
             <button 
@@ -450,7 +470,6 @@ export default function App() {
           </MapContainer>
         </div>
       ) : (
-        /* ມຸມມອງລາຍການ (List View) */
         <ReportListView
           reports={filteredReports}
           currentTime={currentTime}
@@ -462,7 +481,7 @@ export default function App() {
         />
       )}
 
-      {/* ປຸ່ມລອຍສະຫຼັບມຸມມອງ (Bottom Center Toggle) */}
+      {/* ປຸ່ມລອຍສະຫຼັບມຸມມອງ */}
       <button
         className="btn-floating-view-toggle"
         onClick={() => setViewMode(viewMode === 'map' ? 'list' : 'map')}
@@ -481,6 +500,14 @@ export default function App() {
       </button>
 
       {/* Modals */}
+      <WeatherModal 
+        isOpen={isWeatherModalOpen}
+        onClose={() => setIsWeatherModalOpen(false)}
+        lat={mapTarget.center[0]}
+        lng={mapTarget.center}
+        locationName={currentLocationName.replace('📍 ', '')}
+      />
+
       <EmergencyModal 
         isOpen={isEmergencyModalOpen} 
         onClose={() => setIsEmergencyModalOpen(false)} 

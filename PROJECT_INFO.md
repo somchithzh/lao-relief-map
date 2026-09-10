@@ -10,6 +10,8 @@
 - `src/data/districts.js`: ຖານຂໍ້ມູນເມືອງ 18 ແຂວງທົ່ວລາວ
 - `src/data/stations.js`: ສະຖານີວັດແທກລະດັບນ້ຳຂອງ
 - `src/data/emergencyContacts.js`: ເບີໂທສຸກເສີນ ແລະ ໜ່ວຍກູ້ໄພທົ່ວປະເທດ
+- `src/components/WeatherModal.jsx`: ໜ້າຕ່າງສະພາບອາກາດ & ພະຍາກອນຝົນ (Open-Meteo)
+- `src/components/ReportListView.jsx`: ມຸມມອງລາຍການເຫດການ (Feed View)
 - `src/components/ClusterLayer.jsx`: ລະບົບຮວມກຸ່ມໝຸດ Marker Cluster (Pure React)
 - `src/components/EmergencyModal.jsx`: ໜ້າຕ່າງເບີໂທສຸກເສີນ ແລະ ກູ້ໄພ
 - `src/components/LocationModal.jsx`: ໜ້າຕ່າງເລືອກເມືອງ/ແຂວງ
@@ -32,3 +34,5 @@
 11. ປຸ່ມນຳທາງ Google Maps ເທິງໝຸດ ເປີດເສັ້ນທາງຫາພິກັດຈຸດເກີດເຫດທັນທີ
 12. ປຸ່ມເບີສຸກເສີນ ແລະ ໜ່ວຍກູ້ໄພທົ່ວປະເທດ 18 ແຂວງ (One-touch call)
 13. ລະບົບຮວມກຸ່ມໝຸດ Marker Cluster ພ້ອມປຸ່ມສະຫຼັບເປີດ/ປິດ (Smart Pulse 🚨)
+14. ມຸມມອງລາຍການ (Feed View) ພ້ອມປຸ່ມສະຫຼັບລອຍ [ 🗺️ ແຜນທີ່ | 📋 ລາຍການ ]
+15. ສະພາບອາກາດສົດ & ພະຍາກອນຝົນລ່ວງໜ້າ 3 ມື້ (Open-Meteo Real-time)
