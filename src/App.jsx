@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, useMapEvents, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { ShieldAlert, Plus, MapPin, Smartphone, Layers, CloudRain, Waves, Search, ChevronDown, PhoneCall, Grid, X, List, Map, CloudSun } from 'lucide-react';
+import { ShieldAlert, Plus, MapPin, Smartphone, Layers, CloudRain, Waves, Search, ChevronDown, PhoneCall, Grid, X, List, Map, CloudSun, Crosshair } from 'lucide-react';
 import { supabase } from './supabase';
 import LocationModal from './components/LocationModal';
 import RiverModal from './components/RiverModal';
@@ -42,6 +42,13 @@ const createCustomIcon = (report, isUrgent) => {
   });
 };
 
+const userLocationIcon = L.divIcon({
+  className: 'user-location-marker-wrap',
+  html: '<div class="user-pulse-dot" title="ເຈົ້າຢູ່ບ່ອນນີ້"></div>',
+  iconSize: L.point(18, 18),
+  iconAnchor: L.point(9, 9),
+});
+
 function LocationPicker({ isPicking, onLocationSelect }) {
   useMapEvents({
     click(e) {
@@ -78,6 +85,7 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [enableCluster, setEnableCluster] = useState(true);
   const [viewMode, setViewMode] = useState('map');
+  const [userLocation, setUserLocation] = useState(null);
 
   const [currentLocationName, setCurrentLocationName] = useState('📍 ທົ່ວປະເທດ');
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
@@ -182,6 +190,26 @@ export default function App() {
     setIsPickingLocation(false);
     setIsModalOpen(true);
     setGpsMessage(`📍 ເລືອກເທິງແຜນທີ່: (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
+  };
+
+  const handleLocateUser = () => {
+    if (!navigator.geolocation) {
+      alert('ອຸປະກອນຂອງທ່ານບໍ່ຮອງຮັບລະບົບ GPS');
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const userLat = pos.coords.latitude;
+        const userLng = pos.coords.longitude;
+        setUserLocation({ lat: userLat, lng: userLng });
+        setMapTarget({ center: [userLat, userLng], zoom: 14 });
+      },
+      (err) => {
+        console.error(err);
+        alert('ບໍ່ສາມາດດຶງ GPS ໄດ້: ກະລຸນາກົດ "ອະນຸຍາດ (Allow)" ໃຫ້ເວັບໄຊເຂົ້າເຖິງຕຳແໜ່ງ Location');
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
   };
 
   const handleMarkResolved = async (id) => {
@@ -316,7 +344,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* ແຖວ Filter Pills (ເພີ່ມປຸ່ມດ່ວນ >24h) */}
+      {/* ແຖວ Filter Pills */}
       <div className="category-scroll-bar">
         <button 
           className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
@@ -375,6 +403,16 @@ export default function App() {
 
           {/* ປຸ່ມເຄື່ອງມືລອຍເທິງແຜນທີ່ ດ້ານຂວາມື */}
           <div className="floating-map-controls">
+            {/* ປຸ່ມດຶງ GPS ຕຳແໜ່ງປັດຈຸບັນຂອງຂ້ອຍ */}
+            <button 
+              className={`map-tool-btn ${userLocation ? 'active' : ''}`}
+              onClick={handleLocateUser}
+              title="ຊອກຫາຕຳແໜ່ງປັດຈຸບັນຂອງຂ້ອຍ"
+            >
+              <Crosshair size={17} />
+              <span className="map-tool-label">ຕຳແໜ່ງຂ້ອຍ</span>
+            </button>
+
             <button 
               className={`map-tool-btn ${mapType === 'satellite' ? 'active' : ''}`}
               onClick={() => setMapType(mapType === 'street' ? 'satellite' : 'street')}
@@ -480,6 +518,17 @@ export default function App() {
               onLocationSelect={handleLocationSelect} 
             />
 
+            {/* ໝຸດຕຳແໜ່ງປັດຈຸບັນຂອງຜູ້ໃຊ້ (Blue Pulse Dot) */}
+            {userLocation && (
+              <Marker position={[userLocation.lat, userLocation.lng]} icon={userLocationIcon}>
+                <Popup>
+                  <div style={{ textAlign: 'center', padding: '4px', fontWeight: '700', fontSize: '13px' }}>
+                    🔵 ເຈົ້າຢູ່ບ່ອນນີ້ (ຕຳແໜ່ງປັດຈຸບັນ)
+                  </div>
+                </Popup>
+              </Marker>
+            )}
+
             <ClusterLayer 
               reports={filteredReports}
               enableCluster={enableCluster}
@@ -501,6 +550,8 @@ export default function App() {
           handleRenewReport={handleRenewReport}
           formatCountdown={formatCountdown}
           onShowOnMap={handleShowOnMap}
+          userLocation={userLocation}
+          onLocateUser={handleLocateUser}
         />
       )}
 

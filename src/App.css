@@ -1271,3 +1271,65 @@ body {
   background: rgba(255, 255, 255, 0.3);
   color: white;
 }
+
+/* User Location Pulsing Dot */
+.user-location-marker-wrap {
+  background: transparent;
+  border: none;
+}
+
+.user-pulse-dot {
+  width: 18px;
+  height: 18px;
+  background-color: #2563eb;
+  border: 2.5px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(37, 99, 235, 0.8);
+  animation: user-pulse 1.8s infinite;
+}
+
+@keyframes user-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7); }
+  70% { box-shadow: 0 0 0 12px rgba(37, 99, 235, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+}
+
+/* Distance badge on cards */
+.distance-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1px solid #bfdbfe;
+}
+
+/* Sort toggle controls in List View */
+.feed-sort-controls {
+  display: flex;
+  gap: 6px;
+}
+
+.feed-sort-btn {
+  padding: 4px 10px;
+  border-radius: 16px;
+  border: 1px solid #cbd5e1;
+  background: white;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #475569;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.feed-sort-btn.active {
+  background: #1e293b;
+  color: white;
+  border-color: #1e293b;
+}

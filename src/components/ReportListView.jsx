@@ -1,5 +1,6 @@
-import React from 'react';
-import { Phone, Navigation, Share2, CheckCircle, RefreshCw, MapPin, AlertCircle, Clock } from 'lucide-react';
+import React, { useState } from 'react';
+import { Phone, Navigation, Share2, CheckCircle, RefreshCw, MapPin, AlertCircle, Clock, Navigation2, Compass } from 'lucide-react';
+import { calculateDistanceKm, formatDistance } from '../utils/distance';
 
 export default function ReportListView({
   reports,
@@ -8,8 +9,12 @@ export default function ReportListView({
   handleMarkResolved,
   handleRenewReport,
   formatCountdown,
-  onShowOnMap
+  onShowOnMap,
+  userLocation,
+  onLocateUser
 }) {
+  const [sortBy, setSortBy] = useState('time'); // 'time' | 'distance'
+
   if (reports.length === 0) {
     return (
       <div className="report-list-empty">
@@ -20,15 +25,51 @@ export default function ReportListView({
     );
   }
 
+  // ຄຳນວນໄລຍະຫ່າງໃຫ້ແຕ່ລະລາຍງານ
+  const reportsWithDistance = reports.map(r => {
+    const dist = userLocation
+      ? calculateDistanceKm(userLocation.lat, userLocation.lng, r.lat, r.lng)
+      : null;
+    return { ...r, distanceKm: dist };
+  });
+
+  // ລຽງລຳດັບຕາມເວລາ ຫຼື ຕາມໄລຍະຫ່າງ
+  const sortedReports = [...reportsWithDistance].sort((a, b) => {
+    if (sortBy === 'distance' && a.distanceKm !== null && b.distanceKm !== null) {
+      return a.distanceKm - b.distanceKm;
+    }
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+  });
+
   return (
     <div className="report-list-container">
       <div className="report-list-header-info">
         <span>ພົບທັງໝົດ <strong>{reports.length}</strong> ເຫດການ</span>
-        <span style={{ fontSize: '11.5px', color: '#64748b' }}>ລຽງຕາມເວລາລ່າສຸດ</span>
+
+        <div className="feed-sort-controls">
+          <button
+            className={`feed-sort-btn ${sortBy === 'time' ? 'active' : ''}`}
+            onClick={() => setSortBy('time')}
+          >
+            <Clock size={12} /> ລ່າສຸດ
+          </button>
+
+          <button
+            className={`feed-sort-btn ${sortBy === 'distance' ? 'active' : ''}`}
+            onClick={() => {
+              if (!userLocation) {
+                onLocateUser();
+              }
+              setSortBy('distance');
+            }}
+          >
+            <Compass size={12} /> ໃກ້ຂ້ອຍ
+          </button>
+        </div>
       </div>
 
       <div className="report-cards-grid">
-        {reports.map((report) => {
+        {sortedReports.map((report) => {
           const createdAt = new Date(report.created_at).getTime();
           const hoursPassed = (currentTime - createdAt) / (1000 * 60 * 60);
           const isUrgent = report.status !== 'resolved' && report.type === 'sos' && hoursPassed >= 24;
@@ -59,16 +100,24 @@ export default function ReportListView({
                 ) : null}
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <span className={`popup-badge pin-${report.status === 'resolved' ? 'resolved' : report.type}`} style={{ margin: 0 }}>
-                    {report.status === 'resolved' ? '✅ ແກ້ໄຂແລ້ວ' : (
-                      <>
-                        {report.type === 'sos' && '🚨 ຂໍຄວາມຊ່ວຍເຫຼືອ'}
-                        {report.type === 'warning' && '⚠️ ແຈ້ງເຕືອນ'}
-                        {report.type === 'shelter' && '🏠 ສູນພັກເຊົາ'}
-                        {report.type === 'donation' && '📦 ຈຸດບໍລິຈາກ'}
-                      </>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span className={`popup-badge pin-${report.status === 'resolved' ? 'resolved' : report.type}`} style={{ margin: 0 }}>
+                      {report.status === 'resolved' ? '✅ ແກ້ໄຂແລ້ວ' : (
+                        <>
+                          {report.type === 'sos' && '🚨 ຂໍຄວາມຊ່ວຍເຫຼືອ'}
+                          {report.type === 'warning' && '⚠️ ແຈ້ງເຕືອນ'}
+                          {report.type === 'shelter' && '🏠 ສູນພັກເຊົາ'}
+                          {report.type === 'donation' && '📦 ຈຸດບໍລິຈາກ'}
+                        </>
+                      )}
+                    </span>
+
+                    {report.distanceKm !== null && (
+                      <span className="distance-tag">
+                        <Navigation2 size={11} /> {formatDistance(report.distanceKm)}
+                      </span>
                     )}
-                  </span>
+                  </div>
 
                   <span style={{ fontSize: '11px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '3px' }}>
                     <Clock size={12} /> {Math.floor(hoursPassed)} ຊົ່ວໂມງຜ່ານມາ
