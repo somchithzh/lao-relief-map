@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { ShieldAlert, Plus, MapPin, Smartphone, Layers, CloudRain, Waves, Search, ChevronDown, PhoneCall, Grid, X, List, Map, Crosshair, BookOpen, WifiOff, BarChart3 } from 'lucide-react';
+import { ShieldAlert, Plus, MapPin, Smartphone, Layers, CloudRain, Waves, Search, ChevronDown, PhoneCall, Grid, X, List, Map, Crosshair, BookOpen, WifiOff, BarChart3, Construction } from 'lucide-react';
 import { supabase } from './supabase';
 import LocationModal from './components/LocationModal';
 import RiverModal from './components/RiverModal';
@@ -309,6 +309,7 @@ export default function App() {
 
   return (
     <div className="app-container">
+      {/* ແຖບເຕືອນສະຖານະ Offline (ຖ້າບໍ່ມີເນັດ) */}
       {!isOnline && (
         <div className="offline-banner-alert">
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -354,7 +355,7 @@ export default function App() {
         </div>
       </header>
 
-      {/* Search & Location Bar */}
+      {/* ແຖວເລືອກເມືອງ ແລະ ຄົ້ນຫາ */}
       <div className="search-location-bar">
         <button 
           className="btn-location-picker"
@@ -380,7 +381,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* Filter Pills */}
+      {/* ແຖວ Filter Pills (ເພີ່ມປຸ່ມ "ເສັ້ນທາງ") */}
       <div className="category-scroll-bar">
         <button 
           className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
@@ -403,6 +404,7 @@ export default function App() {
           🚨 ຂໍຄວາມຊ່ວຍເຫຼືອ <span className="stat-pill">{stats.sos}</span>
         </button>
 
+        {/* ປຸ່ມ Filter ສະພາບເສັ້ນທາງ */}
         <button 
           className={`filter-btn filter-btn-road ${filter === 'road' ? 'active' : ''}`}
           onClick={() => setFilter('road')}
@@ -432,9 +434,10 @@ export default function App() {
         </button>
       </div>
 
-      {/* Map / List View */}
+      {/* Map Area / List Area */}
       {viewMode === 'map' ? (
         <div className="map-wrapper">
+          {/* ປຸ່ມລອຍສະພາບອາກາດ ມຸມຊ້າຍເທິງແຜນທີ່ */}
           <button 
             className="floating-weather-badge"
             onClick={() => setIsWeatherModalOpen(true)}
@@ -443,6 +446,7 @@ export default function App() {
             <span>🌤️ ສະພາບອາກາດ</span>
           </button>
 
+          {/* ປຸ່ມເຄື່ອງມືລອຍເບື້ອງຂວາ */}
           <div className="floating-map-controls">
             <button 
               className={`map-tool-btn ${userLocation ? 'active' : ''}`}
@@ -489,7 +493,7 @@ export default function App() {
               <span className="map-tool-label">ຮວມໝຸດ</span>
             </button>
 
-            {/* ປຸ່ມສະຖິຕິ Dashboard */}
+            {/* ປຸ່ມເປີດ Dashboard ສະຖິຕິ & ຮູບແຊຣ໌ */}
             <button 
               className="map-tool-btn btn-tool-dashboard"
               onClick={() => setIsDashboardOpen(true)}
@@ -499,7 +503,7 @@ export default function App() {
               <span className="map-tool-label">ສະຖິຕິ</span>
             </button>
 
-            {/* ປຸ່ມຄູ່ມື */}
+            {/* ປຸ່ມຄູ່ມືເອົາຕົວລອດ (ຢູ່ລຸ່ມສຸດ) */}
             <button 
               className="map-tool-btn btn-tool-guide"
               onClick={() => setIsSurvivalGuideOpen(true)}

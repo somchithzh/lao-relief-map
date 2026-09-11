@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, MapPin } from 'lucide-react';
+import { X, MapPin, Upload, Navigation2, Check, AlertTriangle, Construction } from 'lucide-react';
 import { supabase } from '../supabase';
 
 const REPORT_TYPES = [
@@ -101,6 +101,7 @@ export default function ReportModal({
         }
       }
 
+      // ຖ້າເປັນປະເພດເສັ້ນທາງ ໃຫ້ໃສ່ປ້າຍສະຖານະໄວ້ໃນຫົວຂໍ້ ແລະ ລາຍລະອຽດ
       let finalTitle = formData.title;
       let finalDesc = formData.description;
 
@@ -179,10 +180,11 @@ export default function ReportModal({
             </div>
           </div>
 
+          {/* ຖ້າເລືອກປະເພດ "ສະພາບເສັ້ນທາງ": ໃຫ້ເລືອກສະຖານະທາງ */}
           {formData.type === 'road' && (
             <div className="form-group" style={{ background: '#fff7ed', padding: '12px', borderRadius: '10px', border: '1px solid #fed7aa' }}>
               <label style={{ color: '#c2410c', fontWeight: '800', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                🚧 ສະຖານະຂອງເສັ້ນທາງ:
+                <Construction size={16} /> ສະຖານະຂອງເສັ້ນທາງ:
               </label>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {ROAD_CONDITIONS.map((cond) => (
@@ -262,7 +264,7 @@ export default function ReportModal({
             <label>ຕຳແໜ່ງພິກັດ (Lat, Lng):</label>
             <div className="location-action-buttons">
               <button type="button" className="btn-loc btn-loc-gps" onClick={handleGetCurrentLocation}>
-                <MapPin size={14} />
+                <Navigation2 size={14} />
                 <span>ດຶງ GPS ປັດຈຸບັນ</span>
               </button>
               <button type="button" className="btn-loc btn-loc-map" onClick={onStartPickingLocation}>

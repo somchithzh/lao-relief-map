@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Phone, Navigation, Share2, CheckCircle, RefreshCw, MapPin, AlertCircle, Clock } from 'lucide-react';
+import { Phone, Navigation, Share2, CheckCircle, RefreshCw, MapPin, AlertCircle, Clock, Navigation2, Compass, Construction } from 'lucide-react';
 import { calculateDistanceKm, formatDistance } from '../utils/distance';
 
 export default function ReportListView({
@@ -25,7 +25,7 @@ export default function ReportListView({
     );
   }
 
-  const reportsWithDistance = reports.map((r) => {
+  const reportsWithDistance = reports.map(r => {
     const dist = userLocation
       ? calculateDistanceKm(userLocation.lat, userLocation.lng, r.lat, r.lng)
       : null;
@@ -46,14 +46,14 @@ export default function ReportListView({
 
         <div className="feed-sort-controls">
           <button
-            className={sortBy === 'time' ? 'feed-sort-btn active' : 'feed-sort-btn'}
+            className={`feed-sort-btn ${sortBy === 'time' ? 'active' : ''}`}
             onClick={() => setSortBy('time')}
           >
             <Clock size={12} /> ລ່າສຸດ
           </button>
 
           <button
-            className={sortBy === 'distance' ? 'feed-sort-btn active' : 'feed-sort-btn'}
+            className={`feed-sort-btn ${sortBy === 'distance' ? 'active' : ''}`}
             onClick={() => {
               if (!userLocation) {
                 onLocateUser();
@@ -61,7 +61,7 @@ export default function ReportListView({
               setSortBy('distance');
             }}
           >
-            <MapPin size={12} /> ໃກ້ຂ້ອຍ
+            <Compass size={12} /> ໃກ້ຂ້ອຍ
           </button>
         </div>
       </div>
@@ -72,14 +72,8 @@ export default function ReportListView({
           const hoursPassed = (currentTime - createdAt) / (1000 * 60 * 60);
           const isUrgent = report.status !== 'resolved' && report.type === 'sos' && hoursPassed >= 24;
 
-          let cardClass = 'report-feed-card';
-          if (isUrgent) cardClass += ' card-urgent';
-          if (report.type === 'road') cardClass += ' card-road';
-
-          let badgeClass = 'popup-badge pin-' + (report.status === 'resolved' ? 'resolved' : report.type);
-
           return (
-            <div key={report.id} className={cardClass}>
+            <div key={report.id} className={`report-feed-card ${isUrgent ? 'card-urgent' : ''} ${report.type === 'road' ? 'card-road' : ''}`}>
               {report.image_url && (
                 <div className="feed-card-image-wrap">
                   <img
@@ -105,7 +99,7 @@ export default function ReportListView({
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span className={badgeClass} style={{ margin: 0 }}>
+                    <span className={`popup-badge pin-${report.status === 'resolved' ? 'resolved' : report.type}`} style={{ margin: 0 }}>
                       {report.status === 'resolved' ? '✅ ແກ້ໄຂແລ້ວ' : (
                         <>
                           {report.type === 'sos' && '🚨 ຂໍຄວາມຊ່ວຍເຫຼືອ'}
@@ -119,7 +113,7 @@ export default function ReportListView({
 
                     {report.distanceKm !== null && (
                       <span className="distance-tag">
-                        📍 {formatDistance(report.distanceKm)}
+                        <Navigation2 size={11} /> {formatDistance(report.distanceKm)}
                       </span>
                     )}
                   </div>
@@ -141,13 +135,13 @@ export default function ReportListView({
 
                 <div className="feed-card-actions">
                   {report.phone && (
-                    <a href={'tel:' + report.phone} className="feed-btn feed-btn-call">
+                    <a href={`tel:${report.phone}`} className="feed-btn feed-btn-call">
                       <Phone size={13} /> ໂທ: {report.phone}
                     </a>
                   )}
 
                   <a
-                    href={'https://www.google.com/maps/dir/?api=1&destination=' + report.lat + ',' + report.lng}
+                    href={`https://www.google.com/maps/dir/?api=1&destination=${report.lat},${report.lng}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="feed-btn feed-btn-nav"
