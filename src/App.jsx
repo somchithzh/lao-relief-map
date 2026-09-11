@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { ShieldAlert, Plus, MapPin, Smartphone, Layers, CloudRain, Waves, Search, ChevronDown, PhoneCall, Grid, X, List, Map, Crosshair, BookOpen, WifiOff } from 'lucide-react';
+import { ShieldAlert, Plus, MapPin, Smartphone, Layers, CloudRain, Waves, Search, ChevronDown, PhoneCall, Grid, X, List, Map, Crosshair, BookOpen, WifiOff, BarChart3 } from 'lucide-react';
 import { supabase } from './supabase';
 import LocationModal from './components/LocationModal';
 import RiverModal from './components/RiverModal';
@@ -13,6 +13,7 @@ import ClusterLayer from './components/ClusterLayer';
 import ReportListView from './components/ReportListView';
 import WeatherModal from './components/WeatherModal';
 import SurvivalGuideModal from './components/SurvivalGuideModal';
+import DashboardModal from './components/DashboardModal';
 import './App.css';
 
 const createCustomIcon = (report, isUrgent) => {
@@ -26,6 +27,8 @@ const createCustomIcon = (report, isUrgent) => {
   let iconSymbol = '🚨';
   if (report.status === 'resolved') {
     iconSymbol = '✅';
+  } else if (report.type === 'road') {
+    iconSymbol = '🚧';
   } else if (report.type === 'warning') {
     iconSymbol = '⚠️';
   } else if (report.type === 'shelter') {
@@ -104,6 +107,7 @@ export default function App() {
   const [isWeatherModalOpen, setIsWeatherModalOpen] = useState(false);
   const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
   const [isSurvivalGuideOpen, setIsSurvivalGuideOpen] = useState(false);
+  const [isDashboardOpen, setIsDashboardOpen] = useState(false);
   const [isRiverModalOpen, setIsRiverModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPickingLocation, setIsPickingLocation] = useState(false);
@@ -275,6 +279,7 @@ export default function App() {
       return r.type === 'sos' && r.status !== 'resolved' && hoursPassed >= 24;
     }).length,
     sos: activeReports.filter((r) => r.type === 'sos' && r.status !== 'resolved').length,
+    road: activeReports.filter((r) => r.type === 'road' && r.status !== 'resolved').length,
     warning: activeReports.filter((r) => r.type === 'warning' && r.status !== 'resolved').length,
     shelter: activeReports.filter((r) => r.type === 'shelter' && r.status !== 'resolved').length,
     donation: activeReports.filter((r) => r.type === 'donation' && r.status !== 'resolved').length,
@@ -304,7 +309,6 @@ export default function App() {
 
   return (
     <div className="app-container">
-      {/* ແຖບເຕືອນສະຖານະ Offline (ຖ້າບໍ່ມີເນັດ) */}
       {!isOnline && (
         <div className="offline-banner-alert">
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -322,7 +326,7 @@ export default function App() {
         </div>
       )}
 
-      {/* Header: ລາຍງານເຫດ ມາກ່ອນ ເບີສຸກເສີນ */}
+      {/* Header */}
       <header className="header">
         <div className="header-title">
           <ShieldAlert color="#dc2626" size={22} style={{ flexShrink: 0 }} />
@@ -350,7 +354,7 @@ export default function App() {
         </div>
       </header>
 
-      {/* ແຖວເລືອກເມືອງ ແລະ ຄົ້ນຫາ */}
+      {/* Search & Location Bar */}
       <div className="search-location-bar">
         <button 
           className="btn-location-picker"
@@ -376,7 +380,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* ແຖວ Filter Pills */}
+      {/* Filter Pills */}
       <div className="category-scroll-bar">
         <button 
           className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
@@ -397,6 +401,13 @@ export default function App() {
           onClick={() => setFilter('sos')}
         >
           🚨 ຂໍຄວາມຊ່ວຍເຫຼືອ <span className="stat-pill">{stats.sos}</span>
+        </button>
+
+        <button 
+          className={`filter-btn filter-btn-road ${filter === 'road' ? 'active' : ''}`}
+          onClick={() => setFilter('road')}
+        >
+          🚧 ເສັ້ນທາງ <span className="stat-pill">{stats.road}</span>
         </button>
 
         <button 
@@ -421,10 +432,9 @@ export default function App() {
         </button>
       </div>
 
-      {/* Map Area / List Area */}
+      {/* Map / List View */}
       {viewMode === 'map' ? (
         <div className="map-wrapper">
-          {/* ປຸ່ມລອຍສະພາບອາກາດ ມຸມຊ້າຍເທິງແຜນທີ່ */}
           <button 
             className="floating-weather-badge"
             onClick={() => setIsWeatherModalOpen(true)}
@@ -433,9 +443,7 @@ export default function App() {
             <span>🌤️ ສະພາບອາກາດ</span>
           </button>
 
-          {/* ປຸ່ມເຄື່ອງມືລອຍເບື້ອງຂວາ */}
           <div className="floating-map-controls">
-            {/* ປ່ຽນຊື່ເປັນ "ຕຳແໜ່ງ" ເພື່ອໃຫ້ພໍດີປຸ່ມໃນມືຖື */}
             <button 
               className={`map-tool-btn ${userLocation ? 'active' : ''}`}
               onClick={handleLocateUser}
@@ -481,7 +489,17 @@ export default function App() {
               <span className="map-tool-label">ຮວມໝຸດ</span>
             </button>
 
-            {/* ປຸ່ມຄູ່ມືເອົາຕົວລອດ (ຢູ່ລຸ່ມສຸດ) */}
+            {/* ປຸ່ມສະຖິຕິ Dashboard */}
+            <button 
+              className="map-tool-btn btn-tool-dashboard"
+              onClick={() => setIsDashboardOpen(true)}
+              title="ສະຫຼຸບສະຖານະການ & ສະຖິຕິ"
+            >
+              <BarChart3 size={15} />
+              <span className="map-tool-label">ສະຖິຕິ</span>
+            </button>
+
+            {/* ປຸ່ມຄູ່ມື */}
             <button 
               className="map-tool-btn btn-tool-guide"
               onClick={() => setIsSurvivalGuideOpen(true)}
@@ -606,6 +624,14 @@ export default function App() {
       </button>
 
       {/* Modals */}
+      <DashboardModal
+        isOpen={isDashboardOpen}
+        onClose={() => setIsDashboardOpen(false)}
+        reports={reports}
+        activeReports={activeReports}
+        currentTime={currentTime}
+      />
+
       <SurvivalGuideModal
         isOpen={isSurvivalGuideOpen}
         onClose={() => setIsSurvivalGuideOpen(false)}

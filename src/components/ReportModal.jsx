@@ -1,6 +1,20 @@
 import React, { useState } from 'react';
-import { X, Camera, Crosshair, Loader2, MapPin } from 'lucide-react';
+import { X, MapPin } from 'lucide-react';
 import { supabase } from '../supabase';
+
+const REPORT_TYPES = [
+  { id: 'sos', label: '🚨 ຂໍຄວາມຊ່ວຍເຫຼືອ', desc: 'ຄົນຕິດຄ້າງ, ຕ້ອງການເຮືອ/ອາຫານດ່ວນ' },
+  { id: 'road', label: '🚧 ສະພາບເສັ້ນທາງ', desc: 'ທາງຕັດຂາດ, ນ້ຳຖ້ວມທາງ, ດິນເຈື່ອນ' },
+  { id: 'warning', label: '⚠️ ແຈ້ງເຕືອນ', desc: 'ເຂດສ່ຽງໄພ, ນ້ຳກຳລັງຂຶ້ນ' },
+  { id: 'shelter', label: '🏠 ສູນພັກເຊົາ', desc: 'ຈຸດພັກປອດໄພ, ວັດ, ໂຮງຮຽນ' },
+  { id: 'donation', label: '📦 ຈຸດບໍລິຈາກ', desc: 'ບ່ອນຮັບ/ແຈກຢາຍອາຫານ & ເຄື່ອງໃຊ້' },
+];
+
+const ROAD_CONDITIONS = [
+  { id: 'blocked', label: '🔴 ຜ່ານບໍ່ໄດ້ເລີຍ', desc: 'ທາງຕັດຂາດ / ນ້ຳໄຫຼເຊີ່ຍ / ດິນເຈື່ອນໃຫຍ່' },
+  { id: 'high_only', label: '🟡 ຜ່ານໄດ້ສະເພາະລົດໃຫຍ່', desc: 'ລົດເກັງ & ລົດຈັກຜ່ານບໍ່ໄດ້ / ລົດກະບະຍົກສູງຜ່ານໄດ້' },
+  { id: 'passable', label: '🟢 ຜ່ານໄດ້ປົກກະຕິ', desc: 'ນ້ຳແຫ້ງແລ້ວ / ເປີດການສັນຈອນແລ້ວ' },
+];
 
 export default function ReportModal({
   isOpen,
@@ -10,102 +24,114 @@ export default function ReportModal({
   onStartPickingLocation,
   gpsMessage,
   setGpsMessage,
-  onSuccess
+  onSuccess,
 }) {
+  const [roadCondition, setRoadCondition] = useState('blocked');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isLocating, setIsLocating] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
 
   if (!isOpen) return null;
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert('ຂະໜາດຮູບພາບໃຫຍ່ເກີນ 5MB, ກະລຸນາເລືອກຮູບໃໝ່');
+        return;
+      }
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
   const handleGetCurrentLocation = () => {
     if (!navigator.geolocation) {
-      alert('ອຸປະກອນຂອງທ່ານບໍ່ຮອງຮັບລະບົບ GPS');
+      alert('ອຸປະກອນຂອງທ່ານບໍ່ຮອງຮັບ GPS');
       return;
     }
-
-    setIsLocating(true);
-    setGpsMessage('ກຳລັງດຶງພິກັດ GPS...');
-
+    setGpsMessage('⏳ ກຳລັງດຶງ GPS ປັດຈຸບັນ...');
     navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
+      (pos) => {
         setFormData((prev) => ({
           ...prev,
-          lat: latitude,
-          lng: longitude
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
         }));
-        setIsLocating(false);
-        setGpsMessage(`✅ ໄດ້ຮັບພິກັດ GPS ແລ້ວ (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`);
+        setGpsMessage(`✅ ດຶງ GPS ສຳເລັດ: (${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)})`);
       },
       (err) => {
-        setIsLocating(false);
-        setGpsMessage('');
         console.error(err);
-        alert('ບໍ່ສາມາດດຶງ GPS ໄດ້: ກະລຸນາກົດ "ອະນຸຍາດ (Allow)" ໃຫ້ເວັບໄຊເຂົ້າເຖິງຕຳແໜ່ງ Location');
+        setGpsMessage('❌ ບໍ່ສາມາດດຶງ GPS ໄດ້, ກະລຸນາເລືອກເທິງແຜນທີ່');
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setSelectedImage(file);
-      setImagePreview(URL.createObjectURL(file));
-    }
-  };
-
-  const handleRemoveImage = () => {
-    setSelectedImage(null);
-    setImagePreview(null);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.title) return;
+    if (!formData.title.trim()) {
+      alert('ກະລຸນາປ້ອນຫົວຂໍ້ເຫດການ');
+      return;
+    }
+    if (!formData.locationName.trim()) {
+      alert('ກະລຸນາປ້ອນຊື່ສະຖານທີ່ / ບ້ານ / ເມືອງ');
+      return;
+    }
 
     setIsSubmitting(true);
+
     try {
       let uploadedImageUrl = null;
 
-      if (selectedImage) {
-        const fileExt = selectedImage.name.split('.').pop() || 'jpg';
-        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
+      if (imageFile) {
+        const fileExt = imageFile.name.split('.').pop();
+        const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
+        const filePath = `reports/${fileName}`;
 
-        const { error: uploadErr } = await supabase.storage
-          .from('report-images')
-          .upload(fileName, selectedImage);
+        const { error: uploadError } = await supabase.storage
+          .from('report_images')
+          .upload(filePath, imageFile);
 
-        if (!uploadErr) {
-          const { data: publicUrlData } = supabase.storage
-            .from('report-images')
-            .getPublicUrl(fileName);
-          uploadedImageUrl = publicUrlData.publicUrl;
-        } else {
-          console.error('Upload error:', uploadErr);
+        if (!uploadError) {
+          const { data: { publicUrl } } = supabase.storage
+            .from('report_images')
+            .getPublicUrl(filePath);
+          uploadedImageUrl = publicUrl;
         }
+      }
+
+      let finalTitle = formData.title;
+      let finalDesc = formData.description;
+
+      if (formData.type === 'road') {
+        const selectedCond = ROAD_CONDITIONS.find(c => c.id === roadCondition);
+        const prefix = selectedCond ? `[${selectedCond.label}] ` : '[🚧 ສະພາບທາງ] ';
+        finalTitle = prefix + formData.title;
+        finalDesc = `${formData.description || ''}\n\nສະພາບທາງ: ${selectedCond?.label || ''} (${selectedCond?.desc || ''})`.trim();
       }
 
       const { error } = await supabase.from('reports').insert([
         {
+          title: finalTitle,
           type: formData.type,
-          title: formData.title,
-          description: formData.description,
+          description: finalDesc,
           location_name: formData.locationName,
           phone: formData.phone,
           lat: formData.lat,
           lng: formData.lng,
           image_url: uploadedImageUrl,
-          status: 'pending'
-        }
+          status: 'pending',
+          created_at: new Date().toISOString(),
+        },
       ]);
 
-      if (!error) {
-        setSelectedImage(null);
-        setImagePreview(null);
-        setGpsMessage('');
+      if (error) {
+        alert('ເກີດຂໍ້ຜິດພາດ: ' + error.message);
+      } else {
+        alert('ລາຍງານເຫດສຳເລັດແລ້ວ! ຂໍ້ມູນຈະປາກົດເທິງແຜນທີ່ທັນທີ.');
+        onSuccess();
+        onClose();
         setFormData({
           title: '',
           type: 'sos',
@@ -113,161 +139,153 @@ export default function ReportModal({
           locationName: '',
           phone: '',
           lat: 17.9757,
-          lng: 102.6331
+          lng: 102.6331,
         });
-        onSuccess();
-        onClose();
+        setImageFile(null);
+        setImagePreview(null);
+        setGpsMessage('');
       }
     } catch (err) {
       console.error(err);
+      alert('ເກີດຂໍ້ຜິດພາດໃນການສົ່ງຂໍ້ມູນ');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-box">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-          <h2>ລາຍງານເຫດການ / ຂໍຄວາມຊ່ວຍເຫຼືອ</h2>
-          <X size={20} style={{ cursor: 'pointer' }} onClick={onClose} />
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <h2>📢 ແຈ້ງເຫດ / ລາຍງານໄພພິບັດ</h2>
+          <button className="btn-close" onClick={onClose}><X size={20} /></button>
         </div>
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>ປະເພດເຫດການ</label>
-            <select
-              value={formData.type}
-              onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-            >
-              <option value="sos">🚨 ຂໍຄວາມຊ່ວຍເຫຼືອດ່ວນ (SOS)</option>
-              <option value="warning">⚠️ ແຈ້ງເຕືອນລະດັບນ້ຳ / ຖະໜົນຕັດຂາດ</option>
-              <option value="shelter">🏠 ສູນພັກເຊົາຊົ່ວຄາວ</option>
-              <option value="donation">📦 ຈຸດຮັບບໍລິຈາກ / ແຈກເຄື່ອງ</option>
-            </select>
+            <label>ປະເພດເຫດການ:</label>
+            <div className="type-selector-grid">
+              {REPORT_TYPES.map((t) => (
+                <button
+                  type="button"
+                  key={t.id}
+                  className={`type-btn ${formData.type === t.id ? 'active' : ''}`}
+                  onClick={() => setFormData({ ...formData, type: t.id })}
+                >
+                  <div className="type-btn-title">{t.label}</div>
+                  <div className="type-btn-desc">{t.desc}</div>
+                </button>
+              ))}
+            </div>
           </div>
 
+          {formData.type === 'road' && (
+            <div className="form-group" style={{ background: '#fff7ed', padding: '12px', borderRadius: '10px', border: '1px solid #fed7aa' }}>
+              <label style={{ color: '#c2410c', fontWeight: '800', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                🚧 ສະຖານະຂອງເສັ້ນທາງ:
+              </label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {ROAD_CONDITIONS.map((cond) => (
+                  <label 
+                    key={cond.id} 
+                    style={{ 
+                      display: 'flex', 
+                      alignItems: 'flex-start', 
+                      gap: '8px', 
+                      cursor: 'pointer',
+                      padding: '8px 10px',
+                      borderRadius: '8px',
+                      background: roadCondition === cond.id ? '#ffffff' : 'transparent',
+                      border: roadCondition === cond.id ? '1.5px solid #ea580c' : '1px solid #ffedd5'
+                    }}
+                  >
+                    <input
+                      type="radio"
+                      name="roadCondition"
+                      checked={roadCondition === cond.id}
+                      onChange={() => setRoadCondition(cond.id)}
+                      style={{ marginTop: '3px' }}
+                    />
+                    <div>
+                      <div style={{ fontWeight: '700', fontSize: '13px' }}>{cond.label}</div>
+                      <div style={{ fontSize: '11px', color: '#64748b' }}>{cond.desc}</div>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="form-group">
-            <label>ຫົວຂໍ້</label>
+            <label>ຫົວຂໍ້ເຫດການ *:</label>
             <input
               type="text"
-              placeholder="ຕົວຢ່າງ: ນ້ຳຖ້ວມສູງ ຕ້ອງການເຮືອດ່ວນ"
+              required
+              placeholder={formData.type === 'road' ? 'ເຊັ່ນ: ທາງເລກ 13 ໃຕ້ ຫຼັກ 42 ນ້ຳຖ້ວມສູງ' : 'ເຊັ່ນ: ນ້ຳຖ້ວມຊັ້ນ 1, ຕິດຄ້າງ 3 ຄົນ'}
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              required
             />
           </div>
 
           <div className="form-group">
-            <label>ສະຖານທີ່ (ບ້ານ, ເມືອງ, ແຂວງ)</label>
+            <label>ບ້ານ, ເມືອງ, ແຂວງ *:</label>
             <input
               type="text"
-              placeholder="ຕົວຢ່າງ: ບ້ານທ່າແຂກໃຕ້, ແຂວງຄຳມ່ວນ"
+              required
+              placeholder="ເຊັ່ນ: ບ້ານຫ້ອມ, ເມືອງຫາດຊາຍຟອງ, ນະຄອນຫຼວງວຽງຈັນ"
               value={formData.locationName}
               onChange={(e) => setFormData({ ...formData, locationName: e.target.value })}
-              required
             />
           </div>
 
           <div className="form-group">
-            <label>ລາຍລະອຽດເພີ່ມເຕີມ</label>
-            <textarea
-              rows={3}
-              placeholder="ລະບຸຈຳນວນຄົນ, ສະພາບຕົວຈິງ ຫຼື ສິ່ງທີ່ຕ້ອງການ..."
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            />
-          </div>
-
-          <div className="form-group">
-            <label>ຮູບພາບສະພາບຕົວຈິງ (ຖ້າມີ)</label>
-            {imagePreview ? (
-              <div className="image-preview-container">
-                <img src={imagePreview} alt="Preview" />
-                <button type="button" className="btn-remove-img" onClick={handleRemoveImage}>
-                  <X size={14} />
-                </button>
-              </div>
-            ) : (
-              <label className="upload-box">
-                <div className="upload-icon-circle">
-                  <Camera size={22} color="#334155" />
-                </div>
-                <span style={{ fontSize: '13.5px', color: '#1e293b', fontWeight: '700' }}>
-                  ກົດຖ່າຍຮູບ ຫຼື ເລືອກຮູບຈາກມືຖື
-                </span>
-                <span style={{ fontSize: '11.5px', color: '#64748b' }}>
-                  ຮອງຮັບໄຟລ໌ຮູບພາບ JPG, PNG
-                </span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  style={{ display: 'none' }}
-                />
-              </label>
-            )}
-          </div>
-
-          <div className="form-group">
-            <label>ເບີໂທຕິດຕໍ່ສຸກເສີນ (WhatsApp/ໂທ)</label>
+            <label>ເບີໂທຕິດຕໍ່:</label>
             <input
               type="text"
-              placeholder="020 xxxx xxxx"
+              placeholder="ເຊັ່ນ: 020 XXXXXXXX"
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              required
             />
           </div>
 
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ fontSize: '13px', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
-              ພິກັດຈຸດເກີດເຫດ
-            </label>
+          <div className="form-group">
+            <label>ລາຍລະອຽດເພີ່ມເຕີມ:</label>
+            <textarea
+              rows="3"
+              placeholder={formData.type === 'road' ? 'ເຊັ່ນ: ລະດັບນ້ຳເລິກປະມານ 50 ຊມ, ນ້ຳໄຫຼແຮງ ຫ້າມລົດນ້ອຍຜ່ານ' : 'ລະບຸຄວາມຕ້ອງການດ່ວນ, ຈຳນວນຄົນ, ເດັກນ້ອຍ, ຜູ້ເຖົ້າ...'}
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            ></textarea>
+          </div>
 
-            {gpsMessage && (
-              <div className="gps-success-text">
-                {gpsMessage}
+          <div className="form-group">
+            <label>ຕຳແໜ່ງພິກັດ (Lat, Lng):</label>
+            <div className="location-action-buttons">
+              <button type="button" className="btn-loc btn-loc-gps" onClick={handleGetCurrentLocation}>
+                <MapPin size={14} />
+                <span>ດຶງ GPS ປັດຈຸບັນ</span>
+              </button>
+              <button type="button" className="btn-loc btn-loc-map" onClick={onStartPickingLocation}>
+                <MapPin size={14} />
+                <span>ເລືອກເທິງແຜນທີ່</span>
+              </button>
+            </div>
+            {gpsMessage && <div className="gps-status-text">{gpsMessage}</div>}
+          </div>
+
+          <div className="form-group">
+            <label>ຮູບພາບສະຖານະການ (ຖ້າມີ):</label>
+            <input type="file" accept="image/*" onChange={handleFileChange} />
+            {imagePreview && (
+              <div style={{ marginTop: '8px' }}>
+                <img src={imagePreview} alt="Preview" style={{ width: '100%', maxHeight: '150px', objectFit: 'cover', borderRadius: '8px' }} />
               </div>
             )}
-
-            <button
-              type="button"
-              className="btn-gps"
-              onClick={handleGetCurrentLocation}
-              disabled={isLocating}
-            >
-              {isLocating ? (
-                <>
-                  <Loader2 size={16} className="animate-spin" />
-                  ກຳລັງຊອກຫາຕຳແໜ່ງ GPS...
-                </>
-              ) : (
-                <>
-                  <Crosshair size={16} />
-                  📍 ດຶງຕຳແໜ່ງປັດຈຸບັນຂອງຂ້ອຍ (GPS)
-                </>
-              )}
-            </button>
-
-            <button
-              type="button"
-              className="btn-pick-map"
-              onClick={onStartPickingLocation}
-            >
-              <MapPin size={15} />
-              🗺️ ຫຼື ຈິ້ມເລືອກຈຸດເທິງແຜນທີ່ດ້ວຍຕົນເອງ
-            </button>
           </div>
 
-          <div className="modal-actions">
-            <button type="button" className="btn-cancel" onClick={onClose}>
-              ຍົກເລີກ
-            </button>
-            <button type="submit" className="btn-submit" disabled={isSubmitting}>
-              {isSubmitting ? 'ກຳລັງອັບໂຫຼດ ແລະ ສົ່ງ...' : 'ສົ່ງລາຍງານ'}
-            </button>
-          </div>
+          <button type="submit" className="btn-submit" disabled={isSubmitting}>
+            {isSubmitting ? 'ກຳລັງບັນທຶກ...' : '✅ ຢືນຢັນການລາຍງານ'}
+          </button>
         </form>
       </div>
     </div>
