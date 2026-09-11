@@ -1629,3 +1629,47 @@ body {
   color: #64748b;
   font-size: 13px;
 }
+
+/* ປັບແຕ່ງແຖບເຄື່ອງມືເບື້ອງຂວາ ໃຫ້ນ້ອຍລົງ ບໍ່ບັງຈໍມືຖື */
+.floating-map-controls {
+  position: absolute;
+  top: 10px;
+  right: 8px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.map-tool-btn {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 5px 3px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  box-shadow: 0 1.5px 5px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+  width: 44px;
+  color: #334155;
+  transition: all 0.2s;
+}
+
+.map-tool-label {
+  font-size: 9px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* ປຸ່ມຄູ່ມືເບື້ອງຂວາ: ໃຫ້ມີສີຂຽວອ່ອນໂດດເດັ່ນງາມຕາ */
+.map-tool-btn.btn-tool-guide {
+  background: rgba(240, 253, 244, 0.96);
+  border-color: #86efac;
+  color: #15803d;
+}
+
+.map-tool-btn.btn-tool-guide:hover {
+  background: #dcfce7;
+}

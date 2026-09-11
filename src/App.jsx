@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { ShieldAlert, Plus, MapPin, Smartphone, Layers, CloudRain, Waves, Search, ChevronDown, PhoneCall, Grid, X, List, Map, CloudSun, Crosshair, BookOpen, WifiOff } from 'lucide-react';
+import { ShieldAlert, Plus, MapPin, Smartphone, Layers, CloudRain, Waves, Search, ChevronDown, PhoneCall, Grid, X, List, Map, Crosshair, BookOpen, WifiOff } from 'lucide-react';
 import { supabase } from './supabase';
 import LocationModal from './components/LocationModal';
 import RiverModal from './components/RiverModal';
@@ -123,7 +123,6 @@ export default function App() {
     lng: 102.6331
   });
 
-  // ກວດຈັບສະຖານະ Online/Offline
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
@@ -323,7 +322,7 @@ export default function App() {
         </div>
       )}
 
-      {/* Header */}
+      {/* Header: ສະຫຼັບປຸ່ມ ລາຍງານເຫດ ມາໄວ້ກ່ອນ ເບີສຸກເສີນ */}
       <header className="header">
         <div className="header-title">
           <ShieldAlert color="#dc2626" size={22} style={{ flexShrink: 0 }} />
@@ -334,24 +333,14 @@ export default function App() {
         </div>
 
         <div className="header-actions">
-          {/* ປຸ່ມຄູ່ມືເອົາຕົວລອດ */}
-          <button
-            className="btn-guide"
-            onClick={() => setIsSurvivalGuideOpen(true)}
-            title="ຄູ່ມືເອົາຕົວລອດ & ປະຖົມພະຍາບານ (Offline Ready)"
-          >
-            <BookOpen size={13} />
-            <span>ຄູ່ມືເອົາຕົວລອດ</span>
+          <button className="btn-report" onClick={() => setIsModalOpen(true)}>
+            <Plus size={13} />
+            <span>ລາຍງານເຫດ</span>
           </button>
 
           <button className="btn-emergency" onClick={() => setIsEmergencyModalOpen(true)}>
             <PhoneCall size={13} />
             <span>ເບີສຸກເສີນ</span>
-          </button>
-
-          <button className="btn-report" onClick={() => setIsModalOpen(true)}>
-            <Plus size={13} />
-            <span>ລາຍງານເຫດ</span>
           </button>
 
           <button className="btn-install" onClick={() => setIsInstallModalOpen(true)} title="ຕິດຕັ້ງແອັບ">
@@ -444,14 +433,14 @@ export default function App() {
             <span>🌤️ ສະພາບອາກາດ</span>
           </button>
 
-          {/* ປຸ່ມເຄື່ອງມືລອຍເທິງແຜນທີ່ ດ້ານຂວາມື */}
+          {/* ປຸ່ມເຄື່ອງມືລອຍເບື້ອງຂວາ (ຂະໜາດນ້ອຍລົງ, ບໍ່ຊ້ຳອາກາດ, ຄູ່ມືຢູ່ລຸ່ມສຸດ) */}
           <div className="floating-map-controls">
             <button 
               className={`map-tool-btn ${userLocation ? 'active' : ''}`}
               onClick={handleLocateUser}
               title="ຊອກຫາຕຳແໜ່ງປັດຈຸບັນຂອງຂ້ອຍ"
             >
-              <Crosshair size={17} />
+              <Crosshair size={15} />
               <span className="map-tool-label">ຕຳແໜ່ງຂ້ອຍ</span>
             </button>
 
@@ -460,17 +449,8 @@ export default function App() {
               onClick={() => setMapType(mapType === 'street' ? 'satellite' : 'street')}
               title="ດາວທຽມ / ຖະໜົນ"
             >
-              <Layers size={17} />
+              <Layers size={15} />
               <span className="map-tool-label">{mapType === 'street' ? 'ດາວທຽມ' : 'ຖະໜົນ'}</span>
-            </button>
-
-            <button 
-              className="map-tool-btn"
-              onClick={() => setIsWeatherModalOpen(true)}
-              title="ສະພາບອາກາດ & ພະຍາກອນຝົນ"
-            >
-              <CloudSun size={17} />
-              <span className="map-tool-label">ອາກາດ</span>
             </button>
 
             <button 
@@ -478,7 +458,7 @@ export default function App() {
               onClick={() => setShowRadar(!showRadar)}
               title="ເຣດາຝົນ"
             >
-              <CloudRain size={17} />
+              <CloudRain size={15} />
               <span className="map-tool-label">ເຣດາຝົນ</span>
             </button>
 
@@ -487,7 +467,7 @@ export default function App() {
               onClick={() => setIsRiverModalOpen(true)}
               title="ລະດັບນ້ຳຂອງ"
             >
-              <Waves size={17} />
+              <Waves size={15} />
               <span className="map-tool-label">ລະດັບນ້ຳ</span>
             </button>
 
@@ -496,8 +476,18 @@ export default function App() {
               onClick={() => setEnableCluster(!enableCluster)}
               title="ຮວມໝຸດ"
             >
-              <Grid size={17} />
+              <Grid size={15} />
               <span className="map-tool-label">ຮວມໝຸດ</span>
+            </button>
+
+            {/* ປຸ່ມຄູ່ມືເອົາຕົວລອດ (ຢູ່ລຸ່ມສຸດຂອງເບື້ອງຂວາ) */}
+            <button 
+              className="map-tool-btn btn-tool-guide"
+              onClick={() => setIsSurvivalGuideOpen(true)}
+              title="ຄູ່ມືເອົາຕົວລອດ & ປະຖົມພະຍາບານ"
+            >
+              <BookOpen size={15} />
+              <span className="map-tool-label">ຄູ່ມື</span>
             </button>
           </div>
 
