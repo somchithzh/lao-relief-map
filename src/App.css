@@ -1673,3 +1673,309 @@ body {
 .map-tool-btn.btn-tool-guide:hover {
   background: #dcfce7;
 }
+
+/* ============================================================
+   ປັບປຸງ SURVIVAL GUIDE MODAL ໃຫ້ງາມ ແລະ ເປັນລະບຽບ
+============================================================ */
+.survival-guide-modal {
+  max-width: 680px !important;
+  width: 92% !important;
+  max-height: 88vh !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.28) !important;
+  background: #ffffff !important;
+  position: relative !important;
+}
+
+.survival-guide-header {
+  position: relative;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #064e3b 0%, #047857 100%);
+  color: white;
+  border-bottom: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.survival-header-title {
+  font-size: 16px;
+  font-weight: 800;
+  margin: 0;
+  color: #ffffff;
+  letter-spacing: 0.2px;
+}
+
+.survival-guide-icon-box {
+  width: 38px;
+  height: 38px;
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ປຸ່ມປິດ X ຢູ່ມຸມຂວາເທິງຢ່າງແນ່ນອນ */
+.btn-survival-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.btn-survival-close:hover {
+  background: rgba(255, 255, 255, 0.35);
+  transform: scale(1.05);
+}
+
+.offline-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #ffffff;
+  padding: 2px 9px;
+  border-radius: 14px;
+  font-size: 11px;
+  font-weight: 700;
+  margin-top: 3px;
+}
+
+/* ຊ່ອງຄົ້ນຫາ */
+.survival-search-wrap {
+  padding: 10px 18px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.survival-search-icon {
+  position: absolute;
+  left: 30px;
+  color: #64748b;
+}
+
+.survival-search-input {
+  width: 100%;
+  padding: 8px 34px 8px 36px;
+  border-radius: 20px;
+  border: 1px solid #cbd5e1;
+  font-size: 13px;
+  outline: none;
+  background: #ffffff;
+  transition: border-color 0.2s;
+}
+
+.survival-search-input:focus {
+  border-color: #047857;
+  box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.12);
+}
+
+.survival-search-clear {
+  position: absolute;
+  right: 28px;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+/* Tabs Bar */
+.survival-tabs-bar {
+  display: flex;
+  gap: 8px;
+  padding: 10px 18px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.survival-tabs-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.survival-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.survival-tab-btn.active {
+  background: #047857;
+  color: white;
+  border-color: #047857;
+  box-shadow: 0 2px 8px rgba(4, 120, 87, 0.25);
+}
+
+/* Section Header */
+.section-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.section-title-text {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.section-status-tag {
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 12px;
+}
+
+/* Guide Cards */
+.survival-guide-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 14px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.guide-card-topic {
+  font-size: 14px;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0 0 10px 0;
+}
+
+.guide-box {
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.guide-box-do {
+  background: #f0fdf4;
+  border-left: 4px solid #16a34a;
+}
+
+.guide-box-dont {
+  background: #fef2f2;
+  border-left: 4px solid #dc2626;
+  margin-bottom: 0;
+}
+
+.guide-box-header {
+  font-weight: 800;
+  font-size: 12.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.guide-list {
+  margin: 0;
+  padding-left: 20px;
+  color: #334155;
+}
+
+.guide-list li {
+  margin-bottom: 4px;
+}
+
+/* Footer Emergency Call Bar */
+.survival-footer-emergency {
+  padding: 12px 18px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.emergency-call-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.emergency-quick-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.quick-call-btn {
+  text-decoration: none;
+  color: white;
+  padding: 6px 11px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: transform 0.15s;
+}
+
+.quick-call-btn:hover {
+  transform: translateY(-1px);
+}
+
+/* ============================================================
+   ປັບຂະໜາດປຸ່ມເບື້ອງຂວາ ສຳລັບ Desktop (ຄອມພິວເຕີ) ໃຫ້ໃຫຍ່ຂຶ້ນ
+============================================================ */
+@media (min-width: 769px) {
+  .floating-map-controls {
+    top: 15px;
+    right: 14px;
+    gap: 7px;
+  }
+
+  .map-tool-btn {
+    width: 56px !important;
+    padding: 7px 4px !important;
+    border-radius: 10px !important;
+    gap: 3px !important;
+  }
+
+  .map-tool-btn svg {
+    width: 17px !important;
+    height: 17px !important;
+  }
+
+  .map-tool-label {
+    font-size: 11px !important;
+    font-weight: 700 !important;
+  }
+}

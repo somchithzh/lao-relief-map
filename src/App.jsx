@@ -322,7 +322,7 @@ export default function App() {
         </div>
       )}
 
-      {/* Header: ສະຫຼັບປຸ່ມ ລາຍງານເຫດ ມາໄວ້ກ່ອນ ເບີສຸກເສີນ */}
+      {/* Header: ລາຍງານເຫດ ມາກ່ອນ ເບີສຸກເສີນ */}
       <header className="header">
         <div className="header-title">
           <ShieldAlert color="#dc2626" size={22} style={{ flexShrink: 0 }} />
@@ -433,15 +433,16 @@ export default function App() {
             <span>🌤️ ສະພາບອາກາດ</span>
           </button>
 
-          {/* ປຸ່ມເຄື່ອງມືລອຍເບື້ອງຂວາ (ຂະໜາດນ້ອຍລົງ, ບໍ່ຊ້ຳອາກາດ, ຄູ່ມືຢູ່ລຸ່ມສຸດ) */}
+          {/* ປຸ່ມເຄື່ອງມືລອຍເບື້ອງຂວາ */}
           <div className="floating-map-controls">
+            {/* ປ່ຽນຊື່ເປັນ "ຕຳແໜ່ງ" ເພື່ອໃຫ້ພໍດີປຸ່ມໃນມືຖື */}
             <button 
               className={`map-tool-btn ${userLocation ? 'active' : ''}`}
               onClick={handleLocateUser}
               title="ຊອກຫາຕຳແໜ່ງປັດຈຸບັນຂອງຂ້ອຍ"
             >
               <Crosshair size={15} />
-              <span className="map-tool-label">ຕຳແໜ່ງຂ້ອຍ</span>
+              <span className="map-tool-label">ຕຳແໜ່ງ</span>
             </button>
 
             <button 
@@ -480,7 +481,7 @@ export default function App() {
               <span className="map-tool-label">ຮວມໝຸດ</span>
             </button>
 
-            {/* ປຸ່ມຄູ່ມືເອົາຕົວລອດ (ຢູ່ລຸ່ມສຸດຂອງເບື້ອງຂວາ) */}
+            {/* ປຸ່ມຄູ່ມືເອົາຕົວລອດ (ຢູ່ລຸ່ມສຸດ) */}
             <button 
               className="map-tool-btn btn-tool-guide"
               onClick={() => setIsSurvivalGuideOpen(true)}

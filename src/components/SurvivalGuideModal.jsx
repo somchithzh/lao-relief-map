@@ -43,7 +43,7 @@ const GUIDE_SECTIONS = [
   },
   {
     id: 'firstaid',
-    title: '🫁 ຊ່ວຍຄົນຈົມນ້ຳ & ປ້ຳຫົວໃຈ (CPR)',
+    title: '🫁 ຊ່ວຍຄົນຈົມນ້ຳ & CPR',
     icon: '🫁',
     badge: 'ການປະຖົມພະຍາບານ',
     badgeColor: '#2563eb',
@@ -177,14 +177,14 @@ export default function SurvivalGuideModal({ isOpen, onClose, isOnline }) {
         className="modal-content survival-guide-modal"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="modal-header survival-guide-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        {/* Header ສີຂຽວມໍລະກົດ gradient ພ້ອມປຸ່ມປິດທີ່ມຸມຂວາເທິງ */}
+        <div className="survival-guide-header">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div className="survival-guide-icon-box">
-              <BookOpen size={20} color="#ffffff" />
+              <BookOpen size={22} color="#ffffff" />
             </div>
             <div>
-              <h2 style={{ fontSize: '16px', fontWeight: '800', margin: 0 }}>
+              <h2 className="survival-header-title">
                 ຄູ່ມືເອົາຕົວລອດ & ປະຖົມພະຍາບານ
               </h2>
               <span className="offline-badge-pill">
@@ -192,14 +192,14 @@ export default function SurvivalGuideModal({ isOpen, onClose, isOnline }) {
               </span>
             </div>
           </div>
-          <button className="btn-close" onClick={onClose}>
+          <button className="btn-survival-close" onClick={onClose} title="ປິດ">
             <X size={18} />
           </button>
         </div>
 
         {/* ຊ່ອງຄົ້ນຫາດ່ວນ */}
         <div className="survival-search-wrap">
-          <Search size={14} className="survival-search-icon" />
+          <Search size={15} className="survival-search-icon" />
           <input
             type="text"
             className="survival-search-input"
@@ -212,7 +212,7 @@ export default function SurvivalGuideModal({ isOpen, onClose, isOnline }) {
               className="survival-search-clear"
               onClick={() => setSearchKeyword('')}
             >
-              <X size={13} />
+              <X size={14} />
             </button>
           )}
         </div>
@@ -229,7 +229,7 @@ export default function SurvivalGuideModal({ isOpen, onClose, isOnline }) {
               }}
             >
               <span>{sec.icon}</span>
-              <span>{sec.title.split(' ')[1]}</span>
+              <span>{sec.title.split(' ')}</span>
             </button>
           ))}
         </div>
@@ -238,14 +238,7 @@ export default function SurvivalGuideModal({ isOpen, onClose, isOnline }) {
         <div className="survival-content-body">
           {currentSection && currentSection.items.length > 0 ? (
             <div className="guide-items-list">
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  marginBottom: '10px'
-                }}
-              >
+              <div className="section-title-row">
                 <h3 className="section-title-text">{currentSection.title}</h3>
                 <span
                   className="section-status-tag"
