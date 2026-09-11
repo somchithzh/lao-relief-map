@@ -1333,3 +1333,299 @@ body {
   color: white;
   border-color: #1e293b;
 }
+
+/* Offline Bar at Top of Screen */
+.offline-banner-alert {
+  background: #fef2f2;
+  border-bottom: 1px solid #fecaca;
+  color: #991b1b;
+  padding: 6px 12px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 1000;
+  font-weight: 600;
+}
+
+.offline-banner-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.offline-banner-btn {
+  background: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Header Guide Button */
+.btn-guide {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: #047857;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 11px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.btn-guide:hover {
+  background: #065f46;
+}
+
+/* Survival Guide Modal */
+.survival-guide-modal {
+  max-width: 620px;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+}
+
+.survival-guide-header {
+  padding: 14px 16px;
+  background: #064e3b;
+  color: white;
+  margin: 0;
+  border-bottom: none;
+}
+
+.survival-guide-icon-box {
+  width: 34px;
+  height: 34px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.offline-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #10b981;
+  color: white;
+  padding: 1px 7px;
+  border-radius: 12px;
+  font-size: 10.5px;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+/* Search bar in survival guide */
+.survival-search-wrap {
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding: 10px 16px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.survival-search-icon {
+  position: absolute;
+  left: 26px;
+  color: #94a3b8;
+}
+
+.survival-search-input {
+  width: 100%;
+  padding: 8px 30px 8px 32px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  font-size: 13px;
+  outline: none;
+  background: white;
+}
+
+.survival-search-input:focus {
+  border-color: #047857;
+}
+
+.survival-search-clear {
+  position: absolute;
+  right: 24px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #64748b;
+}
+
+/* Tabs bar */
+.survival-tabs-bar {
+  display: flex;
+  overflow-x: auto;
+  gap: 6px;
+  padding: 8px 16px;
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+  scrollbar-width: none;
+}
+
+.survival-tabs-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.survival-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.survival-tab-btn.active {
+  background: #064e3b;
+  color: white;
+  border-color: #064e3b;
+}
+
+/* Content Body */
+.survival-content-body {
+  padding: 14px 16px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.section-title-text {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.section-status-tag {
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.survival-guide-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.guide-card-topic {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0 0 10px 0;
+}
+
+.guide-box {
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.guide-box-do {
+  background: #f0fdf4;
+  border-left: 3.5px solid #16a34a;
+}
+
+.guide-box-dont {
+  background: #fef2f2;
+  border-left: 3.5px solid #dc2626;
+  margin-bottom: 0;
+}
+
+.guide-box-header {
+  font-weight: 800;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 4px;
+}
+
+.do-header {
+  color: #15803d;
+}
+
+.dont-header {
+  color: #b91c1c;
+}
+
+.guide-list {
+  margin: 0;
+  padding-left: 18px;
+  color: #334155;
+}
+
+.guide-list li {
+  margin-bottom: 3px;
+}
+
+/* Footer emergency call */
+.survival-footer-emergency {
+  padding: 10px 16px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.emergency-call-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+}
+
+.emergency-quick-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.quick-call-btn {
+  text-decoration: none;
+  color: white;
+  padding: 5px 9px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+}
+
+.call-fire { background: #ea580c; }
+.call-rescue { background: #dc2626; }
+.call-ambulance { background: #2563eb; }
+
+.survival-empty-search {
+  text-align: center;
+  padding: 30px 10px;
+  color: #64748b;
+  font-size: 13px;
+}

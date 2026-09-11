@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { ShieldAlert, Plus, MapPin, Smartphone, Layers, CloudRain, Waves, Search, ChevronDown, PhoneCall, Grid, X, List, Map, CloudSun, Crosshair } from 'lucide-react';
+import { ShieldAlert, Plus, MapPin, Smartphone, Layers, CloudRain, Waves, Search, ChevronDown, PhoneCall, Grid, X, List, Map, CloudSun, Crosshair, BookOpen, WifiOff } from 'lucide-react';
 import { supabase } from './supabase';
 import LocationModal from './components/LocationModal';
 import RiverModal from './components/RiverModal';
@@ -12,6 +12,7 @@ import EmergencyModal from './components/EmergencyModal';
 import ClusterLayer from './components/ClusterLayer';
 import ReportListView from './components/ReportListView';
 import WeatherModal from './components/WeatherModal';
+import SurvivalGuideModal from './components/SurvivalGuideModal';
 import './App.css';
 
 const createCustomIcon = (report, isUrgent) => {
@@ -86,6 +87,7 @@ export default function App() {
   const [enableCluster, setEnableCluster] = useState(true);
   const [viewMode, setViewMode] = useState('map');
   const [userLocation, setUserLocation] = useState(null);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   const [currentLocationName, setCurrentLocationName] = useState('📍 ທົ່ວປະເທດ');
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
@@ -101,6 +103,7 @@ export default function App() {
 
   const [isWeatherModalOpen, setIsWeatherModalOpen] = useState(false);
   const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
+  const [isSurvivalGuideOpen, setIsSurvivalGuideOpen] = useState(false);
   const [isRiverModalOpen, setIsRiverModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPickingLocation, setIsPickingLocation] = useState(false);
@@ -119,6 +122,18 @@ export default function App() {
     lat: 17.9757,
     lng: 102.6331
   });
+
+  // ກວດຈັບສະຖານະ Online/Offline
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -290,6 +305,24 @@ export default function App() {
 
   return (
     <div className="app-container">
+      {/* ແຖບເຕືອນສະຖານະ Offline (ຖ້າບໍ່ມີເນັດ) */}
+      {!isOnline && (
+        <div className="offline-banner-alert">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <WifiOff size={14} />
+            <span>ໂໝດອອບໄລນ໌ (ບໍ່ມີເນັດ): ເບິ່ງຄູ່ມືເອົາຕົວລອດ & ເບີສຸກເສີນໄດ້ປົກກະຕິ</span>
+          </div>
+          <div className="offline-banner-actions">
+            <button className="offline-banner-btn" onClick={() => setIsSurvivalGuideOpen(true)}>
+              📖 ຄູ່ມື
+            </button>
+            <button className="offline-banner-btn" onClick={() => setIsEmergencyModalOpen(true)}>
+              📞 ເບີໂທ
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <header className="header">
         <div className="header-title">
@@ -301,6 +334,16 @@ export default function App() {
         </div>
 
         <div className="header-actions">
+          {/* ປຸ່ມຄູ່ມືເອົາຕົວລອດ */}
+          <button
+            className="btn-guide"
+            onClick={() => setIsSurvivalGuideOpen(true)}
+            title="ຄູ່ມືເອົາຕົວລອດ & ປະຖົມພະຍາບານ (Offline Ready)"
+          >
+            <BookOpen size={13} />
+            <span>ຄູ່ມືເອົາຕົວລອດ</span>
+          </button>
+
           <button className="btn-emergency" onClick={() => setIsEmergencyModalOpen(true)}>
             <PhoneCall size={13} />
             <span>ເບີສຸກເສີນ</span>
@@ -403,7 +446,6 @@ export default function App() {
 
           {/* ປຸ່ມເຄື່ອງມືລອຍເທິງແຜນທີ່ ດ້ານຂວາມື */}
           <div className="floating-map-controls">
-            {/* ປຸ່ມດຶງ GPS ຕຳແໜ່ງປັດຈຸບັນຂອງຂ້ອຍ */}
             <button 
               className={`map-tool-btn ${userLocation ? 'active' : ''}`}
               onClick={handleLocateUser}
@@ -518,7 +560,6 @@ export default function App() {
               onLocationSelect={handleLocationSelect} 
             />
 
-            {/* ໝຸດຕຳແໜ່ງປັດຈຸບັນຂອງຜູ້ໃຊ້ (Blue Pulse Dot) */}
             {userLocation && (
               <Marker position={[userLocation.lat, userLocation.lng]} icon={userLocationIcon}>
                 <Popup>
@@ -574,6 +615,12 @@ export default function App() {
       </button>
 
       {/* Modals */}
+      <SurvivalGuideModal
+        isOpen={isSurvivalGuideOpen}
+        onClose={() => setIsSurvivalGuideOpen(false)}
+        isOnline={isOnline}
+      />
+
       <WeatherModal 
         isOpen={isWeatherModalOpen}
         onClose={() => setIsWeatherModalOpen(false)}
