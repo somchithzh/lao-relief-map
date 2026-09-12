@@ -276,8 +276,29 @@ export default function ReportModal({
           </div>
 
           <div className="form-group">
-            <label>ຮູບພາບສະຖານະການ (ຖ້າມີ):</label>
-            <input type="file" accept="image/*" onChange={handleFileChange} />
+  <label>ຮູບພາບສະຖານະການ (ຖ້າມີ):</label>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+    <label style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '6px',
+      padding: '7px 14px',
+      background: '#f1f5f9',
+      border: '1px solid #cbd5e1',
+      borderRadius: '8px',
+      cursor: 'pointer',
+      fontSize: '12.5px',
+      fontWeight: '700',
+      color: '#334155'
+    }}>
+      <span>📷 ເລືອກຮູບພາບ</span>
+      <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
+    </label>
+    <span style={{ fontSize: '12px', color: '#64748b' }}>
+      {imageFile ? imageFile.name : 'ຍັງບໍ່ທັນເລືອກຮູບໃດ'}
+    </span>
+  </div>
+
             {imagePreview && (
               <div style={{ marginTop: '8px' }}>
                 <img src={imagePreview} alt="Preview" style={{ width: '100%', maxHeight: '150px', objectFit: 'cover', borderRadius: '8px' }} />

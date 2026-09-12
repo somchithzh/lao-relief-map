@@ -14,6 +14,7 @@ import ReportListView from './components/ReportListView';
 import WeatherModal from './components/WeatherModal';
 import SurvivalGuideModal from './components/SurvivalGuideModal';
 import DashboardModal from './components/DashboardModal';
+import { mockReports } from './data/mockReports';
 import './App.css';
 
 const createCustomIcon = (report, isUrgent) => {
@@ -166,9 +167,9 @@ export default function App() {
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (data) {
-        setReports(data);
-      }
+            const supabaseData = data || [];
+      setReports([...supabaseData, ...mockReports]);
+
     } catch (err) {
       console.error(err);
     }
