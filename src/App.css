@@ -533,15 +533,19 @@ body {
 }
 
 .urgent-banner {
-  background-color: #fee2e2;
-  color: #b91c1c;
+  background-color: #fef2f2;
+  color: #dc2626;
   padding: 6px 10px;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 12px;
   font-weight: 700;
   margin-bottom: 8px;
-  border-left: 3px solid #ef4444;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #fecaca;
 }
+
 
 .resolved-countdown-banner {
   background-color: #ecfdf5;
