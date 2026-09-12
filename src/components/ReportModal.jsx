@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { X, MapPin, Upload, Navigation2, Check, AlertTriangle, Construction } from 'lucide-react';
+import { X, MapPin, AlertTriangle, CheckCircle } from 'lucide-react';
 import { supabase } from '../supabase';
+import { compressImage } from '../utils/imageCompressor';
 
 const REPORT_TYPES = [
   { id: 'sos', label: '🚨 ຂໍຄວາມຊ່ວຍເຫຼືອ', desc: 'ຄົນຕິດຄ້າງ, ຕ້ອງການເຮືອ/ອາຫານດ່ວນ' },
@@ -28,20 +29,33 @@ export default function ReportModal({
 }) {
   const [roadCondition, setRoadCondition] = useState('blocked');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCompressing, setIsCompressing] = useState(false);
+  const [compressionInfo, setCompressionInfo] = useState('');
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
 
   if (!isOpen) return null;
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
+  const handleFileChange = async (e) => {
+    const file = e.target.files && e.target.files.length ? e.target.files.at(0) : null;
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        alert('ຂະໜາດຮູບພາບໃຫຍ່ເກີນ 5MB, ກະລຸນາເລືອກຮູບໃໝ່');
-        return;
+      setIsCompressing(true);
+      setCompressionInfo('⏳ ກຳລັງປັບຂະໜາດຮູບພາບໃຫ້ເບົາລົງ...');
+      try {
+        const compressed = await compressImage(file, 1280, 1280, 0.82);
+        setImageFile(compressed);
+        setImagePreview(URL.createObjectURL(compressed));
+        const originalMb = (file.size / (1024 * 1024)).toFixed(1);
+        const compressedKb = Math.round(compressed.size / 1024);
+        setCompressionInfo(`✅ ຫຍໍ້ຮູບຈາກ ${originalMb}MB ເຫຼືອ ${compressedKb}KB (ຄົມຊັດຄືເກົ່າ)`);
+      } catch (err) {
+        console.error(err);
+        setImageFile(file);
+        setImagePreview(URL.createObjectURL(file));
+        setCompressionInfo('');
+      } finally {
+        setIsCompressing(false);
       }
-      setImageFile(file);
-      setImagePreview(URL.createObjectURL(file));
     }
   };
 
@@ -79,6 +93,15 @@ export default function ReportModal({
       return;
     }
 
+    // ບັງຄັບໃສ່ເບີໂທສະເພາະປະເພດ SOS
+    if (formData.type === 'sos') {
+      const cleanPhone = (formData.phone || '').replace(/\D/g, '');
+      if (cleanPhone.length < 8) {
+        alert('⚠️ ສຳລັບກໍລະນີຂໍຄວາມຊ່ວຍເຫຼືອ (SOS): ກະລຸນາປ້ອນເບີໂທລະສັບທີ່ຖືກຕ້ອງ (ຢ່າງໜ້ອຍ 8 ຕົວເລກ) ເພື່ອໃຫ້ທີມກູ້ໄພສາມາດໂທປະສານງານໄດ້.');
+        return;
+      }
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -101,7 +124,6 @@ export default function ReportModal({
         }
       }
 
-      // ຖ້າເປັນປະເພດເສັ້ນທາງ ໃຫ້ໃສ່ປ້າຍສະຖານະໄວ້ໃນຫົວຂໍ້ ແລະ ລາຍລະອຽດ
       let finalTitle = formData.title;
       let finalDesc = formData.description;
 
@@ -145,6 +167,7 @@ export default function ReportModal({
         setImageFile(null);
         setImagePreview(null);
         setGpsMessage('');
+        setCompressionInfo('');
       }
     } catch (err) {
       console.error(err);
@@ -160,6 +183,12 @@ export default function ReportModal({
         <div className="modal-header">
           <h2>📢 ແຈ້ງເຫດ / ລາຍງານໄພພິບັດ</h2>
           <button className="btn-close" onClick={onClose}><X size={20} /></button>
+        </div>
+
+        {/* ກ່ອງເຕືອນກົດໝາຍ: ຫ້າມແຈ້ງເຫດປອມ */}
+        <div className="report-legal-warning">
+          <AlertTriangle size={16} color="#dc2626" style={{ flexShrink: 0, marginTop: '2px' }} />
+          <span><strong>ຄຳເຕືອນ:</strong> ການແຈ້ງເຫດປອມມີຄວາມຜິດຕາມກົດໝາຍ ແລະ ອາດຂັດຂວາງການຊ່ວຍເຫຼືອຊີວິດຂອງຜູ້ປະສົບໄພຕົວຈິງ.</span>
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -180,11 +209,10 @@ export default function ReportModal({
             </div>
           </div>
 
-          {/* ຖ້າເລືອກປະເພດ "ສະພາບເສັ້ນທາງ": ໃຫ້ເລືອກສະຖານະທາງ */}
           {formData.type === 'road' && (
             <div className="form-group" style={{ background: '#fff7ed', padding: '12px', borderRadius: '10px', border: '1px solid #fed7aa' }}>
               <label style={{ color: '#c2410c', fontWeight: '800', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <Construction size={16} /> ສະຖານະຂອງເສັ້ນທາງ:
+                🚧 ສະຖານະຂອງເສັ້ນທາງ:
               </label>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {ROAD_CONDITIONS.map((cond) => (
@@ -241,10 +269,13 @@ export default function ReportModal({
           </div>
 
           <div className="form-group">
-            <label>ເບີໂທຕິດຕໍ່:</label>
+            <label>
+              ເບີໂທຕິດຕໍ່ {formData.type === 'sos' ? <span style={{ color: '#dc2626', fontWeight: '800' }}>* (ຈຳເປັນສຳລັບ SOS)</span> : '(ຖ້າມີ)'}:
+            </label>
             <input
               type="text"
-              placeholder="ເຊັ່ນ: 020 XXXXXXXX"
+              required={formData.type === 'sos'}
+              placeholder="ເຊັ່ນ: 020 55XXXXXX ຫຼື 030 XXXXXXX"
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
             />
@@ -264,7 +295,7 @@ export default function ReportModal({
             <label>ຕຳແໜ່ງພິກັດ (Lat, Lng):</label>
             <div className="location-action-buttons">
               <button type="button" className="btn-loc btn-loc-gps" onClick={handleGetCurrentLocation}>
-                <Navigation2 size={14} />
+                <MapPin size={14} />
                 <span>ດຶງ GPS ປັດຈຸບັນ</span>
               </button>
               <button type="button" className="btn-loc btn-loc-map" onClick={onStartPickingLocation}>
@@ -275,30 +306,23 @@ export default function ReportModal({
             {gpsMessage && <div className="gps-status-text">{gpsMessage}</div>}
           </div>
 
+          {/* ປຸ່ມເລືອກຮູບພາສາລາວ 100% ພ້ອມສະແດງການຫຍໍ້ຮູບ */}
           <div className="form-group">
-  <label>ຮູບພາບສະຖານະການ (ຖ້າມີ):</label>
-  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-    <label style={{
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: '6px',
-      padding: '7px 14px',
-      background: '#f1f5f9',
-      border: '1px solid #cbd5e1',
-      borderRadius: '8px',
-      cursor: 'pointer',
-      fontSize: '12.5px',
-      fontWeight: '700',
-      color: '#334155'
-    }}>
-      <span>📷 ເລືອກຮູບພາບ</span>
-      <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
-    </label>
-    <span style={{ fontSize: '12px', color: '#64748b' }}>
-      {imageFile ? imageFile.name : 'ຍັງບໍ່ທັນເລືອກຮູບໃດ'}
-    </span>
-  </div>
-
+            <label>ຮູບພາບສະຖານະການ (ຖ້າມີ):</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+              <label className="custom-file-upload">
+                <span>📷 ເລືອກຮູບພາບ</span>
+                <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
+              </label>
+              <span style={{ fontSize: '12px', color: '#64748b' }}>
+                {imageFile ? imageFile.name : 'ຍັງບໍ່ທັນເລືອກຮູບໃດ'}
+              </span>
+            </div>
+            {compressionInfo && (
+              <div style={{ fontSize: '11.5px', color: '#16a34a', fontWeight: '700', marginTop: '5px' }}>
+                {compressionInfo}
+              </div>
+            )}
             {imagePreview && (
               <div style={{ marginTop: '8px' }}>
                 <img src={imagePreview} alt="Preview" style={{ width: '100%', maxHeight: '150px', objectFit: 'cover', borderRadius: '8px' }} />
@@ -306,8 +330,8 @@ export default function ReportModal({
             )}
           </div>
 
-          <button type="submit" className="btn-submit" disabled={isSubmitting}>
-            {isSubmitting ? 'ກຳລັງບັນທຶກ...' : '✅ ຢືນຢັນການລາຍງານ'}
+          <button type="submit" className="btn-submit" disabled={isSubmitting || isCompressing}>
+            {isSubmitting ? 'ກຳລັງບັນທຶກ...' : isCompressing ? 'ກຳລັງປັບຂະໜາດຮູບ...' : '✅ ຢືນຢັນການລາຍງານ'}
           </button>
         </form>
       </div>

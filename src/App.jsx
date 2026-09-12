@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { ShieldAlert, Plus, MapPin, Smartphone, Layers, CloudRain, Waves, Search, ChevronDown, PhoneCall, Grid, X, List, Map, Crosshair, BookOpen, WifiOff, BarChart3 } from 'lucide-react';
+import { ShieldAlert, Plus, MapPin, Smartphone, Layers, CloudRain, Waves, Search, ChevronDown, PhoneCall, Grid, X, List, Map, Crosshair, BookOpen, WifiOff, BarChart3, AlertCircle } from 'lucide-react';
 import { supabase } from './supabase';
+import { mockReports } from './data/mockReports';
 import LocationModal from './components/LocationModal';
 import RiverModal from './components/RiverModal';
 import InstallModal from './components/InstallModal';
@@ -14,7 +15,6 @@ import ReportListView from './components/ReportListView';
 import WeatherModal from './components/WeatherModal';
 import SurvivalGuideModal from './components/SurvivalGuideModal';
 import DashboardModal from './components/DashboardModal';
-import { mockReports } from './data/mockReports';
 import './App.css';
 
 const createCustomIcon = (report, isUrgent) => {
@@ -167,11 +167,13 @@ export default function App() {
         .select('*')
         .order('created_at', { ascending: false });
 
-            const supabaseData = data || [];
-      setReports([...supabaseData, ...mockReports]);
-
+      const supabaseData = data || [];
+      const mockList = Array.isArray(mockReports) ? mockReports : [];
+      setReports([...supabaseData, ...mockList]);
     } catch (err) {
       console.error(err);
+      const mockList = Array.isArray(mockReports) ? mockReports : [];
+      setReports(mockList);
     }
   };
 
@@ -279,8 +281,8 @@ export default function App() {
       const hoursPassed = (currentTime - createdAt) / (1000 * 60 * 60);
       return r.type === 'sos' && r.status !== 'resolved' && hoursPassed >= 24;
     }).length,
-    sos: activeReports.filter((r) => r.type === 'sos' && r.status !== 'resolved').length,
     road: activeReports.filter((r) => r.type === 'road' && r.status !== 'resolved').length,
+    sos: activeReports.filter((r) => r.type === 'sos' && r.status !== 'resolved').length,
     warning: activeReports.filter((r) => r.type === 'warning' && r.status !== 'resolved').length,
     shelter: activeReports.filter((r) => r.type === 'shelter' && r.status !== 'resolved').length,
     donation: activeReports.filter((r) => r.type === 'donation' && r.status !== 'resolved').length,
@@ -310,6 +312,7 @@ export default function App() {
 
   return (
     <div className="app-container">
+      {/* ແຖບ Offline (ຖ້າບໍ່ມີເນັດ) */}
       {!isOnline && (
         <div className="offline-banner-alert">
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -355,6 +358,12 @@ export default function App() {
         </div>
       </header>
 
+      {/* ແຖວເຕືອນ Disclaimer ຄວາມຮັບຜິດຊອບ (Community Notice) */}
+      <div className="community-disclaimer-bar">
+        <AlertCircle size={13} color="#0284c7" style={{ flexShrink: 0 }} />
+        <span>ລະບົບປະສານງານຊຸມຊົນ • ກໍລະນີສຸກເສີນຮອດຊີວິດ ໃຫ້ໂທ <strong>1190 (ດັບເພີງ)</strong> ຫຼື <strong>1623 (ກູ້ໄພ)</strong> ໂດຍກົງທັນທີ</span>
+      </div>
+
       {/* Search & Location Bar */}
       <div className="search-location-bar">
         <button 
@@ -381,7 +390,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* Filter Pills: ປຸ່ມ "ສະພາບເສັ້ນທາງ" ຍ້າຍມາຢູ່ກ່ອນ "ຂໍຄວາມຊ່ວຍເຫຼືອ" */}
+      {/* Filter Pills */}
       <div className="category-scroll-bar">
         <button 
           className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
@@ -397,7 +406,6 @@ export default function App() {
           🔥 ດ່ວນ (ເກີນ 24h) <span className="stat-pill">{stats.urgent}</span>
         </button>
 
-        {/* ປຸ່ມ ສະພາບເສັ້ນທາງ (ປ່ຽນຊື່ ແລະ ຍ້າຍມາຢູ່ກ່ອນ ຂໍຄວາມຊ່ວຍເຫຼືອ) */}
         <button 
           className={`filter-btn filter-btn-road ${filter === 'road' ? 'active' : ''}`}
           onClick={() => setFilter('road')}
