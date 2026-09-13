@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { ShieldAlert, Plus, MapPin, Smartphone, Layers, CloudRain, Waves, Search, ChevronDown, PhoneCall, Grid, X, List, Map, Crosshair, BookOpen, WifiOff, BarChart3, AlertCircle } from 'lucide-react';
+import { ShieldAlert, Plus, MapPin, Smartphone, Layers, CloudRain, Waves, Search, ChevronDown, PhoneCall, Grid, X, List, Map, Crosshair, BookOpen, WifiOff, BarChart3, AlertCircle, Menu } from 'lucide-react';
 import { supabase } from './supabase';
 import { mockReports } from './data/mockReports';
 import LocationModal from './components/LocationModal';
@@ -16,6 +16,7 @@ import WeatherModal from './components/WeatherModal';
 import SurvivalGuideModal from './components/SurvivalGuideModal';
 import DashboardModal from './components/DashboardModal';
 import AdminModal from './components/AdminModal';
+import MenuModal from './components/MenuModal';
 import './App.css';
 
 const createCustomIcon = (report, isUrgent) => {
@@ -111,6 +112,7 @@ export default function App() {
   const [isSurvivalGuideOpen, setIsSurvivalGuideOpen] = useState(false);
   const [isDashboardOpen, setIsDashboardOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isRiverModalOpen, setIsRiverModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPickingLocation, setIsPickingLocation] = useState(false);
@@ -314,7 +316,6 @@ export default function App() {
 
   return (
     <div className="app-container">
-      {/* ແຖບ Offline (ຖ້າບໍ່ມີເນັດ) */}
       {!isOnline && (
         <div className="offline-banner-alert">
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -332,7 +333,7 @@ export default function App() {
         </div>
       )}
 
-      {/* Header */}
+      {/* Header: ສະອາດຕາ (ບໍ່ມີປຸ່ມຫຼັງບ້ານໂຊຢູ່ເທິງນີ້ແລ້ວ) */}
       <header className="header">
         <div className="header-title">
           <ShieldAlert color="#dc2626" size={22} style={{ flexShrink: 0 }} />
@@ -357,13 +358,10 @@ export default function App() {
             <Smartphone size={13} />
             <span className="btn-text-install">ຕິດຕັ້ງແອັບ</span>
           </button>
-          <button className="btn-install" onClick={() => setIsAdminOpen(true)} title="ລະບົບຫຼັງບ້ານ (Admin)">
-         <span>🔒 ຫຼັງບ້ານ</span>
-       </button>
         </div>
       </header>
 
-      {/* ແຖວເຕືອນ Disclaimer ຄວາມຮັບຜິດຊອບ (Community Notice) */}
+      {/* ແຖວເຕືອນ Disclaimer */}
       <div className="community-disclaimer-bar">
         <AlertCircle size={13} color="#0284c7" style={{ flexShrink: 0 }} />
         <span>ລະບົບປະສານງານຊຸມຊົນ • ກໍລະນີສຸກເສີນຮອດຊີວິດ ໃຫ້ໂທ <strong>1190 (ດັບເພີງ)</strong> ຫຼື <strong>1623 (ກູ້ໄພ)</strong> ໂດຍກົງທັນທີ</span>
@@ -458,6 +456,7 @@ export default function App() {
             <span>🌤️ ສະພາບອາກາດ</span>
           </button>
 
+          {/* ປຸ່ມເຄື່ອງມືຂວາມື: ເພີ່ມປຸ່ມສາມຂີດ ☰ ຢູ່ລຸ່ມສຸດ */}
           <div className="floating-map-controls">
             <button 
               className={`map-tool-btn ${userLocation ? 'active' : ''}`}
@@ -520,6 +519,16 @@ export default function App() {
             >
               <BookOpen size={15} />
               <span className="map-tool-label">ຄູ່ມື</span>
+            </button>
+
+            {/* ປຸ່ມສາມຂີດ ☰ (ຢູ່ລຸ່ມສຸດຂອງເບື້ອງຂວາ) */}
+            <button 
+              className="map-tool-btn btn-tool-menu"
+              onClick={() => setIsMenuOpen(true)}
+              title="ເມນູ & ລະບົບຫຼັງບ້ານ"
+            >
+              <Menu size={16} />
+              <span className="map-tool-label">ເມນູ</span>
             </button>
           </div>
 
@@ -637,6 +646,23 @@ export default function App() {
       </button>
 
       {/* Modals */}
+      <MenuModal
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        onOpenAdmin={() => setIsAdminOpen(true)}
+        onOpenDashboard={() => setIsDashboardOpen(true)}
+        onOpenGuide={() => setIsSurvivalGuideOpen(true)}
+        onOpenEmergency={() => setIsEmergencyModalOpen(true)}
+        onOpenInstall={() => setIsInstallModalOpen(true)}
+      />
+
+      <AdminModal
+        isOpen={isAdminOpen}
+        onClose={() => setIsAdminOpen(false)}
+        reports={reports}
+        onRefresh={fetchReports}
+      />
+
       <DashboardModal
         isOpen={isDashboardOpen}
         onClose={() => setIsDashboardOpen(false)}
@@ -644,13 +670,6 @@ export default function App() {
         activeReports={activeReports}
         currentTime={currentTime}
       />
-
-      <AdminModal
-     isOpen={isAdminOpen}
-     onClose={() => setIsAdminOpen(false)}
-     reports={reports}
-     onRefresh={fetchReports}
-  />
 
       <SurvivalGuideModal
         isOpen={isSurvivalGuideOpen}

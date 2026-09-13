@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { X, Lock, Unlock, Trash2, CheckCircle, Search, RefreshCw, AlertCircle, Phone } from 'lucide-react';
+import { X, Lock, Unlock, Trash2, CheckCircle, Search, RefreshCw, AlertCircle, Phone, Construction } from 'lucide-react';
 import { supabase } from '../supabase';
 
-// ລະຫັດ PIN ລັບສຳລັບ Admin (ເຈົ້າສາມາດປ່ຽນເປັນເລກອື່ນໄດ້)
 const ADMIN_PIN = '9999';
 
 export default function AdminModal({ isOpen, onClose, reports, onRefresh }) {
@@ -10,11 +9,11 @@ export default function AdminModal({ isOpen, onClose, reports, onRefresh }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [searchFilter, setSearchFilter] = useState('');
+  const [activeTab, setActiveTab] = useState('all');
   const [isDeleting, setIsDeleting] = useState(false);
 
   if (!isOpen) return null;
 
-  // ກວດສອບລະຫັດ PIN
   const handleUnlock = (e) => {
     e.preventDefault();
     if (pinInput === ADMIN_PIN) {
@@ -27,7 +26,6 @@ export default function AdminModal({ isOpen, onClose, reports, onRefresh }) {
     }
   };
 
-  // ຟັງຊັນລຶບເຫດການອອກຈາກ Supabase
   const handleDeleteReport = async (reportId, title) => {
     const confirmDelete = window.confirm(`ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບເຫດການ:\n"${title}"\nອອກຈາກແຜນທີ່ຢ່າງຖາວອນ?`);
     if (!confirmDelete) return;
@@ -40,7 +38,7 @@ export default function AdminModal({ isOpen, onClose, reports, onRefresh }) {
         .eq('id', reportId);
 
       if (error) {
-        alert('ເກີດຂໍ້ຜິດພາດໃນການລຶບ: ' + error.message);
+        alert('ເກີດຂໍ້ຜິດພາດ: ' + error.message);
       } else {
         alert('✅ ລຶບເຫດການສຳເລັດແລ້ວ! ໝຸດຖືກຖອນອອກຈາກແຜນທີ່ແລ້ວ.');
         onRefresh();
@@ -53,8 +51,25 @@ export default function AdminModal({ isOpen, onClose, reports, onRefresh }) {
     }
   };
 
-  // ກັ່ນຕອງເຫດການໃນໜ້າ Admin
+  const currentTime = Date.now();
+
+  // ກັ່ນຕອງເຫດການຕາມ Tabs ແລະ Search
   const filteredReports = reports.filter((r) => {
+    const createdAt = new Date(r.created_at).getTime();
+    const hoursPassed = (currentTime - createdAt) / (1000 * 60 * 60);
+
+    // Filter ຕາມ Tab
+    if (activeTab === 'urgent') {
+      if (r.type !== 'sos' || r.status === 'resolved' || hoursPassed < 24) return false;
+    } else if (activeTab === 'sos') {
+      if (r.type !== 'sos' || r.status === 'resolved') return false;
+    } else if (activeTab === 'road') {
+      if (r.type !== 'road' || r.status === 'resolved') return false;
+    } else if (activeTab === 'resolved') {
+      if (r.status !== 'resolved') return false;
+    }
+
+    // Filter ຕາມຄຳຄົ້ນຫາ
     if (!searchFilter.trim()) return true;
     const q = searchFilter.toLowerCase();
     const title = (r.title || '').toLowerCase();
@@ -62,6 +77,18 @@ export default function AdminModal({ isOpen, onClose, reports, onRefresh }) {
     const phone = (r.phone || '').toLowerCase();
     return title.includes(q) || loc.includes(q) || phone.includes(q);
   });
+
+  // ນັບສະຖິຕິແຕ່ລະໝວດໃນ Admin
+  const stats = {
+    total: reports.length,
+    urgent: reports.filter(r => {
+      const hours = (currentTime - new Date(r.created_at).getTime()) / (1000 * 60 * 60);
+      return r.type === 'sos' && r.status !== 'resolved' && hours >= 24;
+    }).length,
+    sos: reports.filter(r => r.type === 'sos' && r.status !== 'resolved').length,
+    road: reports.filter(r => r.type === 'road' && r.status !== 'resolved').length,
+    resolved: reports.filter(r => r.status === 'resolved').length,
+  };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -78,7 +105,7 @@ export default function AdminModal({ isOpen, onClose, reports, onRefresh }) {
           <button className="btn-close" onClick={onClose}><X size={18} /></button>
         </div>
 
-        {/* ຖ້າຍັງບໍ່ທັນປົດລັອກ: ສະແດງໜ້າປ້ອນ PIN */}
+        {/* ໜ້າປ້ອນ PIN (ລຶບຄຳວ່າ 9999 ອອກແລ້ວ) */}
         {!isAuthenticated ? (
           <div className="admin-login-box">
             <div className="admin-lock-icon">
@@ -94,7 +121,7 @@ export default function AdminModal({ isOpen, onClose, reports, onRefresh }) {
                 type="password"
                 maxLength={6}
                 autoFocus
-                placeholder="ປ້ອນ PIN (ເລີ່ມຕົ້ນ: 9999)"
+                placeholder="ປ້ອນລະຫັດ PIN 4 ຕົວເລກ..."
                 value={pinInput}
                 onChange={(e) => setPinInput(e.target.value)}
                 className="admin-pin-input"
@@ -108,14 +135,49 @@ export default function AdminModal({ isOpen, onClose, reports, onRefresh }) {
             </form>
           </div>
         ) : (
-          /* ເມື່ອປົດລັອກແລ້ວ: ສະແດງຕາຕະລາງລາຍການເຫດການ */
+          /* ເມື່ອປົດລັອກແລ້ວ: ຕາຕະລາງລາຍການເຫດການ ພ້ອມ Filter Tabs */
           <div className="admin-content-body">
-            {/* ແຖບສະຫຼຸບ & ຄົ້ນຫາ */}
-            <div className="admin-tools-bar">
-              <div className="admin-stats-badge">
-                ທັງໝົດ: <strong>{reports.length}</strong> ເຫດການ
-              </div>
+            
+            {/* Filter Tabs ພາຍໃນ Admin */}
+            <div className="admin-filter-tabs">
+              <button
+                className={`admin-tab-btn ${activeTab === 'all' ? 'active' : ''}`}
+                onClick={() => setActiveTab('all')}
+              >
+                ທັງໝົດ ({stats.total})
+              </button>
 
+              <button
+                className={`admin-tab-btn tab-urgent ${activeTab === 'urgent' ? 'active' : ''}`}
+                onClick={() => setActiveTab('urgent')}
+              >
+                🔥 ດ່ວນ ({stats.urgent})
+              </button>
+
+              <button
+                className={`admin-tab-btn ${activeTab === 'sos' ? 'active' : ''}`}
+                onClick={() => setActiveTab('sos')}
+              >
+                🚨 ລໍຖ້າການຊ່ວຍ ({stats.sos})
+              </button>
+
+              <button
+                className={`admin-tab-btn ${activeTab === 'road' ? 'active' : ''}`}
+                onClick={() => setActiveTab('road')}
+              >
+                🚧 ສະພາບເສັ້ນທາງ ({stats.road})
+              </button>
+
+              <button
+                className={`admin-tab-btn ${activeTab === 'resolved' ? 'active' : ''}`}
+                onClick={() => setActiveTab('resolved')}
+              >
+                ✅ ຊ່ວຍເຫຼືອແລ້ວ ({stats.resolved})
+              </button>
+            </div>
+
+            {/* ແຖບຄົ້ນຫາ & ອອກຈາກລະບົບ */}
+            <div className="admin-tools-bar">
               <div className="admin-search-wrap">
                 <Search size={14} className="admin-search-icon" />
                 <input
@@ -168,7 +230,6 @@ export default function AdminModal({ isOpen, onClose, reports, onRefresh }) {
                       </div>
                     </div>
 
-                    {/* ປຸ່ມລຶບ */}
                     <div className="admin-row-actions">
                       <button
                         className="btn-admin-delete"
@@ -184,7 +245,7 @@ export default function AdminModal({ isOpen, onClose, reports, onRefresh }) {
                 ))
               ) : (
                 <div style={{ textAlign: 'center', padding: '30px', color: '#64748b', fontSize: '13px' }}>
-                  ບໍ່ພົບເຫດການທີ່ຕົງກັບຄຳຄົ້ນຫາ
+                  ບໍ່ພົບເຫດການໃນໝວດໝູ່ນີ້
                 </div>
               )}
             </div>
