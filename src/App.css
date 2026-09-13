@@ -3149,3 +3149,64 @@ body {
   background: #dc2626;
   border-color: #dc2626;
 }
+
+/* ແກ້ໄຂແຖບ Filter ບໍ່ໃຫ້ປຸ່ມຖືກບີບແປ */
+.admin-filter-tabs {
+  display: flex !important;
+  gap: 8px !important;
+  padding: 12px 18px !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  overflow-x: auto !important;
+  flex-shrink: 0 !important;
+  align-items: center !important;
+}
+
+.admin-tab-btn {
+  padding: 6px 13px !important;
+  border-radius: 20px !important;
+  border: 1px solid #cbd5e1 !important;
+  background: #f8fafc !important;
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  color: #475569 !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  line-height: 1.4 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+.admin-tab-btn.active {
+  background: #0f172a !important;
+  color: white !important;
+  border-color: #0f172a !important;
+}
+
+.admin-tab-btn.tab-urgent.active {
+  background: #dc2626 !important;
+  border-color: #dc2626 !important;
+}
+
+/* ປຸ່ມເລືອກຊ່ວງເວລາ (Time Filter Select) */
+.admin-time-filter {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: white;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 4px 8px;
+  flex-shrink: 0;
+}
+
+.admin-time-select {
+  border: none;
+  background: transparent;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #334155;
+  outline: none;
+  cursor: pointer;
+}

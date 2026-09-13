@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Lock, Unlock, Trash2, CheckCircle, Search, RefreshCw, AlertCircle, Phone, Construction } from 'lucide-react';
+import { X, Lock, Unlock, Trash2, Search, Calendar } from 'lucide-react';
 import { supabase } from '../supabase';
 
 const ADMIN_PIN = '9999';
@@ -10,6 +10,7 @@ export default function AdminModal({ isOpen, onClose, reports, onRefresh }) {
   const [errorMsg, setErrorMsg] = useState('');
   const [searchFilter, setSearchFilter] = useState('');
   const [activeTab, setActiveTab] = useState('all');
+  const [timeRange, setTimeRange] = useState('all');
   const [isDeleting, setIsDeleting] = useState(false);
 
   if (!isOpen) return null;
@@ -27,7 +28,7 @@ export default function AdminModal({ isOpen, onClose, reports, onRefresh }) {
   };
 
   const handleDeleteReport = async (reportId, title) => {
-    const confirmDelete = window.confirm(`ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບເຫດການ:\n"${title}"\nອອກຈາກແຜນທີ່ຢ່າງຖາວອນ?`);
+    const confirmDelete = window.confirm(`ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບເຫດການ:\n"${title}"\nອອກຈາກລະບົບຢ່າງຖາວອນ?`);
     if (!confirmDelete) return;
 
     setIsDeleting(true);
@@ -40,7 +41,7 @@ export default function AdminModal({ isOpen, onClose, reports, onRefresh }) {
       if (error) {
         alert('ເກີດຂໍ້ຜິດພາດ: ' + error.message);
       } else {
-        alert('✅ ລຶບເຫດການສຳເລັດແລ້ວ! ໝຸດຖືກຖອນອອກຈາກແຜນທີ່ແລ້ວ.');
+        alert('✅ ລຶບເຫດການສຳເລັດແລ້ວ!');
         onRefresh();
       }
     } catch (err) {
@@ -53,12 +54,44 @@ export default function AdminModal({ isOpen, onClose, reports, onRefresh }) {
 
   const currentTime = Date.now();
 
-  // ກັ່ນຕອງເຫດການຕາມ Tabs ແລະ Search
-  const filteredReports = reports.filter((r) => {
+  // 1. ກວດສອບເງື່ອນໄຂສະແດງຜົນຄືກັບແຜນທີ່:
+  // - ຖ້າຊ່ວຍແລ້ວ: ໂຊທັງໝົດຕັ້ງແຕ່ສູນ
+  // - ຖ້າຍັງບໍ່ທັນຊ່ວຍ (SOS, ທາງ, ເຕືອນໄພ): ໂຊສະເພາະອັນທີ່ມີເທິງແຜນທີ່ (ບໍ່ເກີນ 72 ຊົ່ວໂມງ)
+  const isVisibleInAdmin = (r) => {
+    if (r.status === 'resolved') return true;
+    const hours = (currentTime - new Date(r.created_at).getTime()) / (1000 * 60 * 60);
+    return hours <= 72;
+  };
+
+  // 2. ກວດສອບຊ່ວງເວລາ (ມື້ນີ້, 7 ວັນ, ເດືອນນີ້)
+  const isWithinTime = (createdAtStr) => {
+    if (timeRange === 'all') return true;
+    const created = new Date(createdAtStr).getTime();
+    const now = new Date();
+
+    if (timeRange === 'today') {
+      const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+      return created >= startOfToday;
+    }
+    if (timeRange === 'week') {
+      const sevenDaysAgo = currentTime - (7 * 24 * 60 * 60 * 1000);
+      return created >= sevenDaysAgo;
+    }
+    if (timeRange === 'month') {
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+      return created >= startOfMonth;
+    }
+    return true;
+  };
+
+  // ລາຍການທີ່ຜ່ານເງື່ອນໄຂແຜນທີ່ & ຊ່ວງເວລາ
+  const baseReports = reports.filter(isVisibleInAdmin).filter((r) => isWithinTime(r.created_at));
+
+  // ກັ່ນຕອງຕາມ Tab ທີ່ເລືອກ
+  const filteredReports = baseReports.filter((r) => {
     const createdAt = new Date(r.created_at).getTime();
     const hoursPassed = (currentTime - createdAt) / (1000 * 60 * 60);
 
-    // Filter ຕາມ Tab
     if (activeTab === 'urgent') {
       if (r.type !== 'sos' || r.status === 'resolved' || hoursPassed < 24) return false;
     } else if (activeTab === 'sos') {
@@ -69,7 +102,6 @@ export default function AdminModal({ isOpen, onClose, reports, onRefresh }) {
       if (r.status !== 'resolved') return false;
     }
 
-    // Filter ຕາມຄຳຄົ້ນຫາ
     if (!searchFilter.trim()) return true;
     const q = searchFilter.toLowerCase();
     const title = (r.title || '').toLowerCase();
@@ -78,16 +110,16 @@ export default function AdminModal({ isOpen, onClose, reports, onRefresh }) {
     return title.includes(q) || loc.includes(q) || phone.includes(q);
   });
 
-  // ນັບສະຖິຕິແຕ່ລະໝວດໃນ Admin
+  // ນັບຈຳນວນຕົວເລກແຕ່ລະ Tab
   const stats = {
-    total: reports.length,
-    urgent: reports.filter(r => {
+    total: baseReports.length,
+    urgent: baseReports.filter(r => {
       const hours = (currentTime - new Date(r.created_at).getTime()) / (1000 * 60 * 60);
       return r.type === 'sos' && r.status !== 'resolved' && hours >= 24;
     }).length,
-    sos: reports.filter(r => r.type === 'sos' && r.status !== 'resolved').length,
-    road: reports.filter(r => r.type === 'road' && r.status !== 'resolved').length,
-    resolved: reports.filter(r => r.status === 'resolved').length,
+    sos: baseReports.filter(r => r.type === 'sos' && r.status !== 'resolved').length,
+    road: baseReports.filter(r => r.type === 'road' && r.status !== 'resolved').length,
+    resolved: reports.filter(r => r.status === 'resolved' && isWithinTime(r.created_at)).length,
   };
 
   return (
@@ -105,7 +137,6 @@ export default function AdminModal({ isOpen, onClose, reports, onRefresh }) {
           <button className="btn-close" onClick={onClose}><X size={18} /></button>
         </div>
 
-        {/* ໜ້າປ້ອນ PIN (ລຶບຄຳວ່າ 9999 ອອກແລ້ວ) */}
         {!isAuthenticated ? (
           <div className="admin-login-box">
             <div className="admin-lock-icon">
@@ -135,10 +166,9 @@ export default function AdminModal({ isOpen, onClose, reports, onRefresh }) {
             </form>
           </div>
         ) : (
-          /* ເມື່ອປົດລັອກແລ້ວ: ຕາຕະລາງລາຍການເຫດການ ພ້ອມ Filter Tabs */
           <div className="admin-content-body">
             
-            {/* Filter Tabs ພາຍໃນ Admin */}
+            {/* Filter Tabs ປຸ່ມກົດມົນມຸມ ບໍ່ຖືກບີບ */}
             <div className="admin-filter-tabs">
               <button
                 className={`admin-tab-btn ${activeTab === 'all' ? 'active' : ''}`}
@@ -176,7 +206,7 @@ export default function AdminModal({ isOpen, onClose, reports, onRefresh }) {
               </button>
             </div>
 
-            {/* ແຖບຄົ້ນຫາ & ອອກຈາກລະບົບ */}
+            {/* ແຖບຄົ້ນຫາ + ເລືອກຊ່ວງເວລາ + ອອກຈາກລະບົບ */}
             <div className="admin-tools-bar">
               <div className="admin-search-wrap">
                 <Search size={14} className="admin-search-icon" />
@@ -187,6 +217,21 @@ export default function AdminModal({ isOpen, onClose, reports, onRefresh }) {
                   onChange={(e) => setSearchFilter(e.target.value)}
                   className="admin-search-input"
                 />
+              </div>
+
+              {/* ປຸ່ມເລືອກຊ່ວງເວລາ (ມື້ນີ້, 7 ວັນ, ເດືອນນີ້) */}
+              <div className="admin-time-filter">
+                <Calendar size={13} color="#475569" style={{ flexShrink: 0 }} />
+                <select
+                  value={timeRange}
+                  onChange={(e) => setTimeRange(e.target.value)}
+                  className="admin-time-select"
+                >
+                  <option value="all">🗓️ ທຸກຊ່ວງເວລາ</option>
+                  <option value="today">⚡ ສະເພາະມື້ນີ້</option>
+                  <option value="week">📅 7 ວັນຜ່ານມາ</option>
+                  <option value="month">📆 ສະເພາະເດືອນນີ້</option>
+                </select>
               </div>
 
               <button className="btn-admin-logout" onClick={() => setIsAuthenticated(false)}>
@@ -244,8 +289,8 @@ export default function AdminModal({ isOpen, onClose, reports, onRefresh }) {
                   </div>
                 ))
               ) : (
-                <div style={{ textAlign: 'center', padding: '30px', color: '#64748b', fontSize: '13px' }}>
-                  ບໍ່ພົບເຫດການໃນໝວດໝູ່ນີ້
+                <div style={{ textAlign: 'center', padding: '35px 15px', color: '#64748b', fontSize: '13px' }}>
+                  ບໍ່ພົບເຫດການໃນໝວດໝູ່ ຫຼື ຊ່ວງເວລານີ້
                 </div>
               )}
             </div>
