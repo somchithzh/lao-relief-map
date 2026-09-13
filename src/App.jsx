@@ -15,6 +15,7 @@ import ReportListView from './components/ReportListView';
 import WeatherModal from './components/WeatherModal';
 import SurvivalGuideModal from './components/SurvivalGuideModal';
 import DashboardModal from './components/DashboardModal';
+import AdminModal from './components/AdminModal';
 import './App.css';
 
 const createCustomIcon = (report, isUrgent) => {
@@ -109,6 +110,7 @@ export default function App() {
   const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
   const [isSurvivalGuideOpen, setIsSurvivalGuideOpen] = useState(false);
   const [isDashboardOpen, setIsDashboardOpen] = useState(false);
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isRiverModalOpen, setIsRiverModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPickingLocation, setIsPickingLocation] = useState(false);
@@ -355,6 +357,9 @@ export default function App() {
             <Smartphone size={13} />
             <span className="btn-text-install">ຕິດຕັ້ງແອັບ</span>
           </button>
+          <button className="btn-install" onClick={() => setIsAdminOpen(true)} title="ລະບົບຫຼັງບ້ານ (Admin)">
+         <span>🔒 ຫຼັງບ້ານ</span>
+       </button>
         </div>
       </header>
 
@@ -639,6 +644,13 @@ export default function App() {
         activeReports={activeReports}
         currentTime={currentTime}
       />
+
+      <AdminModal
+     isOpen={isAdminOpen}
+     onClose={() => setIsAdminOpen(false)}
+     reports={reports}
+     onRefresh={fetchReports}
+  />
 
       <SurvivalGuideModal
         isOpen={isSurvivalGuideOpen}
