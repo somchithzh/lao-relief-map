@@ -255,6 +255,19 @@ export default function App() {
 
   const handleMarkResolved = async (id) => {
     if (!confirm('ທ່ານແນ່ໃຈບໍ່ວ່າ ຈຸດນີ້ໄດ້ຮັບການຊ່ວຍເຫຼືອຕົວຈິງແລ້ວ? \n\n(ລະບົບຈະປ່ຽນສະຖານະເປັນ "ໄດ້ຮັບການຊ່ວຍແລ້ວ" ແລະ ໝຸດຈະນັບຖອຍຫຼັງຫາຍໄປຈາກແຜນທີ່ໃນ 1 ຊົ່ວໂມງ)')) return;
+
+    // ຖ້າເປັນ Mock Report (ເຊັ່ນ mock-7) ໃຫ້ອັບເດດໃນ state ທັນທີເພື່ອປ້ອງກັນ bigint error ຈາກ Supabase
+    if (typeof id === 'string' && id.startsWith('mock-')) {
+      setReports((prev) =>
+        prev.map((r) =>
+          r.id === id
+            ? { ...r, status: 'resolved', resolved_at: new Date().toISOString() }
+            : r
+        )
+      );
+      return;
+    }
+
     const { error } = await supabase
       .from('reports')
       .update({ status: 'resolved', resolved_at: new Date().toISOString() })
@@ -268,12 +281,26 @@ export default function App() {
   };
 
   const handleRenewReport = async (id) => {
-    await supabase
+    if (typeof id === 'string' && id.startsWith('mock-')) {
+      setReports((prev) =>
+        prev.map((r) =>
+          r.id === id ? { ...r, created_at: new Date().toISOString() } : r
+        )
+      );
+      alert('ຕໍ່ອາຍຸການແຈ້ງເຕືອນສຳເລັດແລ້ວ!');
+      return;
+    }
+
+    const { error } = await supabase
       .from('reports')
       .update({ created_at: new Date().toISOString() })
       .eq('id', id);
-    fetchReports();
-    alert('ຕໍ່ອາຍຸການແຈ້ງເຕືອນສຳເລັດແລ້ວ!');
+    if (error) {
+      alert('Error: ' + error.message);
+    } else {
+      fetchReports();
+      alert('ຕໍ່ອາຍຸການແຈ້ງເຕືອນສຳເລັດແລ້ວ!');
+    }
   };
 
   const handleShowOnMap = (report) => {

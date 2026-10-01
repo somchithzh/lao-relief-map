@@ -33,6 +33,12 @@ export default function AdminModal({ isOpen, onClose, reports, onRefresh }) {
 
     setIsDeleting(true);
     try {
+      if (typeof reportId === 'string' && reportId.startsWith('mock-')) {
+        alert('✅ ລຶບເຫດການ (ຕົວຢ່າງ Mock) ສຳເລັດແລ້ວ!');
+        onRefresh();
+        return;
+      }
+
       const { error } = await supabase
         .from('reports')
         .delete()
