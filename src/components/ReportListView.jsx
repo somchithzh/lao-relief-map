@@ -116,6 +116,12 @@ export default function ReportListView({
                         <Navigation2 size={11} /> {formatDistance(report.distanceKm)}
                       </span>
                     )}
+
+                    {report.status !== 'resolved' ? (
+                      <span className="badge-status-pending">🔴 ຍັງລໍຖ້າການຊ່ວຍເຫຼືອ</span>
+                    ) : (
+                      <span className="badge-status-resolved">🟢 ຊ່ວຍເຫຼືອແລ້ວ</span>
+                    )}
                   </div>
 
                   <span style={{ fontSize: '11px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '3px' }}>
@@ -169,8 +175,9 @@ export default function ReportListView({
                     className="btn-action-resolve"
                     onClick={() => handleMarkResolved(report.id)}
                     style={{ marginTop: '8px' }}
+                    title="ກົດເພື່ອຢືນຢັນເມື່ອມີການເຂົ້າໄປຊ່ວຍເຫຼືອຈຸດນີ້ແລ້ວ"
                   >
-                    <CheckCircle size={14} /> ຊ່ວຍເຫຼືອແລ້ວ
+                    <CheckCircle size={14} /> ກົດເພື່ອຍືນຍັນການຊ່ວຍເຫຼືອ
                   </button>
                 )}
 

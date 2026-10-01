@@ -254,7 +254,7 @@ export default function App() {
   };
 
   const handleMarkResolved = async (id) => {
-    if (!confirm('ທ່ານແນ່ໃຈບໍ່ວ່າຈຸດນີ້ໄດ້ຮັບການຊ່ວຍເຫຼືອ ຫຼື ແກ້ໄຂແລ້ວ?')) return;
+    if (!confirm('ທ່ານແນ່ໃຈບໍ່ວ່າ ຈຸດນີ້ໄດ້ຮັບການຊ່ວຍເຫຼືອຕົວຈິງແລ້ວ? \n\n(ລະບົບຈະປ່ຽນສະຖານະເປັນ "ໄດ້ຮັບການຊ່ວຍແລ້ວ" ແລະ ໝຸດຈະນັບຖອຍຫຼັງຫາຍໄປຈາກແຜນທີ່ໃນ 1 ຊົ່ວໂມງ)')) return;
     const { error } = await supabase
       .from('reports')
       .update({ status: 'resolved', resolved_at: new Date().toISOString() })

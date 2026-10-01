@@ -182,16 +182,24 @@ export default function ClusterLayer({
                   </div>
                 ) : null}
 
-                <span className={`popup-badge pin-${report.status === 'resolved' ? 'resolved' : report.type}`}>
-                  {report.status === 'resolved' ? '✅ ແກ້ໄຂແລ້ວ' : (
-                    <>
-                      {report.type === 'sos' && '🚨 ຂໍຄວາມຊ່ວຍເຫຼືອ'}
-                      {report.type === 'warning' && '⚠️ ແຈ້ງເຕືອນ'}
-                      {report.type === 'shelter' && '🏠 ສູນພັກເຊົາ'}
-                      {report.type === 'donation' && '📦 ຈຸດບໍລິຈາກ'}
-                    </>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginBottom: '8px' }}>
+                  <span className={`popup-badge pin-${report.status === 'resolved' ? 'resolved' : report.type}`} style={{ margin: 0 }}>
+                    {report.status === 'resolved' ? '✅ ແກ້ໄຂແລ້ວ' : (
+                      <>
+                        {report.type === 'sos' && '🚨 ຂໍຄວາມຊ່ວຍເຫຼືອ'}
+                        {report.type === 'road' && '🚧 ສະພາບເສັ້ນທາງ'}
+                        {report.type === 'warning' && '⚠️ ແຈ້ງເຕືອນ'}
+                        {report.type === 'shelter' && '🏠 ສູນພັກເຊົາ'}
+                        {report.type === 'donation' && '📦 ຈຸດບໍລິຈາກ'}
+                      </>
+                    )}
+                  </span>
+                  {report.status !== 'resolved' ? (
+                    <span className="badge-status-pending">🔴 ຍັງລໍຖ້າການຊ່ວຍເຫຼືອ</span>
+                  ) : (
+                    <span className="badge-status-resolved">🟢 ຊ່ວຍເຫຼືອແລ້ວ</span>
                   )}
-                </span>
+                </div>
 
                 <h3>{report.title}</h3>
                 <p>{report.description}</p>
@@ -229,8 +237,9 @@ export default function ClusterLayer({
                   <button
                     className="btn-action-resolve"
                     onClick={() => handleMarkResolved(report.id)}
+                    title="ກົດເພື່ອຢືນຢັນເມື່ອມີການເຂົ້າໄປຊ່ວຍເຫຼືອຈຸດນີ້ແລ້ວ"
                   >
-                    <CheckCircle size={14} /> ຊ່ວຍເຫຼືອແລ້ວ
+                    <CheckCircle size={14} /> ກົດເພື່ອຍືນຍັນການຊ່ວຍເຫຼືອ
                   </button>
                 )}
 
