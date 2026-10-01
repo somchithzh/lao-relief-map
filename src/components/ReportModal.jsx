@@ -291,16 +291,21 @@ export default function ReportModal({
             ></textarea>
           </div>
 
-          <div className="form-group">
-            <label>ຕຳແໜ່ງພິກັດ (Lat, Lng):</label>
+          <div className="form-group location-selector-group">
+            <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>ຕຳແໜ່ງພິກັດ (Lat, Lng) *:</span>
+              <span style={{ fontSize: '11px', color: '#2563eb', fontWeight: '700' }}>
+                {formData.lat ? `📍 ພິກັດ: ${Number(formData.lat).toFixed(4)}, ${Number(formData.lng).toFixed(4)}` : ''}
+              </span>
+            </label>
             <div className="location-action-buttons">
               <button type="button" className="btn-loc btn-loc-gps" onClick={handleGetCurrentLocation}>
-                <MapPin size={14} />
-                <span>ດຶງ GPS ປັດຈຸບັນ</span>
+                <MapPin size={15} />
+                <span>📍 ດຶງ GPS ຕຳແໜ່ງປັດຈຸບັນ</span>
               </button>
               <button type="button" className="btn-loc btn-loc-map" onClick={onStartPickingLocation}>
-                <MapPin size={14} />
-                <span>ເລືອກເທິງແຜນທີ່</span>
+                <MapPin size={15} />
+                <span>🗺️ ເລືອກເທິງແຜນທີ່</span>
               </button>
             </div>
             {gpsMessage && <div className="gps-status-text">{gpsMessage}</div>}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { ShieldAlert, Plus, MapPin, Smartphone, Layers, CloudRain, Waves, Search, ChevronDown, PhoneCall, Grid, X, List, Map, Crosshair, BookOpen, WifiOff, BarChart3, AlertCircle, Menu } from 'lucide-react';
+import { ShieldAlert, Plus, MapPin, Smartphone, Layers, CloudRain, Waves, Search, ChevronDown, PhoneCall, Grid, X, List, Map, Crosshair, WifiOff, AlertCircle, Menu } from 'lucide-react';
 import { supabase } from './supabase';
 import { mockReports } from './data/mockReports';
 import LocationModal from './components/LocationModal';
@@ -121,6 +121,22 @@ export default function App() {
   const [shareReport, setShareReport] = useState(null);
   const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
   const [gpsMessage, setGpsMessage] = useState('');
+  const [showDisclaimer, setShowDisclaimer] = useState(() => {
+    try {
+      return localStorage.getItem('hide_relief_disclaimer') !== 'true';
+    } catch {
+      return true;
+    }
+  });
+
+  const handleDismissDisclaimer = () => {
+    setShowDisclaimer(false);
+    try {
+      localStorage.setItem('hide_relief_disclaimer', 'true');
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const [formData, setFormData] = useState({
     title: '',
@@ -361,11 +377,23 @@ export default function App() {
         </div>
       </header>
 
-      {/* ແຖວເຕືອນ Disclaimer */}
-      <div className="community-disclaimer-bar">
-        <AlertCircle size={13} color="#0284c7" style={{ flexShrink: 0 }} />
-        <span>ລະບົບປະສານງານຊຸມຊົນ • ກໍລະນີສຸກເສີນຮອດຊີວິດ ໃຫ້ໂທ <strong>1190 (ດັບເພີງ)</strong> ຫຼື <strong>1623 (ກູ້ໄພ)</strong> ໂດຍກົງທັນທີ</span>
-      </div>
+      {/* ແຖວເຕືອນ Disclaimer (ກົດປິດໄດ້ເພື່ອເພີ່ມພື້ນທີ່ແຜນທີ່ເທິງມືຖື) */}
+      {showDisclaimer && (
+        <div className="community-disclaimer-bar">
+          <div className="community-disclaimer-content">
+            <AlertCircle size={13} color="#0284c7" style={{ flexShrink: 0 }} />
+            <span>ລະບົບປະສານງານຊຸມຊົນ • ສຸກເສີນຮອດຊີວິດ ໂທ <strong>1190 (ດັບເພີງ)</strong> ຫຼື <strong>1623 (ກູ້ໄພ)</strong> ທັນທີ</span>
+          </div>
+          <button
+            className="btn-disclaimer-close"
+            onClick={handleDismissDisclaimer}
+            title="ປິດແຖບແຈ້ງເຕືອນ"
+            aria-label="ປິດແຈ້ງເຕືອນ"
+          >
+            <X size={13} />
+          </button>
+        </div>
+      )}
 
       {/* Search & Location Bar */}
       <div className="search-location-bar">
@@ -503,29 +531,11 @@ export default function App() {
               <span className="map-tool-label">ຮວມໝຸດ</span>
             </button>
 
-            <button 
-              className="map-tool-btn btn-tool-dashboard"
-              onClick={() => setIsDashboardOpen(true)}
-              title="ສະຫຼຸບສະຖານະການ & ສະຖິຕິ"
-            >
-              <BarChart3 size={15} />
-              <span className="map-tool-label">ສະຖິຕິ</span>
-            </button>
-
-            <button 
-              className="map-tool-btn btn-tool-guide"
-              onClick={() => setIsSurvivalGuideOpen(true)}
-              title="ຄູ່ມືເອົາຕົວລອດ & ປະຖົມພະຍາບານ"
-            >
-              <BookOpen size={15} />
-              <span className="map-tool-label">ຄູ່ມື</span>
-            </button>
-
-            {/* ປຸ່ມສາມຂີດ ☰ (ຢູ່ລຸ່ມສຸດຂອງເບື້ອງຂວາ) */}
+            {/* ປຸ່ມສາມຂີດ ☰ (ລວມເມນູ: ຫຼັງບ້ານ, ສະຖິຕິ, ຄູ່ມື, ສາຍດ່ວນ, ຕິດຕັ້ງ) */}
             <button 
               className="map-tool-btn btn-tool-menu"
               onClick={() => setIsMenuOpen(true)}
-              title="ເມນູ & ລະບົບຫຼັງບ້ານ"
+              title="ເມນູ & ເຄື່ອງມືອື່ນໆ"
             >
               <Menu size={16} />
               <span className="map-tool-label">ເມນູ</span>

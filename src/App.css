@@ -71,11 +71,11 @@ body {
 }
 
 .btn-emergency {
-  background-color: #fef2f2;
+  background: linear-gradient(180deg, #ffffff 0%, #fef2f2 100%);
   color: #dc2626;
-  border: 1.5px solid #ef4444;
-  padding: 6px 10px;
-  border-radius: 8px;
+  border: 1px solid #fca5a5;
+  padding: 6px 11px;
+  border-radius: 12px;
   font-weight: 700;
   font-size: 12px;
   cursor: pointer;
@@ -83,19 +83,31 @@ body {
   align-items: center;
   gap: 4px;
   white-space: nowrap;
-  transition: all 0.2s;
+  box-shadow: 
+    0 2px 5px rgba(220, 38, 38, 0.12),
+    0 1px 2px rgba(220, 38, 38, 0.06),
+    inset 0 1px 0.5px #ffffff,
+    inset 0 -1px 0.5px rgba(220, 38, 38, 0.08);
+  transition: all 0.16s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .btn-emergency:hover {
-  background-color: #fee2e2;
+  background: linear-gradient(180deg, #fef2f2 0%, #fee2e2 100%);
+  transform: translateY(-1.5px);
+  box-shadow: 0 4px 8px rgba(220, 38, 38, 0.18), inset 0 1px 0.5px #ffffff;
+}
+
+.btn-emergency:active {
+  transform: translateY(1.5px) scale(0.96);
+  box-shadow: 0 1px 2px rgba(220, 38, 38, 0.15), inset 0 1.5px 2px rgba(0, 0, 0, 0.06);
 }
 
 .btn-report {
-  background-color: #dc2626;
+  background: linear-gradient(180deg, #ef4444 0%, #dc2626 55%, #b91c1c 100%);
   color: white;
-  border: none;
-  padding: 6px 11px;
-  border-radius: 8px;
+  border: 1px solid #b91c1c;
+  padding: 6px 12px;
+  border-radius: 12px;
   font-weight: 700;
   font-size: 12px;
   cursor: pointer;
@@ -103,19 +115,31 @@ body {
   align-items: center;
   gap: 4px;
   white-space: nowrap;
-  transition: background 0.2s;
+  box-shadow: 
+    0 3px 8px rgba(220, 38, 38, 0.35),
+    0 1px 2px rgba(220, 38, 38, 0.2),
+    inset 0 1.2px 0.8px rgba(255, 255, 255, 0.45),
+    inset 0 -1.5px 1px rgba(0, 0, 0, 0.25);
+  transition: all 0.16s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .btn-report:hover {
-  background-color: #b91c1c;
+  background: linear-gradient(180deg, #f87171 0%, #dc2626 55%, #b91c1c 100%);
+  transform: translateY(-1.5px);
+  box-shadow: 0 5px 12px rgba(220, 38, 38, 0.42), inset 0 1.2px 0.8px rgba(255, 255, 255, 0.5);
+}
+
+.btn-report:active {
+  transform: translateY(1.5px) scale(0.96);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2), inset 0 1.5px 2px rgba(0, 0, 0, 0.3);
 }
 
 .btn-install {
-  background-color: #eff6ff;
+  background: linear-gradient(180deg, #ffffff 0%, #eff6ff 100%);
   color: #1d4ed8;
-  border: 1.5px solid #2563eb;
-  padding: 6px 9px;
-  border-radius: 8px;
+  border: 1px solid #93c5fd;
+  padding: 6px 10px;
+  border-radius: 12px;
   font-weight: 700;
   font-size: 12px;
   cursor: pointer;
@@ -123,11 +147,21 @@ body {
   align-items: center;
   gap: 4px;
   white-space: nowrap;
-  transition: all 0.2s;
+  box-shadow: 
+    0 2px 5px rgba(37, 99, 235, 0.1),
+    inset 0 1px 0.5px #ffffff;
+  transition: all 0.16s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .btn-install:hover {
-  background-color: #dbeafe;
+  background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
+  transform: translateY(-1.5px);
+  box-shadow: 0 4px 8px rgba(37, 99, 235, 0.15);
+}
+
+.btn-install:active {
+  transform: translateY(1.5px) scale(0.96);
+  box-shadow: 0 1px 2px rgba(37, 99, 235, 0.15);
 }
 
 /* ແຖວເລືອກເມືອງ ແລະ ຄົ້ນຫາ */
@@ -145,8 +179,8 @@ body {
 .btn-location-picker {
   padding: 6px 11px;
   border-radius: 20px;
-  border: 1.5px solid #2563eb;
-  background-color: #eff6ff;
+  border: 1px solid #bfdbfe;
+  background: linear-gradient(180deg, #ffffff 0%, #eff6ff 100%);
   color: #1d4ed8;
   font-size: 12px;
   font-weight: 700;
@@ -157,6 +191,18 @@ body {
   gap: 4px;
   flex-shrink: 0;
   max-width: 140px;
+  box-shadow: 0 2px 5px rgba(37, 99, 235, 0.08), inset 0 1px 0.5px #ffffff;
+  transition: all 0.16s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.btn-location-picker:hover {
+  background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
+  transform: translateY(-1.5px);
+  box-shadow: 0 4px 8px rgba(37, 99, 235, 0.14);
+}
+
+.btn-location-picker:active {
+  transform: translateY(1.5px) scale(0.96);
 }
 
 .location-name-text {
@@ -452,14 +498,28 @@ body {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background-color: #1e40af !important;
+  background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%) !important;
   color: #ffffff !important;
   text-decoration: none !important;
-  padding: 9px 16px !important;
-  border-radius: 8px;
+  padding: 10px 16px !important;
+  border-radius: 12px !important;
   font-size: 13.5px !important;
   font-weight: 700 !important;
-  box-shadow: 0 2px 5px rgba(30, 64, 175, 0.3);
+  box-shadow: 
+    0 3px 8px rgba(37, 99, 235, 0.35),
+    inset 0 1px 0.5px rgba(255, 255, 255, 0.4),
+    inset 0 -1.5px 1px rgba(0, 0, 0, 0.2) !important;
+  transition: all 0.16s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+.popup-phone:hover {
+  background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%) !important;
+  transform: translateY(-1.5px);
+  box-shadow: 0 5px 12px rgba(37, 99, 235, 0.42) !important;
+}
+
+.popup-phone:active {
+  transform: translateY(1.5px) scale(0.97);
 }
 
 .btn-popup-nav {
@@ -467,19 +527,27 @@ body {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  background-color: #0284c7;
+  background: linear-gradient(180deg, #0284c7 0%, #0369a1 100%);
   color: #ffffff !important;
   text-decoration: none !important;
-  padding: 8px 12px;
-  border-radius: 8px;
+  padding: 9px 12px;
+  border-radius: 12px;
   font-size: 12.5px;
   font-weight: 700;
   flex: 1;
-  transition: background-color 0.2s;
+  box-shadow: 
+    0 2px 6px rgba(2, 132, 199, 0.25),
+    inset 0 1px 0.5px rgba(255, 255, 255, 0.4);
+  transition: all 0.16s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .btn-popup-nav:hover {
-  background-color: #0369a1;
+  background: linear-gradient(180deg, #0ea5e9 0%, #0369a1 100%);
+  transform: translateY(-1px);
+}
+
+.btn-popup-nav:active {
+  transform: translateY(1px) scale(0.97);
 }
 
 .btn-popup-share {
@@ -487,15 +555,28 @@ body {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  background-color: #f3f4f6;
-  color: #1f2937;
-  border: 1.5px solid #d1d5db;
-  padding: 8px 12px;
-  border-radius: 8px;
+  background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
+  color: #1e293b;
+  border: 1px solid rgba(203, 213, 225, 0.8);
+  padding: 9px 12px;
+  border-radius: 12px;
   font-size: 12.5px;
   font-weight: 700;
   cursor: pointer;
   flex: 1;
+  box-shadow: 
+    0 2px 5px rgba(15, 23, 42, 0.06),
+    inset 0 1px 0.5px #ffffff;
+  transition: all 0.16s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.btn-popup-share:hover {
+  background: linear-gradient(180deg, #ffffff 0%, #e2e8f0 100%);
+  transform: translateY(-1px);
+}
+
+.btn-popup-share:active {
+  transform: translateY(1px) scale(0.97);
 }
 
 .btn-action-resolve {
@@ -504,15 +585,28 @@ body {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  background-color: #10b981;
+  background: linear-gradient(180deg, #10b981 0%, #059669 100%);
   color: white;
   border: none;
-  padding: 8px 12px;
-  border-radius: 8px;
+  padding: 9px 12px;
+  border-radius: 12px;
   font-size: 12.5px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  margin-top: 6px;
+  margin-top: 8px;
+  box-shadow: 
+    0 3px 8px rgba(16, 185, 129, 0.3),
+    inset 0 1px 0.5px rgba(255, 255, 255, 0.4);
+  transition: all 0.16s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.btn-action-resolve:hover {
+  background: linear-gradient(180deg, #34d399 0%, #059669 100%);
+  transform: translateY(-1px);
+}
+
+.btn-action-resolve:active {
+  transform: translateY(1px) scale(0.97);
 }
 
 .btn-action-renew {
@@ -521,15 +615,28 @@ body {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  background-color: #f59e0b;
+  background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
   color: white;
   border: none;
-  padding: 8px 12px;
-  border-radius: 8px;
+  padding: 9px 12px;
+  border-radius: 12px;
   font-size: 12.5px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   margin-top: 6px;
+  box-shadow: 
+    0 3px 8px rgba(245, 158, 11, 0.3),
+    inset 0 1px 0.5px rgba(255, 255, 255, 0.4);
+  transition: all 0.16s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.btn-action-renew:hover {
+  background: linear-gradient(180deg, #fbbf24 0%, #d97706 100%);
+  transform: translateY(-1px);
+}
+
+.btn-action-renew:active {
+  transform: translateY(1px) scale(0.97);
 }
 
 .urgent-banner {
@@ -941,20 +1048,20 @@ body {
   }
 
   .btn-emergency {
-    padding: 5px 7px;
+    padding: 5px 8px;
     font-size: 11px;
-    border-radius: 6px;
+    border-radius: 10px;
   }
 
   .btn-report {
-    padding: 5px 8px;
+    padding: 5px 9px;
     font-size: 11px;
-    border-radius: 6px;
+    border-radius: 10px;
   }
 
   .btn-install {
-    padding: 5px 7px;
-    border-radius: 6px;
+    padding: 5px 8px;
+    border-radius: 10px;
   }
 
   .btn-text-install {
@@ -970,21 +1077,24 @@ body {
     max-width: 115px;
     padding: 5px 8px;
     font-size: 11px;
+    border-radius: 16px;
   }
 
   .category-scroll-bar {
     padding: 4px 8px 6px 8px;
+    -webkit-overflow-scrolling: touch;
   }
 
   .floating-map-controls {
     top: 10px;
-    right: 10px;
+    right: 8px;
     gap: 6px;
   }
 
   .map-tool-btn {
-    min-width: 44px;
-    padding: 5px 6px;
+    min-width: 46px;
+    padding: 6px 5px !important;
+    border-radius: 14px !important;
   }
 
   .map-tool-label {
@@ -2604,19 +2714,35 @@ body {
 }
 
 .type-btn {
-  border: 1.5px solid #cbd5e1 !important;
-  border-radius: 10px !important;
-  padding: 9px 11px !important;
-  background: #ffffff !important;
+  border: 1px solid rgba(203, 213, 225, 0.85) !important;
+  border-radius: 14px !important;
+  padding: 10px 12px !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
   text-align: left !important;
   cursor: pointer !important;
-  transition: all 0.2s !important;
+  box-shadow: 
+    0 2px 6px rgba(15, 23, 42, 0.05),
+    inset 0 1px 0.5px #ffffff,
+    inset 0 -1px 0.5px rgba(0, 0, 0, 0.03) !important;
+  transition: all 0.16s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+.type-btn:hover {
+  transform: translateY(-1.5px) !important;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08), inset 0 1px 0.5px #ffffff !important;
+}
+
+.type-btn:active {
+  transform: translateY(1.5px) scale(0.97) !important;
 }
 
 .type-btn.active {
   border-color: #dc2626 !important;
-  background: #fef2f2 !important;
-  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.15) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #fef2f2 100%) !important;
+  box-shadow: 
+    0 4px 12px rgba(220, 38, 38, 0.18),
+    inset 0 1.5px 0.8px rgba(255, 255, 255, 0.95),
+    inset 0 0 0 1px #ef4444 !important;
 }
 
 .type-btn-title {
@@ -2650,17 +2776,19 @@ body {
   width: 100% !important;
   padding: 9px 12px !important;
   border: 1px solid #cbd5e1 !important;
-  border-radius: 8px !important;
+  border-radius: 10px !important;
   font-size: 13px !important;
   color: #1e293b !important;
   background: #ffffff !important;
   outline: none !important;
   box-sizing: border-box !important;
+  transition: border-color 0.2s, box-shadow 0.2s !important;
 }
 
 .form-group input[type="text"]:focus,
 .form-group textarea:focus {
-  border-color: #dc2626 !important;
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
 }
 
 /* ປຸ່ມ GPS & ເລືອກແຜນທີ່ */
@@ -2674,42 +2802,61 @@ body {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 5px !important;
-  padding: 8px 12px !important;
-  border-radius: 8px !important;
-  font-size: 12px !important;
+  gap: 6px !important;
+  padding: 10px 14px !important;
+  border-radius: 12px !important;
+  font-size: 12.5px !important;
   font-weight: 700 !important;
   cursor: pointer !important;
-  border: 1px solid #cbd5e1 !important;
-  background: #f8fafc !important;
+  border: 1px solid rgba(203, 213, 225, 0.8) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
   color: #334155 !important;
+  box-shadow: 
+    0 2px 5px rgba(15, 23, 42, 0.06),
+    inset 0 1px 0.5px #ffffff !important;
+  transition: all 0.16s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+.btn-loc:hover {
+  transform: translateY(-1.5px) !important;
+  box-shadow: 0 4px 8px rgba(15, 23, 42, 0.1) !important;
+}
+
+.btn-loc:active {
+  transform: translateY(1.5px) scale(0.97) !important;
 }
 
 .btn-loc-gps {
-  background: #eff6ff !important;
+  background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%) !important;
   color: #1d4ed8 !important;
-  border-color: #bfdbfe !important;
+  border-color: #93c5fd !important;
+  box-shadow: 
+    0 3px 8px rgba(37, 99, 235, 0.18),
+    inset 0 1px 0.5px #ffffff !important;
 }
 
 .btn-loc-map {
-  background: #fef2f2 !important;
-  color: #b91c1c !important;
-  border-color: #fecaca !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%) !important;
+  color: #475569 !important;
+  border-color: #cbd5e1 !important;
 }
 
 /* ປຸ່ມຢືນຢັນການລາຍງານ */
 .btn-submit {
   width: 100% !important;
-  background: #dc2626 !important;
+  background: linear-gradient(180deg, #ef4444 0%, #dc2626 55%, #b91c1c 100%) !important;
   color: #ffffff !important;
-  border: none !important;
-  border-radius: 10px !important;
-  padding: 12px 16px !important;
+  border: 1px solid #b91c1c !important;
+  border-radius: 14px !important;
+  padding: 12px 18px !important;
   font-size: 14px !important;
   font-weight: 800 !important;
   cursor: pointer !important;
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3) !important;
-  transition: all 0.2s !important;
+  box-shadow: 
+    0 4px 14px rgba(220, 38, 38, 0.38),
+    inset 0 1.5px 0.8px rgba(255, 255, 255, 0.45),
+    inset 0 -2px 1px rgba(0, 0, 0, 0.25) !important;
+  transition: all 0.16s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
   margin-top: 14px !important;
   display: flex !important;
   align-items: center !important;
@@ -2718,11 +2865,25 @@ body {
 }
 
 .btn-submit:hover {
-  background: #b91c1c !important;
+  background: linear-gradient(180deg, #f87171 0%, #dc2626 55%, #b91c1c 100%) !important;
+  transform: translateY(-1.5px) !important;
+  box-shadow: 
+    0 6px 18px rgba(220, 38, 38, 0.45),
+    inset 0 1.5px 0.8px rgba(255, 255, 255, 0.5) !important;
+}
+
+.btn-submit:active {
+  transform: translateY(1.5px) scale(0.97) !important;
+  box-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.2),
+    inset 0 1.5px 2px rgba(0, 0, 0, 0.3) !important;
 }
 
 .btn-submit:disabled {
   background: #94a3b8 !important;
+  border-color: #94a3b8 !important;
+  box-shadow: none !important;
+  transform: none !important;
   cursor: not-allowed !important;
 }
 
@@ -2730,7 +2891,7 @@ body {
 .report-legal-warning {
   background: #fef2f2;
   border-left: 3.5px solid #dc2626;
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 8px 12px;
   margin-bottom: 12px;
   font-size: 11.5px;
@@ -2741,25 +2902,54 @@ body {
   gap: 8px;
 }
 
-/* ປ້າຍແຈ້ງເຕືອນ Disclaimer ຄວາມຮັບຜິດຊອບເທິງຫົວເວັບ */
+/* ປ້າຍແຈ້ງເຕືອນ Disclaimer ຄວາມຮັບຜິດຊອບເທິງຫົວເວັບ (ກົດປິດໄດ້) */
 .community-disclaimer-bar {
-  background: #f0f9ff;
-  border-bottom: 1px solid #e0f2fe;
+  background: linear-gradient(180deg, #f0f9ff 0%, #e0f2fe 100%);
+  border-bottom: 1px solid #bae6fd;
   color: #0369a1;
   font-size: 11px;
-  padding: 5px 12px;
+  padding: 4px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-weight: 500;
+  box-shadow: 0 1px 3px rgba(2, 132, 199, 0.08);
+}
+
+.community-disclaimer-content {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+  flex: 1;
+  text-align: center;
+}
+
+.btn-disclaimer-close {
+  background: transparent;
+  border: none;
+  color: #0284c7;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  text-align: center;
-  font-weight: 500;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  opacity: 0.75;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.btn-disclaimer-close:hover {
+  opacity: 1;
+  background: rgba(2, 132, 199, 0.15);
 }
 
 @media (max-width: 600px) {
   .community-disclaimer-bar {
     font-size: 10px;
-    padding: 4px 8px;
+    padding: 3px 8px;
   }
 }
 
@@ -3212,145 +3402,234 @@ body {
 }
 
 /* ============================================================
-   LIQUID GLASS DESIGN (Inspired by iOS 27 / macOS 27)
+   SAMSUNG ONE UI 3D TACTILE DESIGN
+   (Inspired by Samsung One UI 3D Icons & Tactile Controls)
 ============================================================ */
 
-/* 1. ແຖບເຄື່ອງມືລອຍເບື້ອງຂວາ (Liquid Glass Floating Toolbar) */
+/* 1. ແຖບເຄື່ອງມືລອຍເບື້ອງຂວາ (One UI 3D Floating Toolbar) */
 .map-tool-btn {
-  background: rgba(255, 255, 255, 0.72) !important;
-  backdrop-filter: blur(18px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(18px) saturate(180%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.65) !important;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08), inset 0 1px 1.5px rgba(255, 255, 255, 0.9), inset 0 -1px 1px rgba(0, 0, 0, 0.04) !important;
-  border-radius: 12px !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 50%, #edf2f7 100%) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid rgba(203, 213, 225, 0.8) !important;
+  box-shadow: 
+    0 4px 10px rgba(15, 23, 42, 0.12),
+    0 1px 3px rgba(15, 23, 42, 0.08),
+    inset 0 1.5px 0.5px rgba(255, 255, 255, 0.95),
+    inset 0 -1.5px 1px rgba(0, 0, 0, 0.05) !important;
+  border-radius: 16px !important; /* One UI Squircle Shape */
   color: #1e293b !important;
-  transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  will-change: transform, box-shadow;
 }
 
 .map-tool-btn:hover {
-  background: rgba(255, 255, 255, 0.88) !important;
-  transform: translateY(-2px) scale(1.04) !important;
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12), inset 0 1px 2px rgba(255, 255, 255, 1) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%) !important;
+  transform: translateY(-2px) scale(1.03) !important;
+  box-shadow: 
+    0 8px 18px rgba(15, 23, 42, 0.16),
+    0 2px 5px rgba(15, 23, 42, 0.08),
+    inset 0 1.5px 0.5px #ffffff,
+    inset 0 -1.5px 1px rgba(0, 0, 0, 0.04) !important;
 }
 
 .map-tool-btn:active {
-  transform: scale(0.95) !important;
+  transform: translateY(2px) scale(0.95) !important;
+  box-shadow: 
+    0 1px 3px rgba(15, 23, 42, 0.18),
+    inset 0 2px 3px rgba(0, 0, 0, 0.12) !important;
 }
 
-/* ປຸ່ມຕຳແໜ່ງ (Active Glass) */
+/* ປຸ່ມ Active ເປີດໃຊ້ງານ (One UI Galaxy Blue 3D) */
 .map-tool-btn.active {
-  background: rgba(37, 99, 235, 0.18) !important;
-  border-color: rgba(96, 165, 250, 0.8) !important;
-  color: #1d4ed8 !important;
-  box-shadow: 0 0 18px rgba(37, 99, 235, 0.28), inset 0 1px 1.5px rgba(255, 255, 255, 0.9) !important;
+  background: linear-gradient(180deg, #3b82f6 0%, #2563eb 55%, #1d4ed8 100%) !important;
+  border-color: #1d4ed8 !important;
+  color: #ffffff !important;
+  box-shadow: 
+    0 6px 16px rgba(37, 99, 235, 0.4),
+    0 2px 4px rgba(37, 99, 235, 0.2),
+    inset 0 1.5px 0.8px rgba(255, 255, 255, 0.45),
+    inset 0 -2px 1.5px rgba(0, 0, 0, 0.22) !important;
 }
 
-/* ປຸ່ມສະຖິຕິ (Sapphire Glass) */
+.map-tool-btn.active:hover {
+  background: linear-gradient(180deg, #60a5fa 0%, #2563eb 50%, #1d4ed8 100%) !important;
+  box-shadow: 
+    0 9px 22px rgba(37, 99, 235, 0.45),
+    inset 0 1.5px 0.8px rgba(255, 255, 255, 0.5) !important;
+}
+
+/* ປຸ່ມສະຖິຕິ (One UI Sapphire / Soft Indigo 3D) */
 .map-tool-btn.btn-tool-dashboard {
-  background: rgba(239, 246, 255, 0.78) !important;
-  border-color: rgba(147, 197, 253, 0.75) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #eff6ff 100%) !important;
+  border-color: #bfdbfe !important;
   color: #1d4ed8 !important;
 }
 
-/* ປຸ່ມຄູ່ມື (Emerald Glass) */
+.map-tool-btn.btn-tool-dashboard:hover {
+  background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%) !important;
+}
+
+/* ປຸ່ມຄູ່ມື (One UI Emerald 3D) */
 .map-tool-btn.btn-tool-guide {
-  background: rgba(240, 253, 244, 0.78) !important;
-  border-color: rgba(134, 239, 172, 0.75) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%) !important;
+  border-color: #bbf7d0 !important;
   color: #15803d !important;
 }
 
-/* ປຸ່ມສາມຂີດ ☰ (Obsidian Liquid Glass) */
+.map-tool-btn.btn-tool-guide:hover {
+  background: linear-gradient(180deg, #f0fdf4 0%, #dcfce7 100%) !important;
+}
+
+/* ປຸ່ມສາມຂີດ ☰ (One UI Obsidian Dark 3D) */
 .map-tool-btn.btn-tool-menu {
-  background: rgba(15, 23, 42, 0.82) !important;
-  backdrop-filter: blur(20px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  background: linear-gradient(180deg, #334155 0%, #1e293b 55%, #0f172a 100%) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
   color: #ffffff !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.35) !important;
+  box-shadow: 
+    0 6px 18px rgba(15, 23, 42, 0.32),
+    0 2px 4px rgba(15, 23, 42, 0.2),
+    inset 0 1.5px 0.8px rgba(255, 255, 255, 0.35),
+    inset 0 -2px 1.5px rgba(0, 0, 0, 0.4) !important;
 }
 
 .map-tool-btn.btn-tool-menu:hover {
-  background: rgba(15, 23, 42, 0.95) !important;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.5) !important;
+  background: linear-gradient(180deg, #475569 0%, #1e293b 55%, #0f172a 100%) !important;
+  box-shadow: 
+    0 10px 24px rgba(15, 23, 42, 0.42),
+    inset 0 1.5px 0.8px rgba(255, 255, 255, 0.45) !important;
 }
 
-/* 2. ແຖບເລືອກໝວດໝູ່ (Liquid Glass Filter Capsules) */
+/* 2. ແຖບເລືອກໝວດໝູ່ (One UI 3D Filter Capsules) */
 .category-scroll-bar {
-  background: rgba(255, 255, 255, 0.65) !important;
-  backdrop-filter: blur(16px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.4) !important;
+  background: #ffffff !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05) !important;
   padding: 8px 14px !important;
 }
 
 .filter-btn {
-  background: rgba(255, 255, 255, 0.78) !important;
-  backdrop-filter: blur(14px) saturate(160%) !important;
-  -webkit-backdrop-filter: blur(14px) saturate(160%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.7) !important;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04), inset 0 1px 1px rgba(255, 255, 255, 0.85) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 55%, #f1f5f9 100%) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid rgba(203, 213, 225, 0.85) !important;
+  box-shadow: 
+    0 2px 6px rgba(15, 23, 42, 0.06),
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    inset 0 1.2px 0.5px #ffffff,
+    inset 0 -1.2px 0.8px rgba(0, 0, 0, 0.03) !important;
   border-radius: 9999px !important;
   color: #334155 !important;
   font-weight: 700 !important;
-  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  transition: all 0.16s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
 }
 
 .filter-btn:hover {
-  background: rgba(255, 255, 255, 0.92) !important;
-  transform: translateY(-1px) scale(1.02) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%) !important;
+  transform: translateY(-1.5px) scale(1.02) !important;
+  box-shadow: 
+    0 4px 10px rgba(15, 23, 42, 0.1),
+    inset 0 1.2px 0.5px #ffffff !important;
 }
 
-/* ແກ້ວແຕ່ລະສີເມື່ອກົດເລືອກ (Active Liquid Glass Tints) */
+.filter-btn:active {
+  transform: translateY(1.5px) scale(0.96) !important;
+  box-shadow: 
+    0 1px 2px rgba(15, 23, 42, 0.12),
+    inset 0 1.5px 2px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* ປຸ່ມ Filter Active (One UI 3D Pill Tint) */
 .filter-btn.active {
-  background: rgba(15, 23, 42, 0.88) !important;
+  background: linear-gradient(180deg, #334155 0%, #1e293b 55%, #0f172a 100%) !important;
   color: #ffffff !important;
-  border-color: rgba(255, 255, 255, 0.3) !important;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.4) !important;
+  border-color: #0f172a !important;
+  box-shadow: 
+    0 4px 12px rgba(15, 23, 42, 0.28),
+    inset 0 1.2px 0.8px rgba(255, 255, 255, 0.35),
+    inset 0 -1.5px 1px rgba(0, 0, 0, 0.3) !important;
 }
 
 .filter-btn.filter-btn-urgent.active {
-  background: rgba(220, 38, 38, 0.88) !important;
+  background: linear-gradient(180deg, #ef4444 0%, #dc2626 55%, #b91c1c 100%) !important;
   color: #ffffff !important;
-  border-color: rgba(254, 202, 202, 0.6) !important;
-  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.5) !important;
+  border-color: #b91c1c !important;
+  box-shadow: 
+    0 5px 14px rgba(220, 38, 38, 0.38),
+    inset 0 1.2px 0.8px rgba(255, 255, 255, 0.45),
+    inset 0 -1.5px 1px rgba(0, 0, 0, 0.25) !important;
 }
 
 .filter-btn.filter-btn-road.active {
-  background: rgba(234, 88, 12, 0.88) !important;
+  background: linear-gradient(180deg, #f97316 0%, #ea580c 55%, #c2410c 100%) !important;
   color: #ffffff !important;
-  border-color: rgba(254, 215, 170, 0.6) !important;
-  box-shadow: 0 4px 16px rgba(234, 88, 12, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.5) !important;
+  border-color: #c2410c !important;
+  box-shadow: 
+    0 5px 14px rgba(234, 88, 12, 0.38),
+    inset 0 1.2px 0.8px rgba(255, 255, 255, 0.45),
+    inset 0 -1.5px 1px rgba(0, 0, 0, 0.25) !important;
 }
 
-/* 3. ປຸ່ມອາກາດມຸມຊ້າຍເທິງ (Floating Weather Glass Badge) */
+/* 3. ປຸ່ມອາກາດມຸມຊ້າຍເທິງ (One UI 3D Floating Weather Badge) */
 .floating-weather-badge {
-  background: rgba(255, 255, 255, 0.78) !important;
-  backdrop-filter: blur(18px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(18px) saturate(180%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.75) !important;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08), inset 0 1px 1.5px rgba(255, 255, 255, 0.95) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 55%, #edf2f7 100%) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid rgba(203, 213, 225, 0.85) !important;
+  box-shadow: 
+    0 5px 14px rgba(15, 23, 42, 0.12),
+    0 1px 3px rgba(15, 23, 42, 0.06),
+    inset 0 1.5px 0.5px rgba(255, 255, 255, 0.95),
+    inset 0 -1.5px 1px rgba(0, 0, 0, 0.04) !important;
+  border-radius: 9999px !important;
+  transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+.floating-weather-badge:hover {
+  background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%) !important;
+  transform: translateY(-2px) scale(1.03) !important;
+  box-shadow: 
+    0 8px 20px rgba(15, 23, 42, 0.16),
+    inset 0 1.5px 0.5px #ffffff !important;
+}
+
+.floating-weather-badge:active {
+  transform: translateY(2px) scale(0.96) !important;
+  box-shadow: 
+    0 2px 4px rgba(15, 23, 42, 0.15),
+    inset 0 1.5px 2px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* 4. ປຸ່ມສະຫຼັບມຸມມອງກາງລຸ່ມ (One UI 3D Floating View Toggle) */
+.btn-floating-view-toggle {
+  background: linear-gradient(180deg, #334155 0%, #1e293b 55%, #0f172a 100%) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  box-shadow: 
+    0 10px 28px rgba(15, 23, 42, 0.38),
+    0 3px 8px rgba(15, 23, 42, 0.2),
+    inset 0 1.5px 0.8px rgba(255, 255, 255, 0.38),
+    inset 0 -2px 1.5px rgba(0, 0, 0, 0.4) !important;
   border-radius: 9999px !important;
   transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
 }
 
-.floating-weather-badge:hover {
-  background: rgba(255, 255, 255, 0.92) !important;
-  transform: translateY(-1.5px) scale(1.02) !important;
-}
-
-/* 4. ປຸ່ມສະຫຼັບມຸມມອງກາງລຸ່ມ (Floating View Toggle) */
-.btn-floating-view-toggle {
-  background: rgba(15, 23, 42, 0.85) !important;
-  backdrop-filter: blur(22px) saturate(190%) !important;
-  -webkit-backdrop-filter: blur(22px) saturate(190%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.28) !important;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28), inset 0 1px 1px rgba(255, 255, 255, 0.45) !important;
-  border-radius: 9999px !important;
-  transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-}
-
 .btn-floating-view-toggle:hover {
-  background: rgba(15, 23, 42, 0.95) !important;
-  transform: translateX(-50%) translateY(-2px) scale(1.03) !important;
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.6) !important;
+  background: linear-gradient(180deg, #475569 0%, #1e293b 55%, #0f172a 100%) !important;
+  transform: translateX(-50%) translateY(-2.5px) scale(1.03) !important;
+  box-shadow: 
+    0 14px 34px rgba(15, 23, 42, 0.45),
+    inset 0 1.5px 0.8px rgba(255, 255, 255, 0.48) !important;
+}
+
+.btn-floating-view-toggle:active {
+  transform: translateX(-50%) translateY(1.5px) scale(0.97) !important;
+  box-shadow: 
+    0 4px 10px rgba(15, 23, 42, 0.25),
+    inset 0 2px 3px rgba(0, 0, 0, 0.35) !important;
 }
